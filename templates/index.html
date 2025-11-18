@@ -1,0 +1,233 @@
+{% extends "base.html" %}
+
+{% block title %}Dashboard{% endblock %}
+
+{% block content %}
+<div class="dashboard">
+    <!-- Welcome Section -->
+    <section class="welcome-section">
+        <h1><i class="fas fa-graduation-cap"></i> Welcome to the Workshop!</h1>
+        <p class="lead">Learn to build AI agents using Google's Agent Development Kit</p>
+
+        <!-- Visual Builder Quick Launch -->
+        <div class="quick-launch">
+            <button id="big-launch-button" class="btn btn-large btn-primary">
+                <i class="fas fa-rocket"></i> Launch Visual Agent Builder
+            </button>
+            <p class="launch-help">Click here to start building agents visually</p>
+            <div id="vb-status-indicator" class="status-indicator">
+                <span class="status-dot" id="vb-status-dot"></span>
+                <span id="vb-status-text">Checking status...</span>
+            </div>
+        </div>
+    </section>
+
+    <!-- Progress Overview -->
+    <section class="progress-section">
+        <h2><i class="fas fa-chart-line"></i> Your Progress</h2>
+        <div class="progress-cards">
+            <div class="progress-card">
+                <div class="progress-icon">
+                    <i class="fas fa-dumbbell"></i>
+                </div>
+                <div class="progress-info">
+                    <h3>Exercises Completed</h3>
+                    <p class="progress-number">
+                        <span id="exercises-completed">{{ progress.exercises_completed|length }}</span> / 3
+                    </p>
+                    <div class="progress-bar">
+                        <div class="progress-fill" style="width: {{ (progress.exercises_completed|length / 3 * 100)|int }}%"></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="progress-card">
+                <div class="progress-icon">
+                    <i class="fas fa-book-reader"></i>
+                </div>
+                <div class="progress-info">
+                    <h3>Materials Viewed</h3>
+                    <p class="progress-number">{{ progress.materials_viewed|length }}</p>
+                    <p class="progress-detail">Keep exploring!</p>
+                </div>
+            </div>
+
+            <div class="progress-card">
+                <div class="progress-icon">
+                    <i class="fas fa-clock"></i>
+                </div>
+                <div class="progress-info">
+                    <h3>Last Active</h3>
+                    <p class="progress-detail">
+                        {% if progress.last_active %}
+                            {{ progress.last_active[:10] }}
+                        {% else %}
+                            Just started!
+                        {% endif %}
+                    </p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Quick Start Section -->
+    <section class="quick-start-section">
+        <h2><i class="fas fa-play-circle"></i> Quick Start</h2>
+        <div class="card-grid">
+            <div class="card card-primary">
+                <div class="card-icon"><i class="fas fa-flag"></i></div>
+                <h3>1. Getting Started</h3>
+                <p>New to ADK? Start here to set up your environment and understand the basics.</p>
+                <a href="/getting-started" class="btn btn-outline">Get Started <i class="fas fa-arrow-right"></i></a>
+            </div>
+
+            <div class="card card-secondary">
+                <div class="card-icon"><i class="fas fa-eye"></i></div>
+                <h3>2. Visual Builder Guide</h3>
+                <p>Learn how to use the Visual Agent Builder - no coding required!</p>
+                <a href="/guides/visual-agent-builder-guide" class="btn btn-outline">View Guide <i class="fas fa-arrow-right"></i></a>
+            </div>
+
+            <div class="card card-tertiary">
+                <div class="card-icon"><i class="fas fa-dumbbell"></i></div>
+                <h3>3. First Exercise</h3>
+                <p>Build your first AI agent with step-by-step instructions.</p>
+                <a href="/exercises/exercise-1-basic-agent" class="btn btn-outline">Start Exercise <i class="fas fa-arrow-right"></i></a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Resources Grid -->
+    <section class="resources-section">
+        <h2><i class="fas fa-folder-open"></i> Workshop Materials</h2>
+        <div class="resources-grid">
+            <!-- Guides -->
+            <div class="resource-category">
+                <div class="resource-header">
+                    <i class="fas fa-book"></i>
+                    <h3>Guides & References</h3>
+                    <span class="badge">{{ resources_count }}</span>
+                </div>
+                <ul class="resource-list">
+                    <li>
+                        <a href="/guides/visual-agent-builder-guide">
+                            <i class="fas fa-mouse-pointer"></i> Visual Agent Builder Guide
+                        </a>
+                    </li>
+                    <li>
+                        <a href="/guides/quickstart-guide">
+                            <i class="fas fa-bolt"></i> ADK Quickstart Guide
+                        </a>
+                    </li>
+                    <li>
+                        <a href="/guides/cheat-sheet">
+                            <i class="fas fa-file-alt"></i> Command Cheat Sheet
+                        </a>
+                    </li>
+                    <li>
+                        <a href="/guides/troubleshooting-guide">
+                            <i class="fas fa-wrench"></i> Troubleshooting Guide
+                        </a>
+                    </li>
+                </ul>
+            </div>
+
+            <!-- Exercises -->
+            <div class="resource-category">
+                <div class="resource-header">
+                    <i class="fas fa-dumbbell"></i>
+                    <h3>Hands-On Exercises</h3>
+                    <span class="badge">{{ exercises_count }}</span>
+                </div>
+                <ul class="resource-list">
+                    <li>
+                        <a href="/exercises/exercise-1-basic-agent">
+                            <i class="fas fa-star"></i> Exercise 1: Build Your First Agent
+                            {% if 'exercise-1-basic-agent' in progress.exercises_completed %}
+                                <span class="completed-badge">✓</span>
+                            {% endif %}
+                        </a>
+                    </li>
+                    <li>
+                        <a href="/exercises/exercise-2-agents-with-tools">
+                            <i class="fas fa-tools"></i> Exercise 2: Adding Tools
+                            {% if 'exercise-2-agents-with-tools' in progress.exercises_completed %}
+                                <span class="completed-badge">✓</span>
+                            {% endif %}
+                        </a>
+                    </li>
+                    <li>
+                        <a href="/exercises/exercise-3-multi-agent-systems">
+                            <i class="fas fa-users"></i> Exercise 3: Multi-Agent Systems
+                            {% if 'exercise-3-multi-agent-systems' in progress.exercises_completed %}
+                                <span class="completed-badge">✓</span>
+                            {% endif %}
+                        </a>
+                    </li>
+                </ul>
+            </div>
+
+            <!-- Examples -->
+            <div class="resource-category">
+                <div class="resource-header">
+                    <i class="fas fa-code"></i>
+                    <h3>Sample Agents</h3>
+                    <span class="badge">{{ examples_count }}</span>
+                </div>
+                <ul class="resource-list">
+                    <li>
+                        <a href="/examples/01-simple-faq-agent">
+                            <i class="fas fa-question-circle"></i> HR FAQ Agent
+                        </a>
+                    </li>
+                    <li>
+                        <a href="/examples/02-meeting-room-scheduler">
+                            <i class="fas fa-calendar"></i> Meeting Room Scheduler
+                        </a>
+                    </li>
+                    <li>
+                        <a href="/examples/03-facilities-ticket-router">
+                            <i class="fas fa-ticket-alt"></i> Facilities Ticket Router
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </section>
+
+    <!-- Tips Section -->
+    <section class="tips-section">
+        <h2><i class="fas fa-lightbulb"></i> Pro Tips</h2>
+        <div class="tips-grid">
+            <div class="tip-card">
+                <i class="fas fa-rocket"></i>
+                <h4>Use the Visual Builder</h4>
+                <p>No coding required! The Visual Builder makes it easy to create agents with drag-and-drop.</p>
+            </div>
+            <div class="tip-card">
+                <i class="fas fa-save"></i>
+                <h4>Save Your Work</h4>
+                <p>Export your agents regularly. You can always import them back into the Visual Builder.</p>
+            </div>
+            <div class="tip-card">
+                <i class="fas fa-question"></i>
+                <h4>Ask Questions</h4>
+                <p>Stuck? Check the troubleshooting guide or ask your instructor for help.</p>
+            </div>
+            <div class="tip-card">
+                <i class="fas fa-users"></i>
+                <h4>Learn Together</h4>
+                <p>Pair up with another participant! Teaching others reinforces your own learning.</p>
+            </div>
+        </div>
+    </section>
+</div>
+
+<script>
+    // Check Visual Builder status on page load
+    if (typeof window.ADKPortal !== 'undefined' && window.ADKPortal.checkVisualBuilderStatus) {
+        window.ADKPortal.checkVisualBuilderStatus();
+        setInterval(window.ADKPortal.checkVisualBuilderStatus, 5000); // Check every 5 seconds
+    }
+</script>
+{% endblock %}

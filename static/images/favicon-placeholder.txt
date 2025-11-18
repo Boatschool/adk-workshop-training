@@ -1,0 +1,8 @@
+FAVICON PLACEHOLDER
+
+To add a custom favicon:
+1. Create a favicon.ico file (16x16 or 32x32 pixels)
+2. Save it as: static/images/favicon.ico
+3. Or update the route in training_portal.py to point to your favicon
+
+For now, the portal will handle the missing favicon gracefully.

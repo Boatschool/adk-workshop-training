@@ -1,0 +1,81 @@
+{% extends "base.html" %}
+
+{% block title %}{{ title }}{% endblock %}
+
+{% block content %}
+<div class="example-page">
+    <div class="example-header">
+        <h1>
+            <i class="fas fa-code"></i> {{ title }}
+        </h1>
+    </div>
+
+    <div class="example-actions">
+        <button class="btn btn-primary" id="copy-code">
+            <i class="fas fa-copy"></i> Copy Code
+        </button>
+        <button class="btn btn-secondary" id="download-code">
+            <i class="fas fa-download"></i> Download
+        </button>
+    </div>
+
+    <div class="code-container">
+        <pre><code class="language-python" id="code-content">{{ code_content }}</code></pre>
+    </div>
+
+    <div class="example-info">
+        <h3><i class="fas fa-info-circle"></i> How to Run This Example</h3>
+        <div class="info-box">
+            <ol>
+                <li>Make sure your virtual environment is activated:
+                    <pre><code>source ~/adk-workshop/bin/activate</code></pre>
+                </li>
+                <li>Navigate to the examples directory:
+                    <pre><code>cd ~/adk-workshop-training/examples</code></pre>
+                </li>
+                <li>Run the example:
+                    <pre><code>python {{ example_name }}.py</code></pre>
+                </li>
+            </ol>
+        </div>
+    </div>
+
+    <div class="example-footer">
+        <a href="javascript:history.back()" class="btn btn-secondary">
+            <i class="fas fa-arrow-left"></i> Back
+        </a>
+        <a href="/" class="btn btn-outline">
+            <i class="fas fa-home"></i> Dashboard
+        </a>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Copy code button
+    document.getElementById('copy-code').addEventListener('click', function() {
+        const code = document.getElementById('code-content').textContent;
+        navigator.clipboard.writeText(code).then(function() {
+            showNotification('Code copied to clipboard!', 'success');
+        }, function() {
+            showNotification('Failed to copy code', 'error');
+        });
+    });
+
+    // Download code button
+    document.getElementById('download-code').addEventListener('click', function() {
+        const code = document.getElementById('code-content').textContent;
+        const blob = new Blob([code], { type: 'text/plain' });
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = '{{ example_name }}.py';
+        document.body.appendChild(a);
+        a.click();
+        window.URL.revokeObjectURL(url);
+        document.body.removeChild(a);
+        showNotification('Code downloaded!', 'success');
+    });
+});
+</script>
+{% endblock %}

@@ -1,0 +1,17 @@
+LOGO PLACEHOLDER
+
+Place your organization's logo here as: logo.png
+
+Recommended specifications:
+- Format: PNG with transparent background
+- Size: 200x50 pixels (or similar aspect ratio)
+- File name: logo.png
+- Location: static/images/logo.png
+
+To use your logo:
+1. Save your logo as static/images/logo.png
+2. Update logo_url in training_portal.py if needed:
+   "logo_url": "/static/images/logo.png"
+
+If you don't have a logo, the portal will work fine without one -
+it will simply hide the logo element and show just the organization name.

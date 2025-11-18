@@ -1,0 +1,14 @@
+# ADK Workshop Training Portal Requirements
+
+# Core ADK
+google-adk>=1.18.0
+
+# Web Framework
+Flask>=3.0.0
+Werkzeug>=3.0.0
+
+# Markdown Processing
+Markdown>=3.5.0
+
+# Additional utilities
+python-dateutil>=2.8.2

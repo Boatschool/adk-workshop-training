@@ -1,0 +1,93 @@
+{% extends "base.html" %}
+
+{% block title %}{{ title }}{% endblock %}
+
+{% block content %}
+<div class="exercise-page">
+    <div class="exercise-header">
+        <h1>
+            <i class="fas fa-dumbbell"></i> {{ title }}
+        </h1>
+        {% if is_completed %}
+            <div class="completion-badge">
+                <i class="fas fa-check-circle"></i> Completed
+            </div>
+        {% endif %}
+    </div>
+
+    <div class="exercise-progress-bar">
+        <button class="btn btn-small btn-success" id="mark-complete"
+                data-exercise="{{ exercise_name }}"
+                {% if is_completed %}disabled{% endif %}>
+            <i class="fas fa-check"></i>
+            {% if is_completed %}Completed{% else %}Mark as Complete{% endif %}
+        </button>
+    </div>
+
+    <div class="content-body markdown-content">
+        {{ content|safe }}
+    </div>
+
+    <div class="exercise-footer">
+        <div class="footer-actions">
+            <a href="javascript:history.back()" class="btn btn-secondary">
+                <i class="fas fa-arrow-left"></i> Back
+            </a>
+            <button id="mark-complete-bottom" class="btn btn-success"
+                    data-exercise="{{ exercise_name }}"
+                    {% if is_completed %}disabled{% endif %}>
+                <i class="fas fa-check"></i>
+                {% if is_completed %}Completed{% else %}Mark as Complete{% endif %}
+            </button>
+            <a href="/" class="btn btn-outline">
+                <i class="fas fa-home"></i> Dashboard
+            </a>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const completeButtons = document.querySelectorAll('#mark-complete, #mark-complete-bottom');
+
+    completeButtons.forEach(button => {
+        button.addEventListener('click', function() {
+            const exerciseName = this.getAttribute('data-exercise');
+
+            fetch('/api/complete-exercise', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ exercise_name: exerciseName })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    completeButtons.forEach(btn => {
+                        btn.disabled = true;
+                        btn.innerHTML = '<i class="fas fa-check"></i> Completed';
+                    });
+
+                    // Show success message
+                    showNotification('Exercise marked as complete! 🎉', 'success');
+
+                    // Add completion badge
+                    const header = document.querySelector('.exercise-header');
+                    if (!header.querySelector('.completion-badge')) {
+                        const badge = document.createElement('div');
+                        badge.className = 'completion-badge';
+                        badge.innerHTML = '<i class="fas fa-check-circle"></i> Completed';
+                        header.appendChild(badge);
+                    }
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                showNotification('Failed to mark as complete', 'error');
+            });
+        });
+    });
+});
+</script>
+{% endblock %}

@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}ADK Workshop{% endblock %} - {{ branding.organization_name }}</title>
+    <link rel="stylesheet" href="/static/css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary-color: {{ branding.primary_color }};
+            --secondary-color: {{ branding.secondary_color }};
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="container">
+            <div class="header-content">
+                <div class="logo-section">
+                    {% if branding.logo_url and branding.logo_url != '/static/logo.png' %}
+                    <img src="{{ branding.logo_url }}" alt="Logo" class="logo" onerror="this.style.display='none'">
+                    {% endif %}
+                    <div class="title-section">
+                        <h1 class="org-name">{{ branding.organization_name }}</h1>
+                        <p class="workshop-title">{{ branding.workshop_title }}</p>
+                    </div>
+                </div>
+                <div class="header-actions">
+                    <button id="launch-visual-builder" class="btn btn-primary">
+                        <i class="fas fa-rocket"></i> Launch Visual Builder
+                    </button>
+                    <a href="/" class="btn btn-secondary">
+                        <i class="fas fa-home"></i> Dashboard
+                    </a>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Navigation -->
+    <nav class="nav">
+        <div class="container">
+            <ul class="nav-list">
+                <li><a href="/"><i class="fas fa-home"></i> Dashboard</a></li>
+                <li><a href="/getting-started"><i class="fas fa-flag"></i> Getting Started</a></li>
+                <li class="dropdown">
+                    <a href="#"><i class="fas fa-book"></i> Guides <i class="fas fa-chevron-down"></i></a>
+                    <ul class="dropdown-menu">
+                        <li><a href="/guides/visual-agent-builder-guide">Visual Agent Builder</a></li>
+                        <li><a href="/guides/quickstart-guide">Quickstart Guide</a></li>
+                        <li><a href="/guides/cheat-sheet">Cheat Sheet</a></li>
+                        <li><a href="/guides/troubleshooting-guide">Troubleshooting</a></li>
+                    </ul>
+                </li>
+                <li class="dropdown">
+                    <a href="#"><i class="fas fa-dumbbell"></i> Exercises <i class="fas fa-chevron-down"></i></a>
+                    <ul class="dropdown-menu">
+                        <li><a href="/exercises/exercise-1-basic-agent">Exercise 1: Basic Agent</a></li>
+                        <li><a href="/exercises/exercise-2-agents-with-tools">Exercise 2: Tools</a></li>
+                        <li><a href="/exercises/exercise-3-multi-agent-systems">Exercise 3: Multi-Agent</a></li>
+                    </ul>
+                </li>
+                <li class="dropdown">
+                    <a href="#"><i class="fas fa-code"></i> Examples <i class="fas fa-chevron-down"></i></a>
+                    <ul class="dropdown-menu">
+                        <li><a href="/examples/01-simple-faq-agent">FAQ Agent</a></li>
+                        <li><a href="/examples/02-meeting-room-scheduler">Room Scheduler</a></li>
+                        <li><a href="/examples/03-facilities-ticket-router">Ticket Router</a></li>
+                    </ul>
+                </li>
+            </ul>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="main">
+        <div class="container">
+            {% block content %}{% endblock %}
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-section">
+                    <h4>Workshop Support</h4>
+                    <p><i class="fas fa-envelope"></i> {{ branding.support_email }}</p>
+                    <p><i class="fas fa-user"></i> {{ branding.instructor_name }}</p>
+                </div>
+                <div class="footer-section">
+                    <h4>Quick Links</h4>
+                    <ul>
+                        <li><a href="https://google.github.io/adk-docs/" target="_blank">Official ADK Docs</a></li>
+                        <li><a href="https://github.com/google/adk-python" target="_blank">GitHub Repository</a></li>
+                        <li><a href="/guides/troubleshooting-guide">Troubleshooting</a></li>
+                    </ul>
+                </div>
+                <div class="footer-section">
+                    <h4>Workshop Materials</h4>
+                    <p>All materials © {{ branding.organization_name }}</p>
+                    <p>Powered by Google ADK</p>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Visual Builder Status Modal -->
+    <div id="visual-builder-modal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <h2><i class="fas fa-rocket"></i> Visual Agent Builder</h2>
+            <div id="vb-status-content">
+                <div class="spinner"></div>
+                <p>Launching Visual Builder...</p>
+            </div>
+        </div>
+    </div>
+
+    <script src="/static/js/main.js"></script>
+    {% block scripts %}{% endblock %}
+</body>
+</html>
