@@ -1,19 +1,32 @@
 /* ADK Workshop Training Portal - Main Styles */
+/* Integrated with GraymatterStudio Design System */
 
-/* Root Variables */
+/* Import GraymatterStudio Design Tokens */
+/* @import url('unified-design-system.css'); */  /* TEMPORARILY DISABLED FOR TESTING */
+
+/* Root Variables - Using GraymatterStudio Tokens */
 :root {
-    --primary-color: #1a73e8;
-    --secondary-color: #34a853;
-    --accent-color: #fbbc04;
-    --danger-color: #ea4335;
-    --bg-color: #f8f9fa;
+    /* Primary brand colors - using direct values */
+    --primary-color: #00AAE7;
+    --secondary-color: #10b981;
+    --accent-color: #FFA613;
+    --danger-color: #ef4444;
+
+    /* Background and surface colors */
+    --bg-color: #f9f9f9;
     --card-bg: #ffffff;
-    --text-primary: #202124;
-    --text-secondary: #5f6368;
-    --border-color: #dadce0;
+
+    /* Text colors */
+    --text-primary: #1E1E1E;
+    --text-secondary: #4b4b4b;
+
+    /* Border and shadows */
+    --border-color: #D0D0D0;
     --shadow-sm: 0 1px 3px rgba(0,0,0,0.12);
     --shadow-md: 0 4px 6px rgba(0,0,0,0.16);
     --shadow-lg: 0 10px 25px rgba(0,0,0,0.2);
+
+    /* Border radius and transitions */
     --radius: 8px;
     --transition: all 0.3s ease;
 }
@@ -94,6 +107,9 @@ body {
     background: var(--primary-color);
     color: white;
     box-shadow: var(--shadow-sm);
+    display: block;
+    width: 100%;
+    min-height: 50px;
 }
 
 .nav-list {
@@ -239,12 +255,15 @@ body {
 }
 
 .welcome-section {
+    display: block;
+    width: 100%;
     text-align: center;
     padding: 3rem 2rem;
     background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
     color: white;
     border-radius: var(--radius);
     box-shadow: var(--shadow-lg);
+    min-height: 300px;
 }
 
 .welcome-section h1 {

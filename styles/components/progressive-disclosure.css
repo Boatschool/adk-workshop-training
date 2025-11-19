@@ -1,0 +1,260 @@
+/**
+ * Progressive Disclosure Styles
+ *
+ * Converted from styled-jsx to standard CSS for ESM compliance
+ */
+
+/* ========================================================================
+   PROGRESSIVE DISCLOSURE COMPONENT
+   ======================================================================== */
+
+.progressive-disclosure {
+  margin-bottom: 1rem;
+}
+
+.progressive-disclosure.novice-level {
+  /* Novice content is always visible, no special styling needed */
+}
+
+.progressive-disclosure .disclosure-toggle {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.75rem;
+  background: var(--gms-bg-secondary, #f8fafc);
+  border: 1px solid var(--gms-border-secondary, #e2e8f0);
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-family: inherit;
+  text-align: left;
+}
+
+.progressive-disclosure .disclosure-toggle:hover {
+  border-color: var(--gms-border-primary, #cbd5e1);
+  background: var(--gms-bg-primary, #ffffff);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
+}
+
+.progressive-disclosure .disclosure-toggle:focus {
+  outline: none;
+  border-color: var(--gms-accent, #3b82f6);
+  box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.08);
+}
+
+.progressive-disclosure .toggle-icon {
+  color: var(--gms-text-secondary, #6b7280);
+  display: flex;
+  align-items: center;
+  transition: transform 0.2s ease;
+}
+
+.progressive-disclosure .toggle-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.progressive-disclosure .toggle-header {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.progressive-disclosure .level-icon {
+  color: var(--gms-accent, #3b82f6);
+  display: flex;
+  align-items: center;
+}
+
+.progressive-disclosure .toggle-title {
+  font-size: 0.8125rem;
+  font-weight: 500;
+  color: var(--gms-text-primary, #1f2937);
+}
+
+.progressive-disclosure .toggle-description {
+  font-size: 0.75rem;
+  color: var(--gms-text-secondary, #6b7280);
+  line-height: 1.4;
+}
+
+.progressive-disclosure .toggle-badge {
+  font-size: 0.6875rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  padding: 0.125rem 0.375rem;
+  border-radius: 3px;
+  letter-spacing: 0.025em;
+}
+
+/* Level-specific styling */
+.progressive-disclosure.intermediate-level .toggle-badge {
+  background: #dbeafe;
+  color: #1d4ed8;
+}
+
+.progressive-disclosure.expert-level .toggle-badge {
+  background: #f3e8ff;
+  color: #7c3aed;
+}
+
+.progressive-disclosure .disclosure-content {
+  overflow: hidden;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.progressive-disclosure .disclosure-content.collapsed {
+  max-height: 0;
+  opacity: 0;
+}
+
+.progressive-disclosure .disclosure-content.expanded {
+  max-height: none;
+  opacity: 1;
+}
+
+.progressive-disclosure .content-wrapper {
+  padding: 1rem 0.75rem;
+  border-left: 1px solid var(--gms-border-secondary, #e2e8f0);
+  border-right: 1px solid var(--gms-border-secondary, #e2e8f0);
+  border-bottom: 1px solid var(--gms-border-secondary, #e2e8f0);
+  border-top: none;
+  border-bottom-left-radius: 6px;
+  border-bottom-right-radius: 6px;
+  background: var(--gms-bg-primary, #ffffff);
+}
+
+/* Expanded state styling */
+.progressive-disclosure.expanded .disclosure-toggle {
+  border-bottom-left-radius: 0;
+  border-bottom-right-radius: 0;
+  border-bottom-color: transparent;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .progressive-disclosure .disclosure-toggle {
+    padding: 0.625rem;
+    gap: 0.5rem;
+  }
+
+  .progressive-disclosure .toggle-title {
+    font-size: 0.75rem;
+  }
+
+  .progressive-disclosure .toggle-description {
+    font-size: 0.6875rem;
+  }
+
+  .progressive-disclosure .content-wrapper {
+    padding: 0.75rem 0.5rem;
+  }
+}
+
+/* Reduced motion support */
+@media (prefers-reduced-motion: reduce) {
+  .progressive-disclosure .disclosure-content,
+  .progressive-disclosure .toggle-icon,
+  .progressive-disclosure .disclosure-toggle {
+    transition: none;
+  }
+}
+
+/* High contrast mode */
+@media (prefers-contrast: high) {
+  .progressive-disclosure .disclosure-toggle {
+    border-width: 2px;
+  }
+
+  .progressive-disclosure .content-wrapper {
+    border-width: 2px;
+  }
+}
+
+/* ========================================================================
+   EXPERIENCE LEVEL SELECTOR
+   ======================================================================== */
+
+.experience-level-selector {
+  margin-bottom: 1.5rem;
+  padding: 1rem;
+  background: var(--gms-bg-secondary, #f8fafc);
+  border: 1px solid var(--gms-border-secondary, #e2e8f0);
+  border-radius: 8px;
+}
+
+.experience-level-selector .selector-label {
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--gms-text-primary, #1f2937);
+  margin-bottom: 0.75rem;
+}
+
+.experience-level-selector .level-options {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: 0.5rem;
+}
+
+.experience-level-selector .level-option {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem;
+  background: var(--gms-bg-primary, #ffffff);
+  border: 2px solid var(--gms-border-secondary, #e2e8f0);
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  text-align: left;
+  font-family: inherit;
+}
+
+.experience-level-selector .level-option:hover {
+  border-color: var(--gms-accent, #3b82f6);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
+}
+
+.experience-level-selector .level-option.active {
+  border-color: var(--gms-accent, #3b82f6);
+  background: rgba(59, 130, 246, 0.05);
+  box-shadow: 0 0 0 1px rgba(59, 130, 246, 0.1);
+}
+
+.experience-level-selector .option-icon {
+  color: var(--gms-accent, #3b82f6);
+  display: flex;
+  align-items: center;
+}
+
+.experience-level-selector .option-content {
+  display: flex;
+  flex-direction: column;
+  gap: 0.125rem;
+}
+
+.experience-level-selector .option-label {
+  font-size: 0.8125rem;
+  font-weight: 500;
+  color: var(--gms-text-primary, #1f2937);
+}
+
+.experience-level-selector .option-description {
+  font-size: 0.6875rem;
+  color: var(--gms-text-secondary, #6b7280);
+  line-height: 1.3;
+}
+
+/* Mobile adjustments */
+@media (max-width: 768px) {
+  .experience-level-selector .level-options {
+    grid-template-columns: 1fr;
+  }
+
+  .experience-level-selector .level-option {
+    padding: 0.625rem;
+  }
+}

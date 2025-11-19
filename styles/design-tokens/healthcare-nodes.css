@@ -1,0 +1,126 @@
+/* === HEALTHCARE NODE DESIGN TOKENS === */
+/* Unified design system for all node representations across the platform */
+/* React Flow v12.8.4 compatible - uses @xyflow/react */
+
+:root {
+  /* === NODE DIMENSIONS === */
+  /* Standardized dimensions for consistency across all 5 node contexts */
+  --gms-node-width-standard: 320px;
+  --gms-node-min-height: 140px;
+  --gms-node-padding: 16px;
+  --gms-node-content-gap: 12px;
+  --gms-node-icon-size: 48px;
+  
+  /* === NODE BORDERS === */
+  /* Consistent border system for all states */
+  --gms-node-border-width: 1px;
+  --gms-node-border-radius: 8px;
+  --gms-node-border-idle: #e5e7eb;
+  --gms-node-border-hover: #00AAE7;
+  --gms-node-border-selected: #00AAE7;
+  --gms-node-border-error: #ef4444;
+  --gms-node-border-success: #10b981;
+  --gms-node-border-running: #3b82f6;
+  
+  /* === NODE SHADOWS === */
+  /* Elevation system for visual hierarchy */
+  --gms-node-shadow-base: 0 1px 3px 0 rgba(0, 0, 0, 0.1);
+  --gms-node-shadow-hover: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 0 0 1px rgba(0, 170, 231, 0.2);
+  --gms-node-shadow-selected: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 0 0 2px rgba(0, 170, 231, 0.4);
+  --gms-node-shadow-dragging: 0 10px 25px rgba(0, 0, 0, 0.2);
+  --gms-node-shadow-error: 0 4px 6px -1px rgba(239, 68, 68, 0.2);
+  
+  /* === NODE TRANSITIONS === */
+  /* Smooth, healthcare-optimized animations */
+  --gms-node-transition: all 200ms cubic-bezier(0.4, 0, 0.2, 1);
+  --gms-node-transition-fast: all 150ms cubic-bezier(0.4, 0, 0.2, 1);
+  --gms-node-transition-slow: all 300ms cubic-bezier(0.4, 0, 0.2, 1);
+  
+  /* === NODE TRANSFORMS === */
+  /* Subtle interaction feedback */
+  --gms-node-transform-hover: translateY(-1px);
+  --gms-node-transform-drag: rotate(1deg) scale(1.01);
+  --gms-node-transform-click: scale(0.98);
+  
+  /* === HEALTHCARE COMPLIANCE COLORS === */
+  /* PHI, HIPAA, Audit, and A2A indicators */
+  --gms-phi-bg: #fef3c7;
+  --gms-phi-color: #92400e;
+  --gms-phi-border: #fbbf24;
+  
+  --gms-hipaa-bg: #dcfce7;
+  --gms-hipaa-color: #166534;
+  --gms-hipaa-border: #86efac;
+  
+  --gms-audit-bg: #dbeafe;
+  --gms-audit-color: #1e40af;
+  --gms-audit-border: #93c5fd;
+  
+  --gms-a2a-bg: #f0f9ff;
+  --gms-a2a-color: #0369a1;
+  --gms-a2a-border: #0284c7;
+  
+  /* === NODE TYPE COLORS === */
+  /* Consistent color coding for node categories */
+  --gms-node-adk-agent-color: #3b82f6;
+  --gms-node-static-color: #10b981;
+  --gms-node-trigger-color: #f59e0b;
+  --gms-node-decision-color: #8b5cf6;
+  --gms-node-tool-color: #06b6d4;
+  --gms-node-webhook-color: #ec4899;
+  --gms-node-utility-color: #6b7280;
+  
+  /* === NODE TYPOGRAPHY === */
+  /* Healthcare-optimized text sizing */
+  --gms-node-title-size: 14px;
+  --gms-node-title-weight: 600;
+  --gms-node-title-line-height: 1.4;
+  
+  --gms-node-description-size: 12px;
+  --gms-node-description-weight: 400;
+  --gms-node-description-line-height: 1.5;
+  
+  --gms-node-badge-size: 10px;
+  --gms-node-badge-weight: 500;
+  --gms-node-badge-letter-spacing: 0.05em;
+  
+  --gms-node-metric-size: 11px;
+  --gms-node-metric-weight: 500;
+  
+  /* === NODE BACKGROUNDS === */
+  /* Consistent background system */
+  --gms-node-bg-idle: #ffffff;
+  --gms-node-bg-hover: #fafafa;
+  --gms-node-bg-selected: #f0f9ff;
+  --gms-node-bg-error: #fef2f2;
+  --gms-node-bg-success: #f0fdf4;
+  --gms-node-bg-running: #eff6ff;
+  
+  /* === FOCUS STATES === */
+  /* WCAG 2.2 AA compliant focus indicators */
+  --gms-node-focus-ring: #00AAE7;
+  --gms-node-focus-ring-width: 3px;
+  --gms-node-focus-ring-offset: 2px;
+  
+  /* === PROGRESS INDICATORS === */
+  /* Running state visual feedback */
+  --gms-node-progress-height: 2px;
+  --gms-node-progress-color: #00AAE7;
+  --gms-node-progress-bg: #e5e7eb;
+  
+  /* === HANDLE STYLES === */
+  /* React Flow handle customization */
+  --gms-handle-size: 12px;
+  --gms-handle-bg: #ffffff;
+  --gms-handle-border: #00AAE7;
+  --gms-handle-border-width: 2px;
+  --gms-handle-hover-scale: 1.2;
+}
+
+/* === DARK MODE SUPPORT === */
+/* Future enhancement for dark theme */
+@media (prefers-color-scheme: dark) {
+  :root {
+    /* Dark mode tokens will be added in future phase */
+  }
+}

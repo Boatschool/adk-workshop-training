@@ -1,0 +1,395 @@
+/**
+ * Bulk Actions Toolbar Styles
+ * Phase 3B.2 - Multi-Select Actions for Sub-Agents
+ *
+ * Provides healthcare teams with efficient batch operations
+ * for managing multiple sub-agents simultaneously.
+ */
+
+.bulk-actions-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 16px;
+  background-color: var(--color-neutral-light, #f5f5f5);
+  border: 1px solid var(--color-border-light, #e0e0e0);
+  border-radius: 8px;
+  margin-bottom: 16px;
+  transition: background-color 0.2s ease;
+}
+
+.bulk-actions-toolbar:focus-within {
+  background-color: var(--color-primary-lightest, #f0f7ff);
+  border-color: var(--color-primary-light, #90caf9);
+}
+
+.toolbar-left {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.toolbar-right {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+/* Select All Checkbox */
+.select-all-checkbox {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  user-select: none;
+  font-weight: 600;
+  font-size: 14px;
+  color: var(--color-text-primary, #212121);
+}
+
+.select-all-checkbox input[type='checkbox'] {
+  width: 18px;
+  height: 18px;
+  cursor: pointer;
+}
+
+.select-all-checkbox:hover .checkbox-label {
+  color: var(--color-primary, #2196f3);
+}
+
+/* Selection Count */
+.selection-count {
+  display: inline-flex;
+  align-items: center;
+  padding: 4px 12px;
+  background-color: var(--color-primary, #2196f3);
+  color: white;
+  font-size: 13px;
+  font-weight: 600;
+  border-radius: 12px;
+  white-space: nowrap;
+}
+
+/* Bulk Action Buttons */
+.bulk-action-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 16px;
+  font-size: 14px;
+  font-weight: 600;
+  border: 1px solid transparent;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+}
+
+.bulk-action-button:hover:not(:disabled) {
+  transform: translateY(-1px);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.bulk-action-button:active:not(:disabled) {
+  transform: translateY(0);
+  box-shadow: none;
+}
+
+.bulk-action-button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Bulk Edit Button */
+.bulk-edit-button {
+  background-color: var(--color-primary, #2196f3);
+  color: white;
+  border-color: var(--color-primary-dark, #1565c0);
+}
+
+.bulk-edit-button:hover:not(:disabled) {
+  background-color: var(--color-primary-dark, #1565c0);
+}
+
+/* Bulk Delete Button */
+.bulk-delete-button {
+  background-color: var(--color-danger-light, #ffebee);
+  color: var(--color-danger-dark, #c62828);
+  border-color: var(--color-danger, #f44336);
+}
+
+.bulk-delete-button:hover:not(:disabled) {
+  background-color: var(--color-danger, #f44336);
+  color: white;
+}
+
+/* Bulk Edit Modal */
+.bulk-edit-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  animation: fadeIn 0.2s ease;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.bulk-edit-modal {
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+  max-width: 600px;
+  width: 90%;
+  max-height: 80vh;
+  overflow-y: auto;
+  animation: slideUp 0.3s ease;
+}
+
+@keyframes slideUp {
+  from {
+    transform: translateY(20px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+.modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 20px 24px;
+  border-bottom: 1px solid var(--color-border-light, #e0e0e0);
+}
+
+.modal-header h3 {
+  margin: 0;
+  font-size: 20px;
+  font-weight: 600;
+  color: var(--color-text-primary, #212121);
+}
+
+.close-button {
+  background: transparent;
+  border: none;
+  font-size: 24px;
+  color: var(--color-text-secondary, #757575);
+  cursor: pointer;
+  padding: 4px 8px;
+  line-height: 1;
+  transition: color 0.2s ease;
+}
+
+.close-button:hover {
+  color: var(--color-text-primary, #212121);
+}
+
+.modal-content {
+  padding: 24px;
+}
+
+.modal-description {
+  margin: 0 0 24px 0;
+  color: var(--color-text-secondary, #616161);
+  font-size: 14px;
+  line-height: 1.6;
+}
+
+.modal-description strong {
+  color: var(--color-primary, #2196f3);
+  font-weight: 600;
+}
+
+.bulk-edit-field {
+  margin-bottom: 20px;
+}
+
+.bulk-edit-field label {
+  display: block;
+  margin-bottom: 8px;
+  font-weight: 600;
+  font-size: 14px;
+  color: var(--color-text-primary, #212121);
+}
+
+.bulk-edit-field input[type='number'],
+.bulk-edit-field input[type='text'] {
+  width: 100%;
+  padding: 10px 12px;
+  font-size: 14px;
+  border: 1px solid var(--color-border, #bdbdbd);
+  border-radius: 6px;
+  transition: border-color 0.2s ease;
+}
+
+.bulk-edit-field input:focus {
+  outline: none;
+  border-color: var(--color-primary, #2196f3);
+  box-shadow: 0 0 0 3px rgba(33, 150, 243, 0.1);
+}
+
+.field-hint {
+  margin: 6px 0 0 0;
+  font-size: 12px;
+  color: var(--color-text-secondary, #757575);
+  font-style: italic;
+}
+
+/* Bulk Edit Checkbox */
+.bulk-edit-checkbox label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  font-weight: 400;
+}
+
+.bulk-edit-checkbox input[type='checkbox'] {
+  width: 18px;
+  height: 18px;
+  cursor: pointer;
+}
+
+.bulk-edit-checkbox label span {
+  font-weight: 600;
+}
+
+.modal-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  padding: 16px 24px;
+  border-top: 1px solid var(--color-border-light, #e0e0e0);
+}
+
+.cancel-button,
+.save-button {
+  padding: 10px 24px;
+  font-size: 14px;
+  font-weight: 600;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  border: 1px solid transparent;
+}
+
+.cancel-button {
+  background-color: var(--color-neutral-light, #f5f5f5);
+  color: var(--color-text-primary, #212121);
+  border-color: var(--color-border, #bdbdbd);
+}
+
+.cancel-button:hover {
+  background-color: var(--color-neutral, #e0e0e0);
+}
+
+.save-button {
+  background-color: var(--color-primary, #2196f3);
+  color: white;
+  border-color: var(--color-primary-dark, #1565c0);
+}
+
+.save-button:hover {
+  background-color: var(--color-primary-dark, #1565c0);
+  transform: translateY(-1px);
+  box-shadow: 0 2px 4px rgba(33, 150, 243, 0.3);
+}
+
+.save-button:active {
+  transform: translateY(0);
+  box-shadow: none;
+}
+
+/* Accessibility - High Contrast Mode */
+@media (prefers-contrast: high) {
+  .bulk-actions-toolbar {
+    border-width: 2px;
+  }
+
+  .bulk-action-button {
+    border-width: 2px;
+  }
+
+  .selection-count {
+    font-weight: 700;
+  }
+}
+
+/* Accessibility - Reduced Motion */
+@media (prefers-reduced-motion: reduce) {
+  .bulk-edit-modal-overlay,
+  .bulk-edit-modal,
+  .bulk-action-button,
+  .select-all-checkbox,
+  .close-button {
+    animation: none;
+    transition: none;
+  }
+
+  .bulk-action-button:hover:not(:disabled) {
+    transform: none;
+  }
+}
+
+/* Dark Mode Support */
+@media (prefers-color-scheme: dark) {
+  .bulk-actions-toolbar {
+    background-color: rgba(255, 255, 255, 0.05);
+    border-color: rgba(255, 255, 255, 0.1);
+  }
+
+  .bulk-edit-modal {
+    background-color: #1e1e1e;
+    color: #e0e0e0;
+  }
+
+  .modal-header {
+    border-color: rgba(255, 255, 255, 0.1);
+  }
+
+  .modal-actions {
+    border-color: rgba(255, 255, 255, 0.1);
+  }
+
+  .bulk-edit-field input {
+    background-color: rgba(255, 255, 255, 0.05);
+    border-color: rgba(255, 255, 255, 0.2);
+    color: #e0e0e0;
+  }
+
+  .cancel-button {
+    background-color: rgba(255, 255, 255, 0.1);
+    color: #e0e0e0;
+  }
+}
+
+/* Focus States for Accessibility */
+.bulk-action-button:focus-visible,
+.cancel-button:focus-visible,
+.save-button:focus-visible {
+  outline: 2px solid var(--color-focus, #2196f3);
+  outline-offset: 2px;
+}
+
+/* Print Styles */
+@media print {
+  .bulk-actions-toolbar,
+  .bulk-edit-modal-overlay {
+    display: none;
+  }
+}
