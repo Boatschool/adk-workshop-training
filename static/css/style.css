@@ -295,7 +295,7 @@ textarea:focus-visible {
 }
 
 .btn-primary {
-    background: var(--primary-color);
+    background: #00AAE7;
     color: white;
 }
 
@@ -310,12 +310,14 @@ textarea:focus-visible {
 }
 
 .btn-secondary {
-    background: var(--secondary-color);
+    background: #10b981;
     color: white;
 }
 
 .btn-secondary:hover {
-    background: #2d8e47;
+    background: #059669;
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-md);
 }
 
 .btn-success {
@@ -367,7 +369,7 @@ textarea:focus-visible {
     text-align: center;
     padding: 3rem 2rem;
     background: #f5f5f5;
-    color: var(--text-primary);
+    color: #1E1E1E;
     border-radius: var(--radius);
     box-shadow: var(--shadow-lg);
     min-height: 300px;
@@ -378,12 +380,12 @@ textarea:focus-visible {
     margin-bottom: 0.5rem;
     font-weight: 700;
     letter-spacing: -0.02em;
-    color: var(--text-primary);
+    color: #1E1E1E;
 }
 
 .lead {
     font-size: 1.125rem;
-    color: var(--text-secondary);
+    color: #4b4b4b;
     margin-bottom: 2rem;
     line-height: 1.6;
 }
@@ -465,18 +467,18 @@ textarea:focus-visible {
     gap: 1rem;
     align-items: center;
     transition: var(--transition);
-    border-left: 4px solid var(--primary-color);
+    border-left: 4px solid #00AAE7;
 }
 
 .progress-card:hover {
     transform: translateY(-4px);
     box-shadow: var(--shadow-md);
-    border-left-color: var(--secondary-color);
+    border-left-color: #10b981;
 }
 
 .progress-icon {
     font-size: 2.5rem;
-    color: var(--primary-color);
+    color: #00AAE7;
     flex-shrink: 0;
 }
 
@@ -486,7 +488,7 @@ textarea:focus-visible {
 
 .progress-info h3 {
     font-size: 0.875rem;
-    color: var(--text-secondary);
+    color: #4b4b4b;
     margin-bottom: 0.5rem;
     text-transform: uppercase;
     letter-spacing: 0.05em;
@@ -496,12 +498,12 @@ textarea:focus-visible {
 .progress-number {
     font-size: 2rem;
     font-weight: bold;
-    color: var(--primary-color);
+    color: #00AAE7;
     line-height: 1.2;
 }
 
 .progress-detail {
-    color: var(--text-secondary);
+    color: #4b4b4b;
     font-size: 0.9rem;
     margin-top: 0.25rem;
 }
@@ -611,40 +613,40 @@ textarea:focus-visible {
 }
 
 .card-secondary .card-number {
-    background: var(--secondary-color);
+    background: #10b981;
 }
 
 .card-tertiary .card-number {
-    background: var(--accent-color);
+    background: #FFA613;
 }
 
 .card-primary {
-    border-top-color: var(--primary-color);
+    border-top-color: #00AAE7;
 }
 
 .card-secondary {
-    border-top-color: var(--secondary-color);
+    border-top-color: #10b981;
 }
 
 .card-tertiary {
-    border-top-color: var(--accent-color);
+    border-top-color: #FFA613;
 }
 
 .card-icon {
     font-size: 3rem;
     margin-bottom: 1rem;
-    color: var(--primary-color);
+    color: #00AAE7;
 }
 
 .card h3 {
     margin-bottom: 1rem;
-    color: var(--text-primary);
+    color: #1E1E1E;
     font-size: 1.5rem;
     font-weight: 600;
 }
 
 .card p {
-    color: var(--text-secondary);
+    color: #4b4b4b;
     margin-bottom: 1.5rem;
     flex-grow: 1;
     line-height: 1.6;
@@ -661,13 +663,13 @@ textarea:focus-visible {
     display: inline-flex;
     align-items: center;
     gap: 0.5rem;
-    color: var(--text-secondary);
+    color: #4b4b4b;
     font-size: 0.875rem;
     font-weight: 500;
 }
 
 .time-estimate i {
-    color: var(--primary-color);
+    color: #00AAE7;
 }
 
 /* Resources Grid */
