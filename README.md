@@ -53,12 +53,68 @@ adk-workshop-training/
 
 **Before the workshop, please complete these steps:**
 
-### 1. Verify Your Setup
+### 1. Setup Google API Key
+
+Create a `.env` file in the workshop directory:
 
 ```bash
 # Navigate to workshop directory
 cd ~/adk-workshop-training
 
+# Create .env file with your Google API key
+echo "GOOGLE_API_KEY=your-api-key-here" > .env
+```
+
+See **google_api_setup_guide.md** for detailed instructions on obtaining your API key.
+
+### 2. Install Dependencies
+
+```bash
+# Create and activate virtual environment (if not already created)
+python3 -m venv ~/adk-workshop
+source ~/adk-workshop/bin/activate
+
+# Install required packages
+pip install google-adk flask markdown python-dotenv
+```
+
+### 3. Launch the Training Portal
+
+```bash
+# Launch the training portal (it will auto-load your .env file)
+python training_portal.py
+```
+
+**The portal will automatically open at http://localhost:5001**
+
+Features:
+- 🚀 **One-click Visual Builder launch** (with stop/restart functionality!)
+- 🔑 **Automatic API key loading from .env**
+- 📚 **Browse all materials in clean HTML**
+- ✅ **Track your progress**
+- 🎨 **Customizable branding**
+- ⌨️ **Keyboard shortcuts**
+
+See **PORTAL_README.md** for customization and branding options.
+
+### 4. Alternative: Use Shell Scripts
+
+If you prefer command-line tools, we've included helper scripts:
+
+```bash
+# Start Visual Builder manually
+./start_visual_builder.sh
+
+# Stop Visual Builder
+./stop_visual_builder.sh
+
+# Restart Visual Builder
+./restart_visual_builder.sh
+```
+
+### 5. Verify Your Setup
+
+```bash
 # Run verification script
 python verify_setup.py
 ```
@@ -67,35 +123,8 @@ This will check:
 - ✅ Python version (3.10+ required)
 - ✅ Virtual environment
 - ✅ Google ADK installation
-- ✅ Google Cloud authentication
+- ✅ Google API key configuration
 - ✅ Workshop materials
-
-### 2. Launch the Training Portal (New!)
-
-We've created a beautiful web interface for novices:
-
-```bash
-# Install portal dependencies
-pip install -r requirements.txt
-
-# Launch the training portal
-python training_portal.py
-```
-
-**The portal will automatically open at http://localhost:5000**
-
-Features:
-- 🚀 **One-click Visual Builder launch**
-- 📚 **Browse all materials in clean HTML**
-- ✅ **Track your progress**
-- 🎨 **Customizable branding**
-- ⌨️ **Keyboard shortcuts**
-
-See **PORTAL_README.md** for customization and branding options.
-
-### 3. If Setup Incomplete
-
-Follow the detailed setup instructions below.
 
 ---
 

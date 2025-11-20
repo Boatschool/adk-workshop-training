@@ -7,6 +7,8 @@ function checkVisualBuilderStatus() {
         .then(data => {
             const statusDot = document.getElementById('vb-status-dot');
             const statusText = document.getElementById('vb-status-text');
+            const launchButton = document.getElementById('launch-visual-builder');
+            const bigLaunchButton = document.getElementById('big-launch-button');
 
             if (statusDot && statusText) {
                 if (data.running) {
@@ -15,6 +17,32 @@ function checkVisualBuilderStatus() {
                 } else {
                     statusDot.className = 'status-dot stopped';
                     statusText.textContent = 'Visual Builder not running';
+                }
+            }
+
+            // Update header button
+            if (launchButton) {
+                if (data.running) {
+                    launchButton.innerHTML = '<i class="fas fa-stop"></i> Stop Visual Builder';
+                    launchButton.className = 'btn btn-danger';
+                    launchButton.onclick = stopVisualBuilder;
+                } else {
+                    launchButton.innerHTML = '<i class="fas fa-rocket"></i> Launch Visual Builder';
+                    launchButton.className = 'btn btn-primary';
+                    launchButton.onclick = launchVisualBuilder;
+                }
+            }
+
+            // Update big dashboard button
+            if (bigLaunchButton) {
+                if (data.running) {
+                    bigLaunchButton.innerHTML = '<i class="fas fa-stop"></i> Stop Visual Agent Builder';
+                    bigLaunchButton.className = 'btn btn-large btn-danger';
+                    bigLaunchButton.onclick = stopVisualBuilder;
+                } else {
+                    bigLaunchButton.innerHTML = '<i class="fas fa-rocket"></i> Launch Visual Agent Builder';
+                    bigLaunchButton.className = 'btn btn-large btn-primary';
+                    bigLaunchButton.onclick = launchVisualBuilder;
                 }
             }
         })
@@ -102,6 +130,71 @@ function launchVisualBuilder() {
     });
 }
 
+// Stop Visual Builder
+function stopVisualBuilder() {
+    const modal = document.getElementById('visual-builder-modal');
+    const statusContent = document.getElementById('vb-status-content');
+
+    // Show modal
+    modal.style.display = 'block';
+
+    // Show loading state
+    statusContent.innerHTML = `
+        <div class="spinner"></div>
+        <p>Stopping Visual Builder...</p>
+        <p style="font-size: 0.9rem; color: #666; margin-top: 1rem;">
+            Please wait...
+        </p>
+    `;
+
+    fetch('/api/stop-visual-builder', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            statusContent.innerHTML = `
+                <div style="text-align: center;">
+                    <i class="fas fa-check-circle" style="font-size: 4rem; color: #34a853; margin-bottom: 1rem;"></i>
+                    <h3>Visual Builder Stopped</h3>
+                    <p style="margin: 1rem 0;">${data.message}</p>
+                    <button class="btn btn-primary" onclick="document.getElementById('visual-builder-modal').style.display='none'" style="margin-top: 1rem;">
+                        <i class="fas fa-check"></i> OK
+                    </button>
+                </div>
+            `;
+
+            // Update status indicator
+            checkVisualBuilderStatus();
+        } else {
+            statusContent.innerHTML = `
+                <div style="text-align: center;">
+                    <i class="fas fa-exclamation-circle" style="font-size: 4rem; color: #ea4335; margin-bottom: 1rem;"></i>
+                    <h3>Failed to Stop</h3>
+                    <p style="margin: 1rem 0;">${data.error}</p>
+                    <button class="btn btn-primary" onclick="document.getElementById('visual-builder-modal').style.display='none'" style="margin-top: 1rem;">
+                        <i class="fas fa-times"></i> Close
+                    </button>
+                </div>
+            `;
+        }
+    })
+    .catch(error => {
+        console.error('Error stopping Visual Builder:', error);
+        statusContent.innerHTML = `
+            <div style="text-align: center;">
+                <i class="fas fa-exclamation-circle" style="font-size: 4rem; color: #ea4335; margin-bottom: 1rem;"></i>
+                <h3>Connection Error</h3>
+                <p style="margin: 1rem 0;">Failed to connect to the training portal server.</p>
+                <p style="font-size: 0.9rem; color: #666;">Error: ${error.message}</p>
+            </div>
+        `;
+    });
+}
+
 // Show notification
 function showNotification(message, type = 'success') {
     // Remove any existing notifications
@@ -129,11 +222,8 @@ function showNotification(message, type = 'success') {
 
 // Initialize when DOM is loaded
 document.addEventListener('DOMContentLoaded', function() {
-    // Launch Visual Builder button handlers
-    const launchButtons = document.querySelectorAll('#launch-visual-builder, #big-launch-button');
-    launchButtons.forEach(button => {
-        button.addEventListener('click', launchVisualBuilder);
-    });
+    // Button handlers are now set dynamically in checkVisualBuilderStatus()
+    // based on the current running state
 
     // Modal close handler
     const modal = document.getElementById('visual-builder-modal');
@@ -285,5 +375,6 @@ document.addEventListener('visibilitychange', function() {
 window.ADKPortal = {
     checkVisualBuilderStatus,
     launchVisualBuilder,
+    stopVisualBuilder,
     showNotification
 };

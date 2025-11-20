@@ -329,6 +329,21 @@ textarea:focus-visible {
     background: #2d8e47;
 }
 
+.btn-danger {
+    background: #ea4335;
+    color: white;
+}
+
+.btn-danger:hover {
+    background: #d33828;
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-md);
+}
+
+.btn-danger:active {
+    transform: translateY(0);
+}
+
 .btn-outline {
     background: transparent;
     color: var(--primary-color);

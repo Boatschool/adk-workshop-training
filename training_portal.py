@@ -22,11 +22,24 @@ from flask import Flask, render_template, send_from_directory, jsonify, request
 import markdown
 import json
 from datetime import datetime
+from dotenv import load_dotenv
 
 app = Flask(__name__)
 
 # Configuration
 WORKSHOP_DIR = Path(__file__).parent
+
+# Load environment variables from .env file
+ENV_FILE = WORKSHOP_DIR / ".env"
+if ENV_FILE.exists():
+    load_dotenv(ENV_FILE)
+    print(f"✅ Loaded environment variables from {ENV_FILE}")
+    if os.getenv('GOOGLE_API_KEY'):
+        print(f"✅ GOOGLE_API_KEY is set")
+    else:
+        print(f"⚠️  Warning: GOOGLE_API_KEY not found in .env file")
+else:
+    print(f"⚠️  Warning: .env file not found at {ENV_FILE}")
 RESOURCES_DIR = WORKSHOP_DIR / "resources"
 EXAMPLES_DIR = WORKSHOP_DIR / "examples"
 EXERCISES_DIR = WORKSHOP_DIR / "exercises"
@@ -203,12 +216,14 @@ def launch_visual_builder():
                 "url": "http://localhost:8000/dev-ui"
             })
 
-        # Launch adk web in background
+        # Launch adk web in background with environment variables
+        env = os.environ.copy()  # Include all current environment variables
         visual_builder_process = subprocess.Popen(
             ['adk', 'web', '--port', '8000'],
             stdout=subprocess.PIPE,
             stderr=subprocess.PIPE,
-            start_new_session=True
+            start_new_session=True,
+            env=env
         )
 
         # Give it a moment to start
@@ -244,6 +259,42 @@ def visual_builder_status():
         "running": is_running,
         "url": "http://localhost:8000/dev-ui" if is_running else None
     })
+
+@app.route('/api/stop-visual-builder', methods=['POST'])
+def stop_visual_builder():
+    """Stop the Visual Agent Builder"""
+    global visual_builder_process
+
+    try:
+        # Check if process exists and is running
+        if not visual_builder_process or visual_builder_process.poll() is not None:
+            return jsonify({
+                "success": True,
+                "message": "Visual Builder is not running"
+            })
+
+        # Terminate the process
+        visual_builder_process.terminate()
+
+        # Give it a moment to shut down gracefully
+        import time
+        time.sleep(1)
+
+        # Force kill if still running
+        if visual_builder_process.poll() is None:
+            visual_builder_process.kill()
+            time.sleep(0.5)
+
+        return jsonify({
+            "success": True,
+            "message": "Visual Builder stopped successfully"
+        })
+
+    except Exception as e:
+        return jsonify({
+            "success": False,
+            "error": str(e)
+        }), 500
 
 @app.route('/api/progress')
 def get_progress():

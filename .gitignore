@@ -43,3 +43,6 @@ Thumbs.db
 .progress.json
 test_results.json
 *.log
+.env
+.adk-builder.pid
+tenant_creation/
