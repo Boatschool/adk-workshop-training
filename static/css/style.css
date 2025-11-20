@@ -136,7 +136,7 @@ textarea:focus-visible {
 
 /* Navigation */
 .nav {
-    background: var(--primary-color);
+    background: #00AAE7;
     color: white;
     box-shadow: var(--shadow-sm);
     display: block;
