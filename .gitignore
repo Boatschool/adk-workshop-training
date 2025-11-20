@@ -22,11 +22,15 @@ wheels/
 *.egg-info/
 .installed.cfg
 *.egg
+pip-log.txt
+pip-delete-this-directory.txt
 
 # Virtual environments
 .venv
 venv/
 ENV/
+env/
+.python-version
 
 # IDE
 .vscode/
@@ -34,15 +38,55 @@ ENV/
 *.swp
 *.swo
 *~
+.project
+.pydevproject
+.settings/
 
 # OS
 .DS_Store
 Thumbs.db
+desktop.ini
+
+# Testing
+.pytest_cache/
+.coverage
+htmlcov/
+coverage.xml
+*.cover
+.hypothesis/
+.tox/
+
+# Type checking
+.mypy_cache/
+.dmypy.json
+dmypy.json
+
+# Database
+*.db
+*.sqlite
+*.sqlite3
+postgres_data/
+
+# Logs
+*.log
+logs/
+
+# Environment
+.env
+.env.*
+!.env.example
 
 # Project specific
 .progress.json
 test_results.json
-*.log
-.env
 .adk-builder.pid
 tenant_creation/
+
+# Docker
+.dockerignore
+
+# Poetry
+poetry.lock
+
+# Alembic
+alembic/versions/*.pyc
