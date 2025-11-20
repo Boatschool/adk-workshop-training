@@ -3,31 +3,34 @@
 {% block title %}Dashboard{% endblock %}
 
 {% block content %}
+<!-- Skip Navigation -->
+<a href="#main-content" class="skip-link">Skip to main content</a>
+
 <div class="dashboard">
     <!-- Welcome Section -->
-    <section class="welcome-section">
-        <h1><i class="fas fa-graduation-cap"></i> Welcome to the Workshop!</h1>
+    <section class="welcome-section" aria-labelledby="welcome-heading">
+        <h1 id="welcome-heading"><i class="fas fa-graduation-cap" aria-hidden="true"></i> Welcome to the Workshop!</h1>
         <p class="lead">Learn to build AI agents using Google's Agent Development Kit</p>
 
         <!-- Visual Builder Quick Launch -->
         <div class="quick-launch">
-            <button id="big-launch-button" class="btn btn-large btn-primary">
-                <i class="fas fa-rocket"></i> Launch Visual Agent Builder
+            <button id="big-launch-button" class="btn btn-large btn-primary" aria-describedby="launch-help">
+                <i class="fas fa-rocket" aria-hidden="true"></i> Launch Visual Agent Builder
             </button>
-            <p class="launch-help">Click here to start building agents visually</p>
-            <div id="vb-status-indicator" class="status-indicator">
-                <span class="status-dot" id="vb-status-dot"></span>
+            <p id="launch-help" class="launch-help">Click here to start building agents visually</p>
+            <div id="vb-status-indicator" class="status-indicator" role="status" aria-live="polite">
+                <span class="status-dot" id="vb-status-dot" aria-hidden="true"></span>
                 <span id="vb-status-text">Checking status...</span>
             </div>
         </div>
     </section>
 
     <!-- Progress Overview -->
-    <section class="progress-section">
-        <h2><i class="fas fa-chart-line"></i> Your Progress</h2>
+    <section class="progress-section" aria-labelledby="progress-heading" id="main-content">
+        <h2 id="progress-heading"><i class="fas fa-chart-line" aria-hidden="true"></i> Your Progress</h2>
         <div class="progress-cards">
             <div class="progress-card">
-                <div class="progress-icon">
+                <div class="progress-icon" aria-hidden="true">
                     <i class="fas fa-dumbbell"></i>
                 </div>
                 <div class="progress-info">
@@ -35,32 +38,36 @@
                     <p class="progress-number">
                         <span id="exercises-completed">{{ progress.exercises_completed|length }}</span> / 3
                     </p>
-                    <div class="progress-bar">
+                    <div class="progress-bar" role="progressbar" 
+                         aria-valuenow="{{ (progress.exercises_completed|length / 3 * 100)|int }}" 
+                         aria-valuemin="0" 
+                         aria-valuemax="100"
+                         aria-label="Exercise completion: {{ (progress.exercises_completed|length / 3 * 100)|int }}% complete">
                         <div class="progress-fill" style="width: {{ (progress.exercises_completed|length / 3 * 100)|int }}%"></div>
                     </div>
                 </div>
             </div>
 
             <div class="progress-card">
-                <div class="progress-icon">
+                <div class="progress-icon" aria-hidden="true">
                     <i class="fas fa-book-reader"></i>
                 </div>
                 <div class="progress-info">
                     <h3>Materials Viewed</h3>
-                    <p class="progress-number">{{ progress.materials_viewed|length }}</p>
+                    <p class="progress-number" aria-label="{{ progress.materials_viewed|length }} materials viewed">{{ progress.materials_viewed|length }}</p>
                     <p class="progress-detail">Keep exploring!</p>
                 </div>
             </div>
 
             <div class="progress-card">
-                <div class="progress-icon">
+                <div class="progress-icon" aria-hidden="true">
                     <i class="fas fa-clock"></i>
                 </div>
                 <div class="progress-info">
                     <h3>Last Active</h3>
                     <p class="progress-detail">
                         {% if progress.last_active %}
-                            {{ progress.last_active[:10] }}
+                            <time datetime="{{ progress.last_active[:10] }}">{{ progress.last_active[:10] }}</time>
                         {% else %}
                             Just started!
                         {% endif %}
@@ -71,29 +78,29 @@
     </section>
 
     <!-- Quick Start Section -->
-    <section class="quick-start-section">
-        <h2><i class="fas fa-play-circle"></i> Quick Start</h2>
+    <section class="quick-start-section" aria-labelledby="quick-start-heading">
+        <h2 id="quick-start-heading"><i class="fas fa-play-circle" aria-hidden="true"></i> Quick Start</h2>
         <div class="card-grid">
-            <div class="card card-primary">
-                <div class="card-icon"><i class="fas fa-flag"></i></div>
+            <article class="card card-primary">
+                <div class="card-icon" aria-hidden="true"><i class="fas fa-flag"></i></div>
                 <h3>1. Getting Started</h3>
                 <p>New to ADK? Start here to set up your environment and understand the basics.</p>
-                <a href="/getting-started" class="btn btn-outline">Get Started <i class="fas fa-arrow-right"></i></a>
-            </div>
+                <a href="/getting-started" class="btn btn-outline">Get Started <i class="fas fa-arrow-right" aria-hidden="true"></i></a>
+            </article>
 
-            <div class="card card-secondary">
-                <div class="card-icon"><i class="fas fa-eye"></i></div>
+            <article class="card card-secondary">
+                <div class="card-icon" aria-hidden="true"><i class="fas fa-eye"></i></div>
                 <h3>2. Visual Builder Guide</h3>
                 <p>Learn how to use the Visual Agent Builder - no coding required!</p>
-                <a href="/guides/visual-agent-builder-guide" class="btn btn-outline">View Guide <i class="fas fa-arrow-right"></i></a>
-            </div>
+                <a href="/guides/visual-agent-builder-guide" class="btn btn-outline">View Guide <i class="fas fa-arrow-right" aria-hidden="true"></i></a>
+            </article>
 
-            <div class="card card-tertiary">
-                <div class="card-icon"><i class="fas fa-dumbbell"></i></div>
+            <article class="card card-tertiary">
+                <div class="card-icon" aria-hidden="true"><i class="fas fa-dumbbell"></i></div>
                 <h3>3. First Exercise</h3>
                 <p>Build your first AI agent with step-by-step instructions.</p>
-                <a href="/exercises/exercise-1-basic-agent" class="btn btn-outline">Start Exercise <i class="fas fa-arrow-right"></i></a>
-            </div>
+                <a href="/exercises/exercise-1-basic-agent" class="btn btn-outline">Start Exercise <i class="fas fa-arrow-right" aria-hidden="true"></i></a>
+            </article>
         </div>
     </section>
 
