@@ -232,6 +232,45 @@ document.addEventListener('DOMContentLoaded', function() {
 
     console.log('%c🚀 ADK Workshop Training Portal', 'font-size: 1.2rem; color: #1a73e8; font-weight: bold;');
     console.log('%cPress ? to see keyboard shortcuts', 'font-size: 0.9rem; color: #666;');
+
+    // Mobile Hamburger Menu Toggle
+    const mobileMenuToggle = document.querySelector('.mobile-menu-toggle');
+    const navList = document.querySelector('.nav-list');
+
+    if (mobileMenuToggle && navList) {
+        mobileMenuToggle.addEventListener('click', function() {
+            const isExpanded = this.getAttribute('aria-expanded') === 'true';
+            this.setAttribute('aria-expanded', !isExpanded);
+            navList.classList.toggle('active');
+        });
+
+        // Close menu when clicking outside
+        document.addEventListener('click', function(event) {
+            if (!event.target.closest('.nav') && navList.classList.contains('active')) {
+                mobileMenuToggle.setAttribute('aria-expanded', 'false');
+                navList.classList.remove('active');
+            }
+        });
+
+        // Close menu on escape key
+        document.addEventListener('keydown', function(event) {
+            if (event.key === 'Escape' && navList.classList.contains('active')) {
+                mobileMenuToggle.setAttribute('aria-expanded', 'false');
+                navList.classList.remove('active');
+                mobileMenuToggle.focus();
+            }
+        });
+
+        // Close menu when clicking a link
+        navList.querySelectorAll('a').forEach(link => {
+            link.addEventListener('click', function() {
+                if (navList.classList.contains('active')) {
+                    mobileMenuToggle.setAttribute('aria-expanded', 'false');
+                    navList.classList.remove('active');
+                }
+            });
+        });
+    }
 });
 
 // Handle page visibility changes

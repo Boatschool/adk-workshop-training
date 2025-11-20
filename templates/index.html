@@ -38,12 +38,12 @@
                     <p class="progress-number">
                         <span id="exercises-completed">{{ progress.exercises_completed|length }}</span> / 3
                     </p>
-                    <div class="progress-bar" role="progressbar" 
-                         aria-valuenow="{{ (progress.exercises_completed|length / 3 * 100)|int }}" 
-                         aria-valuemin="0" 
-                         aria-valuemax="100"
-                         aria-label="Exercise completion: {{ (progress.exercises_completed|length / 3 * 100)|int }}% complete">
-                        <div class="progress-fill" style="width: {{ (progress.exercises_completed|length / 3 * 100)|int }}%"></div>
+                    <div class="progress-bar" role="progressbar"
+                        aria-valuenow="{{ (progress.exercises_completed|length / 3 * 100)|int }}" aria-valuemin="0"
+                        aria-valuemax="100"
+                        aria-label="Exercise completion: {{ (progress.exercises_completed|length / 3 * 100)|int }}% complete">
+                        <div class="progress-fill"
+                            style="width: {{ (progress.exercises_completed|length / 3 * 100)|int }}%"></div>
                     </div>
                 </div>
             </div>
@@ -54,7 +54,8 @@
                 </div>
                 <div class="progress-info">
                     <h3>Materials Viewed</h3>
-                    <p class="progress-number" aria-label="{{ progress.materials_viewed|length }} materials viewed">{{ progress.materials_viewed|length }}</p>
+                    <p class="progress-number" aria-label="{{ progress.materials_viewed|length }} materials viewed">{{
+                        progress.materials_viewed|length }}</p>
                     <p class="progress-detail">Keep exploring!</p>
                 </div>
             </div>
@@ -67,9 +68,9 @@
                     <h3>Last Active</h3>
                     <p class="progress-detail">
                         {% if progress.last_active %}
-                            <time datetime="{{ progress.last_active[:10] }}">{{ progress.last_active[:10] }}</time>
+                        <time datetime="{{ progress.last_active[:10] }}">{{ progress.last_active[:10] }}</time>
                         {% else %}
-                            Just started!
+                        Just started!
                         {% endif %}
                     </p>
                 </div>
@@ -81,25 +82,41 @@
     <section class="quick-start-section" aria-labelledby="quick-start-heading">
         <h2 id="quick-start-heading"><i class="fas fa-play-circle" aria-hidden="true"></i> Quick Start</h2>
         <div class="card-grid">
-            <article class="card card-primary">
+            <article class="card card-primary recommended">
+                <span class="recommended-badge">Recommended First</span>
+                <div class="card-number">1</div>
                 <div class="card-icon" aria-hidden="true"><i class="fas fa-flag"></i></div>
-                <h3>1. Getting Started</h3>
+                <h3>Getting Started</h3>
                 <p>New to ADK? Start here to set up your environment and understand the basics.</p>
-                <a href="/getting-started" class="btn btn-outline">Get Started <i class="fas fa-arrow-right" aria-hidden="true"></i></a>
+                <div class="card-meta">
+                    <span class="time-estimate"><i class="fas fa-clock" aria-hidden="true"></i> 15 min</span>
+                </div>
+                <a href="/getting-started" class="btn btn-outline">Get Started <i class="fas fa-arrow-right"
+                        aria-hidden="true"></i></a>
             </article>
 
             <article class="card card-secondary">
+                <div class="card-number">2</div>
                 <div class="card-icon" aria-hidden="true"><i class="fas fa-eye"></i></div>
-                <h3>2. Visual Builder Guide</h3>
+                <h3>Visual Builder Guide</h3>
                 <p>Learn how to use the Visual Agent Builder - no coding required!</p>
-                <a href="/guides/visual-agent-builder-guide" class="btn btn-outline">View Guide <i class="fas fa-arrow-right" aria-hidden="true"></i></a>
+                <div class="card-meta">
+                    <span class="time-estimate"><i class="fas fa-clock" aria-hidden="true"></i> 10 min</span>
+                </div>
+                <a href="/guides/visual-agent-builder-guide" class="btn btn-outline">View Guide <i
+                        class="fas fa-arrow-right" aria-hidden="true"></i></a>
             </article>
 
             <article class="card card-tertiary">
+                <div class="card-number">3</div>
                 <div class="card-icon" aria-hidden="true"><i class="fas fa-dumbbell"></i></div>
-                <h3>3. First Exercise</h3>
+                <h3>First Exercise</h3>
                 <p>Build your first AI agent with step-by-step instructions.</p>
-                <a href="/exercises/exercise-1-basic-agent" class="btn btn-outline">Start Exercise <i class="fas fa-arrow-right" aria-hidden="true"></i></a>
+                <div class="card-meta">
+                    <span class="time-estimate"><i class="fas fa-clock" aria-hidden="true"></i> 30 min</span>
+                </div>
+                <a href="/exercises/exercise-1-basic-agent" class="btn btn-outline">Start Exercise <i
+                        class="fas fa-arrow-right" aria-hidden="true"></i></a>
             </article>
         </div>
     </section>
@@ -151,7 +168,7 @@
                         <a href="/exercises/exercise-1-basic-agent">
                             <i class="fas fa-star"></i> Exercise 1: Build Your First Agent
                             {% if 'exercise-1-basic-agent' in progress.exercises_completed %}
-                                <span class="completed-badge">✓</span>
+                            <span class="completed-badge">✓</span>
                             {% endif %}
                         </a>
                     </li>
@@ -159,7 +176,7 @@
                         <a href="/exercises/exercise-2-agents-with-tools">
                             <i class="fas fa-tools"></i> Exercise 2: Adding Tools
                             {% if 'exercise-2-agents-with-tools' in progress.exercises_completed %}
-                                <span class="completed-badge">✓</span>
+                            <span class="completed-badge">✓</span>
                             {% endif %}
                         </a>
                     </li>
@@ -167,7 +184,7 @@
                         <a href="/exercises/exercise-3-multi-agent-systems">
                             <i class="fas fa-users"></i> Exercise 3: Multi-Agent Systems
                             {% if 'exercise-3-multi-agent-systems' in progress.exercises_completed %}
-                                <span class="completed-badge">✓</span>
+                            <span class="completed-badge">✓</span>
                             {% endif %}
                         </a>
                     </li>

@@ -12,8 +12,21 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <style>
         :root {
-            --primary-color: {{ branding.primary_color }};
-            --secondary-color: {{ branding.secondary_color }};
+            --primary-color: {
+                    {
+                    branding.primary_color
+                }
+            }
+
+            ;
+
+            --secondary-color: {
+                    {
+                    branding.secondary_color
+                }
+            }
+
+            ;
         }
 
         /* GraymatterLab Logo Styling */
@@ -52,8 +65,11 @@
     </header>
 
     <!-- Navigation -->
-    <nav class="nav">
+    <nav class="nav" role="navigation" aria-label="Main navigation">
         <div class="container">
+            <button class="mobile-menu-toggle" aria-label="Toggle navigation menu" aria-expanded="false">
+                <span class="hamburger-icon"></span>
+            </button>
             <ul class="nav-list">
                 <li><a href="/"><i class="fas fa-home"></i> Dashboard</a></li>
                 <li><a href="/getting-started"><i class="fas fa-flag"></i> Getting Started</a></li>
