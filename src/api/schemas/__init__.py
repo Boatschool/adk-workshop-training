@@ -1,6 +1,14 @@
 """Pydantic schemas for API request/response validation."""
 
-from src.api.schemas.agent import AgentCreate, AgentResponse, AgentUpdate
+from src.api.schemas.agent import (
+    AgentCreate,
+    AgentExecuteRequest,
+    AgentExecuteResponse,
+    AgentResponse,
+    AgentTemplateDetail,
+    AgentTemplateInfo,
+    AgentUpdate,
+)
 from src.api.schemas.tenant import TenantCreate, TenantResponse, TenantUpdate
 from src.api.schemas.user import UserCreate, UserLogin, UserResponse, UserUpdate, UserWithToken
 from src.api.schemas.workshop import (
@@ -19,6 +27,10 @@ __all__ = [
     "AgentCreate",
     "AgentUpdate",
     "AgentResponse",
+    "AgentExecuteRequest",
+    "AgentExecuteResponse",
+    "AgentTemplateInfo",
+    "AgentTemplateDetail",
     # Tenant schemas
     "TenantCreate",
     "TenantUpdate",

@@ -6,12 +6,22 @@ from fastapi import APIRouter, Depends, HTTPException, Query, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.api.dependencies import get_current_user, get_tenant_id
-from src.api.schemas.agent import AgentCreate, AgentResponse, AgentUpdate
+from src.api.schemas.agent import (
+    AgentCreate,
+    AgentExecuteRequest,
+    AgentExecuteResponse,
+    AgentResponse,
+    AgentTemplateDetail,
+    AgentTemplateInfo,
+    AgentUpdate,
+)
+from src.core.config import get_settings
 from src.core.exceptions import NotFoundError
 from src.core.tenancy import TenantContext
 from src.db.models.user import User
 from src.db.session import get_db
 from src.services.agent_service import AgentService
+from src.agents import AgentRunner, AgentConfig, get_registry
 
 router = APIRouter()
 
@@ -245,3 +255,212 @@ async def get_my_agents(
         str(current_user.id), skip=skip, limit=limit
     )
     return agents
+
+
+# ============================================================================
+# Agent Templates & Execution Endpoints
+# ============================================================================
+
+
+@router.get("/templates", response_model=list[AgentTemplateInfo])
+async def list_agent_templates(
+    current_user: Annotated[User, Depends(get_current_user)],
+):
+    """
+    List all available agent templates.
+
+    Returns a list of pre-built agent templates that can be used
+    to create and run agents.
+
+    Returns:
+        list[AgentTemplateInfo]: Available agent templates
+    """
+    registry = get_registry()
+    return registry.list_templates()
+
+
+@router.get("/templates/{agent_type}", response_model=AgentTemplateDetail)
+async def get_agent_template(
+    agent_type: str,
+    current_user: Annotated[User, Depends(get_current_user)],
+):
+    """
+    Get details about a specific agent template.
+
+    Args:
+        agent_type: Agent type identifier (e.g., "faq", "scheduler", "router")
+
+    Returns:
+        AgentTemplateDetail: Template details including default configuration
+
+    Raises:
+        HTTPException: If template not found
+    """
+    registry = get_registry()
+    template_cls = registry.get_template(agent_type)
+
+    if template_cls is None:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f"Agent template '{agent_type}' not found",
+        )
+
+    return AgentTemplateDetail(
+        type=template_cls.get_agent_type(),
+        name=template_cls.get_display_name(),
+        description=template_cls.get_description(),
+        category=template_cls.get_category().value,
+        default_config=template_cls.get_default_config().to_dict(),
+    )
+
+
+@router.post("/templates/{agent_type}/execute", response_model=AgentExecuteResponse)
+async def execute_agent_template(
+    agent_type: str,
+    request: AgentExecuteRequest,
+    current_user: Annotated[User, Depends(get_current_user)],
+    tenant_id: Annotated[str, Depends(get_tenant_id)],
+):
+    """
+    Execute an agent template directly without creating a saved agent.
+
+    This is useful for testing agent templates or one-off interactions.
+
+    Args:
+        agent_type: Agent type identifier
+        request: Execution request with message and optional config overrides
+
+    Returns:
+        AgentExecuteResponse: Agent's response
+
+    Raises:
+        HTTPException: If template not found or execution fails
+    """
+    settings = get_settings()
+
+    # Verify template exists
+    registry = get_registry()
+    if registry.get_template(agent_type) is None:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f"Agent template '{agent_type}' not found",
+        )
+
+    # Create runner and execute
+    runner = AgentRunner(
+        tenant_id=tenant_id,
+        api_key=settings.google_api_key,
+        user_id=str(current_user.id),
+    )
+
+    # Build config from override if provided
+    config = None
+    if request.config_override:
+        config = AgentConfig(**request.config_override)
+
+    response = await runner.execute(
+        agent_type=agent_type,
+        user_message=request.message,
+        config=config,
+    )
+
+    return AgentExecuteResponse(
+        success=response.success,
+        message=response.message,
+        data=response.data,
+        error=response.error,
+        execution_time_ms=response.execution_time_ms,
+        model_used=response.model_used,
+        tokens_used=response.tokens_used,
+    )
+
+
+@router.post("/{agent_id}/execute", response_model=AgentExecuteResponse)
+async def execute_saved_agent(
+    agent_id: str,
+    request: AgentExecuteRequest,
+    db: Annotated[AsyncSession, Depends(get_db)],
+    current_user: Annotated[User, Depends(get_current_user)],
+    tenant_id: Annotated[str, Depends(get_tenant_id)],
+):
+    """
+    Execute a saved agent.
+
+    Runs the agent with its stored configuration.
+
+    Args:
+        agent_id: Agent UUID
+        request: Execution request with message
+
+    Returns:
+        AgentExecuteResponse: Agent's response
+
+    Raises:
+        HTTPException: If agent not found or execution fails
+    """
+    TenantContext.set(tenant_id)
+    settings = get_settings()
+
+    # Get saved agent
+    service = AgentService(db, tenant_id)
+    agent = await service.get_agent_by_id(agent_id)
+
+    if not agent:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f"Agent with ID '{agent_id}' not found",
+        )
+
+    # Verify template exists
+    registry = get_registry()
+    if registry.get_template(agent.agent_type) is None:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=f"Agent type '{agent.agent_type}' is not a valid template",
+        )
+
+    # Create runner and execute
+    runner = AgentRunner(
+        tenant_id=tenant_id,
+        api_key=settings.google_api_key,
+        user_id=str(current_user.id),
+    )
+
+    # Build config from saved agent
+    config = AgentConfig(
+        name=agent.name,
+        **agent.config,
+    )
+
+    # Apply request overrides if any
+    if request.config_override:
+        for key, value in request.config_override.items():
+            if hasattr(config, key):
+                setattr(config, key, value)
+            else:
+                config.settings[key] = value
+
+    response = await runner.execute(
+        agent_type=agent.agent_type,
+        user_message=request.message,
+        config=config,
+    )
+
+    # Update last_run_at timestamp
+    from src.api.schemas.agent import AgentUpdate
+    from datetime import datetime
+
+    await service.update_agent(
+        agent_id,
+        AgentUpdate(status=agent.status),  # This triggers updated_at
+    )
+
+    return AgentExecuteResponse(
+        success=response.success,
+        message=response.message,
+        data=response.data,
+        error=response.error,
+        execution_time_ms=response.execution_time_ms,
+        model_used=response.model_used,
+        tokens_used=response.tokens_used,
+    )

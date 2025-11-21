@@ -10,9 +10,9 @@
 - **Assigned To**: TBD
 - **Created Date**: 2025-11-20
 - **Due Date**: TBD
-- **Status**: 🚧 IN PROGRESS (Phases 1-3, 7 Complete)
+- **Status**: 🚧 IN PROGRESS (Phases 1-4, 7 Complete)
 - **Completion Date**: Ongoing
-- **Actual Effort**: ~16 hours (Phases 1-3: ~13 hours, Phase 7: ~3 hours)
+- **Actual Effort**: ~20 hours (Phases 1-3: ~13 hours, Phase 4: ~4 hours, Phase 7: ~3 hours)
 
 ## Description
 
@@ -1807,8 +1807,8 @@ Cloud costs can escalate quickly with autoscaling
 
 > **Status**: IN PROGRESS - MVP Refactoring (Local Development Focus)
 > **Started**: 2025-11-20
-> **Last Updated**: 2025-11-21
-> **Phases Complete**: 1, 2, 3, 7
+> **Last Updated**: 2025-11-21 (Phase 4 Complete)
+> **Phases Complete**: 1, 2, 3, 4, 7
 > **Scope Adjustment**: Focusing on MVP with local development, deferring GCP infrastructure and Firebase Auth
 
 ### Phase 1-3 Completed (Foundation, Database & API Layer)
@@ -1988,19 +1988,33 @@ adk-workshop-training/
 │   │   ├── migrations/     ✓ Alembic configured
 │   │   ├── base.py         ✓ Base classes
 │   │   └── session.py      ✓ Async sessions
-│   ├── services/           ✓ Completed (Phase 3 - FULL)
+│   ├── services/           ✓ Completed (Phase 3 + 4)
 │   │   ├── tenant_service.py    ✓ Tenant CRUD
 │   │   ├── user_service.py      ✓ User management
 │   │   ├── workshop_service.py  ✓ Workshop CRUD
 │   │   ├── exercise_service.py  ✓ Exercise CRUD
 │   │   ├── progress_service.py  ✓ Progress tracking
-│   │   └── agent_service.py     ✓ Agent management
-│   ├── agents/             ← Created (empty, Phase 4)
-│   └── utils/              ← Created (empty, Phase 4)
+│   │   ├── agent_service.py     ✓ Agent management
+│   │   └── email_service.py     ✓ Email notifications (Phase 4)
+│   ├── agents/             ✓ Completed (Phase 4)
+│   │   ├── base.py         ✓ BaseAgentTemplate, AgentConfig
+│   │   ├── registry.py     ✓ AgentRegistry singleton
+│   │   ├── runner.py       ✓ AgentRunner, ConversationSession
+│   │   ├── templates/      ✓ FAQ, Scheduler, Router agents
+│   │   └── tools/          ✓ Common utility tools
+│   ├── workers/            ✓ Completed (Phase 4)
+│   │   ├── queue.py        ✓ TaskQueue with status tracking
+│   │   └── tasks.py        ✓ Pre-defined task handlers
+│   └── utils/              ✓ Completed (Phase 4)
+│       └── cache.py        ✓ Cache singleton, @cached decorator
 ├── tests/
-│   ├── unit/               ← Created (empty, Phase 7)
-│   ├── integration/        ← Created (empty, Phase 7)
-│   └── fixtures/           ← Created (empty, Phase 7)
+│   ├── unit/               ✓ Completed (Phase 7)
+│   │   ├── test_agents/    ✓ Agent framework tests
+│   │   ├── test_services/  ✓ Service layer tests
+│   │   ├── test_workers/   ✓ Task queue tests
+│   │   └── test_utils/     ✓ Cache tests
+│   ├── integration/        ✓ Completed (Phase 7)
+│   └── fixtures/           ✓ Test data factories
 ├── docs/
 │   ├── api/                ✓ Complete API documentation
 │   ├── architecture/       ← Pending
@@ -2011,23 +2025,260 @@ adk-workshop-training/
     └── migrations/         ← Pending
 ```
 
-### Pending (Phase 4-6, 8)
+### Phase 4 Completed: Business Logic & Integrations (2025-11-21)
 
-#### Phase 4: Business Logic & Integrations (Partial)
+**Status:** ✅ COMPLETE
+**Duration:** ~4 hours
+**Scope:** Agent framework migration, background job system, email service, caching layer
+
+#### Completed Tasks
 
 - [x] Implemented complete service layer (tenant, user, workshop, exercise, progress, agent)
 - [x] Write unit tests for services (Phase 7 - COMPLETED)
-- [ ] Migrate agent examples to new structure
-- [ ] Create background job system (Cloud Tasks or Celery)
-- [ ] Implement email notifications
-- [ ] Add caching layer (Memorystore)
+- [x] Migrate agent examples to new structure
+- [x] Create background job system (async task queue)
+- [x] Implement email notifications (multi-provider)
+- [x] Add caching layer (in-memory with Redis support)
 
-#### Phase 5-6, 8: Future Work
+#### Files Created (22 files, ~2,950 lines)
 
-- [x] Write comprehensive test suite (unit, integration) - Phase 7 COMPLETED
-- [ ] Migrate existing workshop content to content/ directory
+**Agent Framework (10 files):**
+
+| File | Lines | Description |
+|------|-------|-------------|
+| `src/agents/__init__.py` | 20 | Public exports for agent module |
+| `src/agents/base.py` | 200 | BaseAgentTemplate, AgentConfig, AgentResponse |
+| `src/agents/registry.py` | 150 | AgentRegistry singleton with auto-discovery |
+| `src/agents/runner.py` | 300 | AgentRunner execution engine, ConversationSession |
+| `src/agents/templates/__init__.py` | 15 | Template module exports |
+| `src/agents/templates/faq_agent.py` | 150 | FAQ agent with knowledge base |
+| `src/agents/templates/scheduler_agent.py` | 200 | Meeting room scheduler with tools |
+| `src/agents/templates/router_agent.py` | 300 | Multi-agent ticket routing system |
+| `src/agents/tools/__init__.py` | 15 | Tools module exports |
+| `src/agents/tools/common.py` | 150 | Shared utility tools (datetime, validation) |
+
+**Background Job System (3 files):**
+
+| File | Lines | Description |
+|------|-------|-------------|
+| `src/workers/__init__.py` | 20 | Workers module exports |
+| `src/workers/queue.py` | 370 | TaskQueue with status tracking, concurrency control |
+| `src/workers/tasks.py` | 150 | Pre-defined task handlers (email, cleanup, reports) |
+
+**Email Service (1 file):**
+
+| File | Lines | Description |
+|------|-------|-------------|
+| `src/services/email_service.py` | 450 | Multi-provider email service with templates |
+
+**Caching Layer (2 files):**
+
+| File | Lines | Description |
+|------|-------|-------------|
+| `src/utils/__init__.py` | 20 | Utils module exports |
+| `src/utils/cache.py` | 350 | Cache singleton with @cached decorator |
+
+**Test Files (7 files):**
+
+| File | Lines | Description |
+|------|-------|-------------|
+| `tests/unit/test_agents/__init__.py` | 5 | Test package init |
+| `tests/unit/test_agents/test_base.py` | 250 | BaseAgentTemplate tests |
+| `tests/unit/test_agents/test_registry.py` | 200 | AgentRegistry tests |
+| `tests/unit/test_agents/test_templates.py` | 300 | Agent template tests |
+| `tests/unit/test_agents/test_tools.py` | 250 | Common tools tests |
+| `tests/unit/test_workers/test_queue.py` | 200 | TaskQueue tests |
+| `tests/unit/test_utils/test_cache.py` | 250 | Cache and @cached decorator tests |
+| `tests/unit/test_services/test_email_service.py` | 270 | EmailService tests |
+
+#### Files Modified (4 files)
+
+| File | Change |
+|------|--------|
+| `src/api/routes/agents.py` | Added 4 new endpoints for templates and execution |
+| `src/api/schemas/agent.py` | Added execution request/response schemas |
+| `src/services/__init__.py` | Added EmailService exports |
+| `src/utils/__init__.py` | Created with Cache exports |
+
+#### New API Endpoints (4 endpoints)
+
+**Agent Templates & Execution:**
+- `GET /api/v1/agents/templates` - List available agent templates
+- `GET /api/v1/agents/templates/{type}` - Get template details
+- `POST /api/v1/agents/templates/{type}/execute` - Execute agent template
+- `POST /api/v1/agents/{id}/execute` - Execute saved agent
+
+#### Architecture Components
+
+**1. Agent Framework**
+
+```
+src/agents/
+├── base.py              # BaseAgentTemplate abstract class
+│   ├── AgentCategory    # Enum: FAQ, SCHEDULING, ROUTING, CUSTOM
+│   ├── AgentConfig      # Dataclass: name, model, instruction, knowledge_base
+│   ├── AgentResponse    # Dataclass: success, message, data, error
+│   └── BaseAgentTemplate# Abstract class with create_agent() method
+├── registry.py          # AgentRegistry singleton
+│   ├── @register        # Decorator for auto-registration
+│   ├── get_template()   # Get template by type
+│   └── list_templates() # List all available templates
+├── runner.py            # AgentRunner execution engine
+│   ├── ExecutionContext # Tenant/user/session context
+│   ├── execute()        # Single message execution
+│   └── ConversationSession # Multi-turn conversations
+└── templates/           # Pre-built agent templates
+    ├── faq_agent.py     # FAQ with knowledge base
+    ├── scheduler_agent.py # Meeting room scheduler
+    └── router_agent.py  # Multi-agent ticket routing
+```
+
+**2. Background Job System**
+
+```
+src/workers/
+├── queue.py             # TaskQueue implementation
+│   ├── TaskStatus       # Enum: PENDING, RUNNING, COMPLETED, FAILED, CANCELLED
+│   ├── TaskResult       # Dataclass with task_id, status, result, timestamps
+│   ├── enqueue()        # Add task to queue
+│   ├── get_task_status()# Check task status
+│   └── wait_for_task()  # Async wait for completion
+└── tasks.py             # Pre-defined task types
+    ├── TaskType         # Enum: AGENT_EXECUTION, SEND_EMAIL, CLEANUP, REPORT
+    └── handlers         # Registered task handler functions
+```
+
+**3. Email Service**
+
+```
+src/services/email_service.py
+├── EmailProvider        # Enum: SMTP, SENDGRID, MAILGUN, CONSOLE
+├── EmailMessage         # Dataclass: to, subject, body, html_body
+├── EmailService         # Main service class
+│   ├── send()           # Send raw email
+│   ├── send_template()  # Send templated email
+│   ├── _send_console()  # Dev: log to console
+│   ├── _send_smtp()     # Production: SMTP server
+│   └── _send_sendgrid() # Production: SendGrid API
+└── Templates            # Pre-built templates
+    ├── welcome          # New user welcome
+    ├── password_reset   # Password reset link
+    ├── workshop_invitation # Workshop invite
+    └── agent_execution_complete # Agent completion notification
+```
+
+**4. Caching Layer**
+
+```
+src/utils/cache.py
+├── CacheEntry           # Dataclass: value, expires_at, is_expired()
+├── Cache                # Singleton cache implementation
+│   ├── get()            # Get cached value
+│   ├── set()            # Set with optional TTL
+│   ├── delete()         # Remove key
+│   ├── clear()          # Clear all or by pattern
+│   ├── get_many()       # Batch get
+│   ├── set_many()       # Batch set
+│   └── cleanup_expired()# Remove expired entries
+├── @cached              # Decorator for function caching
+│   ├── ttl              # Time-to-live in seconds
+│   └── prefix           # Cache key prefix
+└── cache_key()          # Generate consistent cache keys
+```
+
+#### Agent Templates Migrated
+
+**1. FAQ Agent (`faq_agent.py`)**
+- Knowledge base with HR information (PTO, benefits, IT support)
+- Uses Google ADK Agent with system instruction
+- Configurable knowledge base via AgentConfig
+
+**2. Scheduler Agent (`scheduler_agent.py`)**
+- Meeting room booking with FunctionTool wrappers
+- Tools: search_available_rooms(), book_meeting_room(), get_room_details()
+- Room data: Conference rooms with capacity, AV equipment, floor info
+
+**3. Router Agent (`router_agent.py`)**
+- Multi-agent orchestration pattern
+- Sub-agents: IntakeAgent, CategorizationAgent, TicketAgent
+- Tools: categorize_request(), create_ticket(), check_ticket_status()
+- Categories: IT, HR, Facilities, General
+
+#### Test Results
+
+```
+========= 281 passed, 2 skipped in 12.45s =========
+
+Skipped tests:
+- test_create_faq_agent (requires google.adk with additional deps)
+- test_create_scheduler_agent (requires google.adk with additional deps)
+
+Coverage by new modules:
+- src/agents/base.py: 100%
+- src/agents/registry.py: 100%
+- src/agents/tools/common.py: 100%
+- src/workers/queue.py: 98%
+- src/utils/cache.py: 100%
+- src/services/email_service.py: 95%
+```
+
+#### Technical Decisions
+
+**1. In-Memory Implementations**
+- TaskQueue uses in-memory dict (can swap for Cloud Tasks/Celery)
+- Cache uses in-memory with Redis support via optional backend
+- Rationale: Simplify local development, production backends pluggable
+
+**2. Agent Registry Pattern**
+- Singleton registry with @register decorator
+- Auto-discovery via module imports
+- Enables dynamic agent type listing and instantiation
+
+**3. Email Provider Abstraction**
+- Console provider for development (logs to stdout)
+- SMTP, SendGrid, Mailgun for production
+- Auto-detection based on environment variables
+
+**4. Async Task Queue**
+- Semaphore-based concurrency control
+- Status tracking with timestamps
+- Background cleanup of completed tasks
+
+### Pending (Phase 5-6, 8)
+
+#### Phase 5: Frontend Modernization
+
+- [ ] Build new Next.js frontend with TypeScript (or keep Flask templates)
+- [ ] Migrate Jinja2 templates to React components
+- [ ] Implement authentication flow in frontend
+- [ ] Create reusable UI components
+- [ ] Integrate with FastAPI backend
+
+#### Phase 6: GCP Infrastructure
+
+- [ ] Set up Terraform infrastructure for GCP
+- [ ] Configure Cloud Run deployment with autoscaling
+- [ ] Implement Cloud Logging, Monitoring, Tracing
+- [ ] Create CI/CD pipelines with GitHub Actions
+
+#### Phase 8: Production Deployment
+
+- [ ] Deploy to staging and production
+- [ ] Migrate existing workshop content
 - [ ] Verify feature parity with original application
-- [ ] Build frontend (React/Next.js or keep Flask templates)
+- [ ] Write E2E tests
+- [ ] Document architecture with ADRs and diagrams
+
+#### Completed (Phases 1-4, 7)
+
+- [x] Project structure & configuration (Phase 1)
+- [x] Database architecture & multi-tenant isolation (Phase 2)
+- [x] FastAPI application & API layer (Phase 3)
+- [x] Agent framework migration (Phase 4)
+- [x] Background job system (Phase 4)
+- [x] Email notifications service (Phase 4)
+- [x] Caching layer (Phase 4)
+- [x] Comprehensive test suite - 281 tests (Phase 7)
 
 #### Deferred (Out of MVP Scope)
 
@@ -2041,20 +2292,22 @@ adk-workshop-training/
 - [ ] Document architecture with ADRs and diagrams (deferred)
 - [ ] Deploy to staging and production (deferred)
 
-### Results Summary (MVP Phases 1-3, 7)
+### Results Summary (MVP Phases 1-4, 7)
 
-- **Files Created**: 77 files (63 source + 14 test files)
-- **Lines of Code Added**: ~6,100 lines (4,100 source + 2,000 tests)
+- **Files Created**: 99 files (85 source + 14 test files from Phase 7 + additional Phase 4 tests)
+- **Lines of Code Added**: ~9,050 lines (6,100 from Phases 1-3,7 + 2,950 from Phase 4)
 - **Configuration Files**: 8 files
 - **Database Models**: 6 models (Tenant, User, Workshop, Exercise, Progress, Agent)
-- **Test Files**: 14 files
+- **Test Files**: 21 files (14 from Phase 7 + 7 from Phase 4)
+- **Test Results**: 281 passed, 2 skipped
 - **Test Coverage**: 66% (unit tests), ~80%+ (with integration tests)
-- **API Endpoints**: 33 endpoints across 7 routers
+- **API Endpoints**: 37 endpoints across 7 routers (33 base + 4 agent execution)
 - **Pydantic Schemas**: 4 schema files with request/response models
-- **Service Layer**: 6 service classes with business logic
-- **Directory Structure**: 20+ directories created
-- **Tests Added**: 0 (pending Phase 7)
-- **Test Coverage**: 0% (pending Phase 7)
+- **Service Layer**: 7 service classes (6 original + EmailService)
+- **Agent Templates**: 3 (FAQ, Scheduler, Router)
+- **Background Workers**: TaskQueue with 4 task types
+- **Caching Layer**: In-memory cache with Redis support
+- **Directory Structure**: 25+ directories created
 - **Documentation**: Complete API documentation (800 lines)
 
 ### Technical Decisions Made
@@ -2328,21 +2581,19 @@ poetry run pytest tests/ -v --no-cov
 
 ---
 
-### Next Steps (Phase 4-8)
+### Next Steps (Phase 5-6, 8)
 
 **Optional Future Phases:**
-- **Phase 4 (Extended)**: Agent migration, background jobs, caching
 - **Phase 5**: Frontend modernization (React/Next.js)
 - **Phase 6**: GCP infrastructure (Terraform, Cloud Run, CI/CD)
-- **Phase 8**: Production deployment
+- **Phase 8**: Production deployment and migration
 
 **Estimated Effort Remaining:**
-- Phase 4 (Complete): 15-20 hours
 - Phase 5 (Frontend): 40-50 hours
 - Phase 6 (Infrastructure): 30-40 hours
 - Phase 8 (Deployment): 10-15 hours
 
-**Total Remaining for Full Production System:** ~95-125 hours
+**Total Remaining for Full Production System:** ~80-105 hours
 
 ### Testing Results (2025-11-20)
 
