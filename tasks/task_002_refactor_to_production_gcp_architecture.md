@@ -1863,17 +1863,23 @@ Cloud costs can escalate quickly with autoscaling
 - [x] Built role-based access control with 4 roles
 
 **✅ API Routes & Schemas**
-- [x] Created Pydantic schemas for tenant, user, workshop (3 files)
+- [x] Created Pydantic schemas for tenant, user, workshop, agent (4 files)
 - [x] Implemented tenant routes: POST, GET, PATCH, LIST (4 endpoints)
 - [x] Implemented user routes: register, login, me, GET, PATCH, LIST (6 endpoints)
 - [x] Implemented workshop routes: POST, GET, PATCH, DELETE, LIST (5 endpoints)
+- [x] Implemented exercise routes: POST, GET, PATCH, DELETE, LIST (5 endpoints)
+- [x] Implemented progress routes: PUT, GET, LIST by user, LIST by exercise, GET me (5 endpoints)
+- [x] Implemented agent routes: POST, GET, PATCH, DELETE, LIST, GET me (6 endpoints)
 - [x] Created health check routes: GET /health/, GET /health/ready (2 endpoints)
-- [x] Total: 17 API endpoints
+- [x] Total: 33 API endpoints
 
 **✅ Service Layer**
 - [x] Implemented tenant_service.py with CRUD and schema provisioning
 - [x] Implemented user_service.py with authentication
 - [x] Implemented workshop_service.py with CRUD operations
+- [x] Implemented exercise_service.py with CRUD operations
+- [x] Implemented progress_service.py with progress tracking
+- [x] Implemented agent_service.py with agent management
 
 **✅ API Documentation**
 - [x] Created comprehensive API documentation (docs/api/README.md)
@@ -1920,9 +1926,9 @@ Cloud costs can escalate quickly with autoscaling
 - src/db/migrations/versions/001_initial_schema_with_proper_tenant_isolation.py (UPDATED)
 - src/db/tenant_schema.py (NEW - Tenant schema management - 194 lines)
 
-*FastAPI Application (11 files):*
+*FastAPI Application (14 files):*
 - src/api/__init__.py
-- src/api/main.py (FastAPI app - 65 lines)
+- src/api/main.py (FastAPI app - 68 lines)
 - src/api/dependencies.py (Auth & DI - 120 lines)
 - src/api/middleware/__init__.py
 - src/api/middleware/tenant.py (Tenant middleware - 50 lines)
@@ -1931,18 +1937,25 @@ Cloud costs can escalate quickly with autoscaling
 - src/api/routes/tenants.py (Tenant routes - 145 lines)
 - src/api/routes/users.py (User routes - 190 lines)
 - src/api/routes/workshops.py (Workshop routes - 165 lines)
+- src/api/routes/exercises.py (Exercise routes - 165 lines) **NEW**
+- src/api/routes/progress.py (Progress routes - 163 lines) **NEW**
+- src/api/routes/agents.py (Agent routes - 216 lines) **NEW**
 
-*Pydantic Schemas (4 files):*
-- src/api/schemas/__init__.py
+*Pydantic Schemas (5 files):*
+- src/api/schemas/__init__.py (Updated with all exports)
 - src/api/schemas/tenant.py (Tenant schemas - 55 lines)
 - src/api/schemas/user.py (User schemas - 60 lines)
-- src/api/schemas/workshop.py (Workshop schemas - 130 lines)
+- src/api/schemas/workshop.py (Workshop/Exercise/Progress schemas - 130 lines)
+- src/api/schemas/agent.py (Agent schemas - 48 lines) **NEW**
 
-*Service Layer (4 files):*
-- src/services/__init__.py
+*Service Layer (7 files):*
+- src/services/__init__.py (Updated with all exports)
 - src/services/tenant_service.py (Tenant CRUD - 160 lines)
 - src/services/user_service.py (User management - 145 lines)
 - src/services/workshop_service.py (Workshop CRUD - 120 lines)
+- src/services/exercise_service.py (Exercise CRUD - 115 lines) **NEW**
+- src/services/progress_service.py (Progress tracking - 168 lines) **NEW**
+- src/services/agent_service.py (Agent management - 148 lines) **NEW**
 
 **Scripts (1 file):**
 - scripts/db/init.sql (Database initialization)
@@ -1956,9 +1969,9 @@ Cloud costs can escalate quickly with autoscaling
 ```
 adk-workshop-training/
 ├── src/
-│   ├── api/                ✓ Completed (Phase 3)
-│   │   ├── routes/         ✓ 4 routers (health, tenants, users, workshops)
-│   │   ├── schemas/        ✓ 3 schema files (tenant, user, workshop)
+│   ├── api/                ✓ Completed (Phase 3 - FULL)
+│   │   ├── routes/         ✓ 7 routers (health, tenants, users, workshops, exercises, progress, agents)
+│   │   ├── schemas/        ✓ 4 schema files (tenant, user, workshop, agent)
 │   │   ├── middleware/     ✓ Tenant middleware
 │   │   ├── main.py         ✓ FastAPI app
 │   │   └── dependencies.py ✓ Auth & DI
@@ -1973,10 +1986,13 @@ adk-workshop-training/
 │   │   ├── migrations/     ✓ Alembic configured
 │   │   ├── base.py         ✓ Base classes
 │   │   └── session.py      ✓ Async sessions
-│   ├── services/           ✓ Completed (Phase 3)
+│   ├── services/           ✓ Completed (Phase 3 - FULL)
 │   │   ├── tenant_service.py    ✓ Tenant CRUD
 │   │   ├── user_service.py      ✓ User management
-│   │   └── workshop_service.py  ✓ Workshop CRUD
+│   │   ├── workshop_service.py  ✓ Workshop CRUD
+│   │   ├── exercise_service.py  ✓ Exercise CRUD
+│   │   ├── progress_service.py  ✓ Progress tracking
+│   │   └── agent_service.py     ✓ Agent management
 │   ├── agents/             ← Created (empty, Phase 4)
 │   └── utils/              ← Created (empty, Phase 4)
 ├── tests/
@@ -1997,7 +2013,7 @@ adk-workshop-training/
 
 #### Phase 4: Business Logic & Integrations (Partial)
 
-- [x] Implemented basic service layer (tenant, user, workshop)
+- [x] Implemented complete service layer (tenant, user, workshop, exercise, progress, agent)
 - [ ] Migrate agent examples to new structure
 - [ ] Create background job system (Cloud Tasks or Celery)
 - [ ] Implement email notifications
@@ -2006,10 +2022,10 @@ adk-workshop-training/
 
 #### Phase 5-8: Future Work
 
-- [ ] Wrote comprehensive test suite (unit, integration) (Phase 7)
-- [ ] Migrated existing workshop content to content/ directory
-- [ ] Verified feature parity with original application
-- [ ] Built frontend (React/Next.js or keep Flask templates)
+- [ ] Write comprehensive test suite (unit, integration) (Phase 7)
+- [ ] Migrate existing workshop content to content/ directory
+- [ ] Verify feature parity with original application
+- [ ] Build frontend (React/Next.js or keep Flask templates)
 
 #### Deferred (Out of MVP Scope)
 
@@ -2025,13 +2041,13 @@ adk-workshop-training/
 
 ### Results Summary (MVP Phase 1-3)
 
-- **Files Created**: 57 files (48 committed to git)
-- **Lines of Code Added**: ~3,300 lines (core, models, API, services, schemas)
+- **Files Created**: 63 files
+- **Lines of Code Added**: ~4,100 lines (core, models, API, services, schemas)
 - **Configuration Files**: 8 files
 - **Database Models**: 6 models (Tenant, User, Workshop, Exercise, Progress, Agent)
-- **API Endpoints**: 17 endpoints across 4 routers
-- **Pydantic Schemas**: 3 schema files with request/response models
-- **Service Layer**: 3 service classes with business logic
+- **API Endpoints**: 33 endpoints across 7 routers
+- **Pydantic Schemas**: 4 schema files with request/response models
+- **Service Layer**: 6 service classes with business logic
 - **Directory Structure**: 20+ directories created
 - **Tests Added**: 0 (pending Phase 7)
 - **Test Coverage**: 0% (pending Phase 7)
@@ -2159,23 +2175,97 @@ await session.execute(
 
 ---
 
-### Next Steps (Phase 3 Completion + Phase 7 Testing)
+### Phase 3 API Completion (2025-11-21)
 
-**Immediate Tasks:**
+**Status:** ✅ COMPLETE
+**Duration:** ~2 hours
+**Scope:** Complete remaining API routes, services, and schemas for Exercise, Progress, and Agent domains
+
+#### Files Created (6 new files, ~850 lines)
+
+| File | Lines | Description |
+|------|-------|-------------|
+| `src/api/schemas/agent.py` | 48 | AgentCreate, AgentUpdate, AgentResponse schemas |
+| `src/services/exercise_service.py` | 115 | Exercise CRUD operations |
+| `src/services/progress_service.py` | 168 | Progress tracking with auto-completion timestamps |
+| `src/services/agent_service.py` | 148 | Agent management with ownership checks |
+| `src/api/routes/exercises.py` | 165 | 5 exercise endpoints |
+| `src/api/routes/progress.py` | 163 | 5 progress endpoints |
+| `src/api/routes/agents.py` | 216 | 6 agent endpoints |
+
+#### Files Modified (3 files)
+
+| File | Change |
+|------|--------|
+| `src/api/main.py` | Registered 3 new routers (exercises, progress, agents) |
+| `src/api/schemas/__init__.py` | Added exports for all 16 schemas |
+| `src/services/__init__.py` | Added exports for all 6 services |
+
+#### New API Endpoints (16 total)
+
+**Exercises (5 endpoints):**
+- `POST /api/v1/exercises/` - Create exercise (instructor+)
+- `GET /api/v1/exercises/{id}` - Get exercise by ID
+- `PATCH /api/v1/exercises/{id}` - Update exercise (instructor+)
+- `DELETE /api/v1/exercises/{id}` - Delete exercise (instructor+)
+- `GET /api/v1/exercises/` - List exercises (with workshop_id filter)
+
+**Progress (5 endpoints):**
+- `PUT /api/v1/progress/exercises/{id}` - Update progress for exercise
+- `GET /api/v1/progress/{id}` - Get progress by ID
+- `GET /api/v1/progress/user/{id}` - List progress by user (self or instructor)
+- `GET /api/v1/progress/exercise/{id}` - List progress by exercise (instructor+)
+- `GET /api/v1/progress/me` - Get current user's progress
+
+**Agents (6 endpoints):**
+- `POST /api/v1/agents/` - Create agent
+- `GET /api/v1/agents/{id}` - Get agent by ID
+- `PATCH /api/v1/agents/{id}` - Update agent (owner or admin)
+- `DELETE /api/v1/agents/{id}` - Delete agent (owner or admin)
+- `GET /api/v1/agents/` - List agents (filtered by role)
+- `GET /api/v1/agents/me` - Get current user's agents
+
+#### API Layer Summary
+
+| Before | After | Change |
+|--------|-------|--------|
+| 17 endpoints | 33 endpoints | +16 endpoints |
+| 4 routers | 7 routers | +3 routers |
+| 3 services | 6 services | +3 services |
+| 3 schema files | 4 schema files | +1 schema file |
+
+#### Verification
+
+```bash
+# All imports successful
+poetry run python -c "from src.api.routes import agents, exercises, progress"
+
+# FastAPI app loads with all 33 routes
+poetry run python -c "from src.api.main import app; print(len([r for r in app.routes if hasattr(r, 'path')]))"
+# Output: 38 (includes OpenAPI routes)
+```
+
+---
+
+### Next Steps (Phase 7 Testing)
+
+**Completed (2025-11-21):**
 1. ~~Fix multi-tenant schema isolation~~ ✅ COMPLETED
-2. Create Exercise API routes and service layer (5 endpoints)
-3. Create Progress API routes and service layer (4 endpoints)
-4. Create Agent API routes and service layer (5 endpoints)
-5. Set up pytest configuration and test fixtures
-6. Write unit tests for core modules (config, security, tenancy)
-7. Write unit tests for services (tenant_service, user_service, workshop_service)
-8. Write integration tests for API routes
-9. Write integration tests for authentication flow
-10. Write integration tests for multi-tenant isolation
-11. Set up test database and fixtures
-12. Achieve 80% code coverage
-13. Add tests to CI/CD pipeline
-14. Document testing approach
+2. ~~Create Exercise API routes and service layer (5 endpoints)~~ ✅ COMPLETED
+3. ~~Create Progress API routes and service layer (5 endpoints)~~ ✅ COMPLETED
+4. ~~Create Agent API routes and service layer (6 endpoints)~~ ✅ COMPLETED
+
+**Immediate Tasks (Phase 7 - Testing):**
+1. Set up pytest configuration and test fixtures
+2. Write unit tests for core modules (config, security, tenancy)
+3. Write unit tests for services (all 6 services)
+4. Write integration tests for API routes (all 7 routers)
+5. Write integration tests for authentication flow
+6. Write integration tests for multi-tenant isolation
+7. Set up test database and fixtures
+8. Achieve 80% code coverage
+9. Add tests to CI/CD pipeline
+10. Document testing approach
 
 **Optional Future Phases:**
 - **Phase 4 (Extended)**: Agent migration, background jobs, caching
@@ -2184,11 +2274,11 @@ await session.execute(
 - **Phase 8**: Production deployment
 
 **Estimated Effort for Phase 7 (Testing):** 12-16 hours
-**Estimated Effort for Phase 4 (Complete):** 20-25 hours
+**Estimated Effort for Phase 4 (Complete):** 15-20 hours
 **Estimated Effort for Phase 5 (Frontend):** 40-50 hours
 **Estimated Effort for Phase 6 (Infrastructure):** 30-40 hours
 
-**Total Remaining for Full Production System:** ~100-130 hours
+**Total Remaining for Full Production System:** ~95-125 hours
 
 ### Testing Results (2025-11-20)
 
