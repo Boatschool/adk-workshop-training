@@ -1868,7 +1868,7 @@ Cloud costs can escalate quickly with autoscaling
 - [x] Implemented user routes: register, login, me, GET, PATCH, LIST (6 endpoints)
 - [x] Implemented workshop routes: POST, GET, PATCH, DELETE, LIST (5 endpoints)
 - [x] Created health check routes: GET /health/, GET /health/ready (2 endpoints)
-- [x] Total: 18 API endpoints
+- [x] Total: 17 API endpoints
 
 **✅ Service Layer**
 - [x] Implemented tenant_service.py with CRUD and schema provisioning
@@ -1918,7 +1918,7 @@ Cloud costs can escalate quickly with autoscaling
 - src/db/migrations/env.py (Alembic environment - 90 lines)
 - src/db/migrations/script.py.mako (Migration template)
 - src/db/migrations/versions/001_initial_schema_with_proper_tenant_isolation.py (UPDATED)
-- src/db/tenant_schema.py (NEW - Tenant schema management - 172 lines)
+- src/db/tenant_schema.py (NEW - Tenant schema management - 194 lines)
 
 *FastAPI Application (11 files):*
 - src/api/__init__.py
@@ -2029,7 +2029,7 @@ adk-workshop-training/
 - **Lines of Code Added**: ~3,300 lines (core, models, API, services, schemas)
 - **Configuration Files**: 8 files
 - **Database Models**: 6 models (Tenant, User, Workshop, Exercise, Progress, Agent)
-- **API Endpoints**: 18 endpoints across 4 routers
+- **API Endpoints**: 17 endpoints across 4 routers
 - **Pydantic Schemas**: 3 schema files with request/response models
 - **Service Layer**: 3 service classes with business logic
 - **Directory Structure**: 20+ directories created
@@ -2091,6 +2091,19 @@ adk-workshop-training/
 - Updated `get_db_context()` with same tenant schema switching
 - Queries tenant record to get actual `database_schema` name (avoids UUID hyphen issues)
 
+**How Schema Switching Works:**
+```python
+# 1. TenantContext holds tenant_id (set by middleware from X-Tenant-ID header)
+# 2. get_db() queries Tenant model to get database_schema name
+# 3. Sets PostgreSQL search_path:
+await session.execute(
+    text(f"SET search_path TO {schema_name}, adk_platform_shared, public")
+)
+# 4. All subsequent queries in session use tenant's schema by default
+```
+
+**Configuration:** `DEFAULT_TENANT_SCHEMA_PREFIX=adk_tenant_` (from .env)
+
 **4. TenantService Integration (UPDATED: src/services/tenant_service.py)**
 - Updated `_create_tenant_schema()` to use new tenant_schema module
 - Fixed config reference: `tenant_schema_prefix` → `default_tenant_schema_prefix`
@@ -2136,7 +2149,7 @@ adk-workshop-training/
 
 #### Files Modified
 - `src/db/migrations/versions/001_initial_schema_with_proper_tenant_isolation.py` (NEW)
-- `src/db/tenant_schema.py` (NEW - 172 lines)
+- `src/db/tenant_schema.py` (NEW - 194 lines)
 - `src/db/session.py` (Updated schema switching logic)
 - `src/services/tenant_service.py` (Fixed config reference)
 
