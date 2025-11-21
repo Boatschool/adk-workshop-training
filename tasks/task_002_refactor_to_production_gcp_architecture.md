@@ -1914,10 +1914,11 @@ Cloud costs can escalate quickly with autoscaling
 - src/db/models/workshop.py (Workshop/Exercise/Progress models - 70 lines)
 - src/db/models/agent.py (Agent model - 30 lines)
 
-*Database Migrations (3 files):*
+*Database Migrations & Schema Management (4 files):*
 - src/db/migrations/env.py (Alembic environment - 90 lines)
 - src/db/migrations/script.py.mako (Migration template)
-- src/db/migrations/versions/ea2507e5b485_initial_schema_with_multi_tenant_support.py
+- src/db/migrations/versions/001_initial_schema_with_proper_tenant_isolation.py (UPDATED)
+- src/db/tenant_schema.py (NEW - Tenant schema management - 172 lines)
 
 *FastAPI Application (11 files):*
 - src/api/__init__.py
@@ -2063,19 +2064,105 @@ adk-workshop-training/
 - Rationale: No cross-tenant ID leakage, distributed system friendly, security
 - Implementation: UUID v4 as default in BaseModel
 
-### Next Steps (Phase 7: Testing)
+### Critical Fix: Multi-Tenant Schema Isolation (2025-11-21)
+
+**Issue Discovered:** The original migration created ALL tenant-specific tables (users, workshops, exercises, progress, agents) in the shared schema, violating the multi-tenant architecture design.
+
+**Fix Applied:** Complete re-implementation of schema-per-tenant isolation.
+
+#### Changes Made
+
+**1. New Migration System**
+- Created new migration `001_initial_schema_with_proper_tenant_isolation.py`
+- Migration ONLY creates shared schema tables (tenants)
+- Tenant-specific tables are created dynamically when tenant is provisioned
+- Removed old migration that incorrectly placed all tables in shared schema
+
+**2. Tenant Schema Management Module (NEW: src/db/tenant_schema.py)**
+- `create_tenant_schema_and_tables()` - Creates isolated tenant schema with all 5 tables
+- `drop_tenant_schema()` - Safely removes tenant schema and all data
+- `schema_exists()` - Checks if a tenant schema exists
+- Includes SQL triggers for automatic `updated_at` timestamps
+- Proper SQL injection protection via schema name validation
+
+**3. Session-Level Schema Switching (UPDATED: src/db/session.py)**
+- `set_tenant_schema()` - Sets PostgreSQL `search_path` for tenant isolation
+- Updated `get_db()` to automatically set tenant schema based on TenantContext
+- Updated `get_db_context()` with same tenant schema switching
+- Queries tenant record to get actual `database_schema` name (avoids UUID hyphen issues)
+
+**4. TenantService Integration (UPDATED: src/services/tenant_service.py)**
+- Updated `_create_tenant_schema()` to use new tenant_schema module
+- Fixed config reference: `tenant_schema_prefix` → `default_tenant_schema_prefix`
+
+#### Verification Results
+
+```
+✅ Created 2 test tenants:
+   - ACME Corporation (adk_tenant_acme)
+   - TechCorp Inc (adk_tenant_techcorp)
+
+✅ Verified tenant schemas created with all tables:
+   adk_tenant_acme/
+   ├── users
+   ├── workshops
+   ├── exercises
+   ├── progress
+   └── agents
+
+   adk_tenant_techcorp/
+   ├── users
+   ├── workshops
+   ├── exercises
+   ├── progress
+   └── agents
+
+✅ Registered users in both tenants:
+   - john@acme.com in ACME tenant
+   - jane@techcorp.com in TechCorp tenant
+
+✅ Verified complete data isolation:
+   - John's data ONLY in adk_tenant_acme.users
+   - Jane's data ONLY in adk_tenant_techcorp.users
+   - NO cross-tenant data visibility
+```
+
+#### Security Impact
+- ✅ TRUE multi-tenant isolation (schema-level, not row-level)
+- ✅ Prevents cross-tenant data leakage via application bugs
+- ✅ Easier tenant backup/restore (schema-level operations)
+- ✅ Enables tenant migration to dedicated databases if needed
+- ✅ Compliant with healthcare/enterprise security requirements
+
+#### Files Modified
+- `src/db/migrations/versions/001_initial_schema_with_proper_tenant_isolation.py` (NEW)
+- `src/db/tenant_schema.py` (NEW - 172 lines)
+- `src/db/session.py` (Updated schema switching logic)
+- `src/services/tenant_service.py` (Fixed config reference)
+
+#### Commit
+- **Hash:** fb06fcc
+- **Message:** "fix: Implement proper multi-tenant schema isolation"
+
+---
+
+### Next Steps (Phase 3 Completion + Phase 7 Testing)
 
 **Immediate Tasks:**
-1. Set up pytest configuration and test fixtures
-2. Write unit tests for core modules (config, security, tenancy)
-3. Write unit tests for services (tenant_service, user_service, workshop_service)
-4. Write integration tests for API routes
-5. Write integration tests for authentication flow
-6. Write integration tests for multi-tenant isolation
-7. Set up test database and fixtures
-8. Achieve 80% code coverage
-9. Add tests to CI/CD pipeline
-10. Document testing approach
+1. ~~Fix multi-tenant schema isolation~~ ✅ COMPLETED
+2. Create Exercise API routes and service layer (5 endpoints)
+3. Create Progress API routes and service layer (4 endpoints)
+4. Create Agent API routes and service layer (5 endpoints)
+5. Set up pytest configuration and test fixtures
+6. Write unit tests for core modules (config, security, tenancy)
+7. Write unit tests for services (tenant_service, user_service, workshop_service)
+8. Write integration tests for API routes
+9. Write integration tests for authentication flow
+10. Write integration tests for multi-tenant isolation
+11. Set up test database and fixtures
+12. Achieve 80% code coverage
+13. Add tests to CI/CD pipeline
+14. Document testing approach
 
 **Optional Future Phases:**
 - **Phase 4 (Extended)**: Agent migration, background jobs, caching
