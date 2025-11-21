@@ -1,6 +1,6 @@
 """Tenant service for managing tenant operations."""
 
-from sqlalchemy import select, text
+from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.api.schemas.tenant import TenantCreate, TenantUpdate
@@ -42,7 +42,7 @@ class TenantService:
             raise ValidationError(f"Tenant with slug '{tenant_data.slug}' already exists")
 
         # Generate database schema name
-        database_schema = f"{settings.tenant_schema_prefix}{tenant_data.slug}"
+        database_schema = f"{settings.default_tenant_schema_prefix}{tenant_data.slug}"
 
         # Create tenant record
         tenant = Tenant(
@@ -150,20 +150,12 @@ class TenantService:
 
     async def _create_tenant_schema(self, schema_name: str) -> None:
         """
-        Create a new PostgreSQL schema for the tenant.
+        Create a new PostgreSQL schema for the tenant with all required tables.
 
         Args:
             schema_name: Name of the schema to create
         """
-        # Sanitize schema name to prevent SQL injection
-        if not schema_name.replace("_", "").isalnum():
-            raise ValidationError("Invalid schema name")
+        from src.db.tenant_schema import create_tenant_schema_and_tables
 
-        # Create schema
-        await self.db.execute(text(f"CREATE SCHEMA IF NOT EXISTS {schema_name}"))
-
-        # TODO: Create all tables in the tenant schema
-        # This would involve running Alembic migrations or creating tables directly
-        # For now, we'll defer this to a separate migration strategy
-
-        await self.db.commit()
+        # This function handles sanitization and table creation
+        await create_tenant_schema_and_tables(self.db, schema_name)

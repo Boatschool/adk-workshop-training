@@ -3,6 +3,7 @@
 from collections.abc import AsyncGenerator
 from contextlib import asynccontextmanager
 
+from sqlalchemy import event, text
 from sqlalchemy.ext.asyncio import (
     AsyncEngine,
     AsyncSession,
@@ -11,6 +12,7 @@ from sqlalchemy.ext.asyncio import (
 )
 
 from src.core.config import get_settings
+from src.core.tenancy import TenantContext
 
 # Global engine and session factory
 _engine: AsyncEngine | None = None
@@ -51,11 +53,41 @@ def get_session_factory() -> async_sessionmaker[AsyncSession]:
     return _async_session_factory
 
 
+async def set_tenant_schema(session: AsyncSession, schema_name: str) -> None:
+    """
+    Set the PostgreSQL search_path to use the tenant's schema.
+
+    This ensures all queries in this session use the tenant's schema by default.
+
+    Args:
+        session: Database session
+        schema_name: Name of the tenant schema
+    """
+    await session.execute(
+        text(f"SET search_path TO {schema_name}, adk_platform_shared, public")
+    )
+
+
 async def get_db() -> AsyncGenerator[AsyncSession, None]:
     """Dependency for getting database sessions"""
     session_factory = get_session_factory()
     async with session_factory() as session:
         try:
+            # Set tenant schema if tenant context is available
+            tenant_id = TenantContext.get_optional()
+            if tenant_id:
+                # Get tenant record to find the actual schema name
+                from sqlalchemy import select, text
+                from src.db.models.tenant import Tenant
+
+                result = await session.execute(
+                    select(Tenant.database_schema).where(Tenant.id == tenant_id)
+                )
+                schema_name = result.scalar_one_or_none()
+
+                if schema_name:
+                    await set_tenant_schema(session, schema_name)
+
             yield session
             await session.commit()
         except Exception:
@@ -71,6 +103,21 @@ async def get_db_context() -> AsyncGenerator[AsyncSession, None]:
     session_factory = get_session_factory()
     async with session_factory() as session:
         try:
+            # Set tenant schema if tenant context is available
+            tenant_id = TenantContext.get_optional()
+            if tenant_id:
+                # Get tenant record to find the actual schema name
+                from sqlalchemy import select
+                from src.db.models.tenant import Tenant
+
+                result = await session.execute(
+                    select(Tenant.database_schema).where(Tenant.id == tenant_id)
+                )
+                schema_name = result.scalar_one_or_none()
+
+                if schema_name:
+                    await set_tenant_schema(session, schema_name)
+
             yield session
             await session.commit()
         except Exception:
