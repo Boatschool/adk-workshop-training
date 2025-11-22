@@ -10,9 +10,9 @@
 - **Assigned To**: TBD
 - **Created Date**: 2025-11-22
 - **Due Date**: TBD
-- **Status**: 🚧 IN PROGRESS (Phases 5.1-5.5, 5.8 Complete)
+- **Status**: 🚧 IN PROGRESS (Phases 5.1-5.6, 5.8 Complete)
 - **Completion Date**: -
-- **Actual Effort**: ~10 hours (Phases 5.1-5.5, 5.8)
+- **Actual Effort**: ~14 hours (Phases 5.1-5.6, 5.8)
 
 ## Description
 
@@ -237,18 +237,18 @@ const useCreateWorkshop = () => useMutation({
 - [x] Build `Tips` section
 - [x] Add Visual Builder status indicator
 
-### Phase 5.6: Workshop & Exercise Pages (8 hours)
-- [ ] Create Workshop list page with filters
-- [ ] Build `WorkshopCard` component
-- [ ] Create Workshop detail page
-- [ ] Build `ExerciseList` with progress indicators
-- [ ] Create Exercise page with markdown rendering
-- [ ] Implement `CompletionButton` with API call
-- [ ] Add completion badges and animations
-- [ ] Create Example page with code viewer
-- [ ] Build `CodeViewer` with syntax highlighting (Shiki/Prism)
-- [ ] Add copy/download buttons
-- [ ] Create Guide page with markdown
+### Phase 5.6: Workshop & Exercise Pages (8 hours) ✅ COMPLETE
+- [x] Create Workshop list page with filters
+- [x] Build `WorkshopCard` component
+- [x] Create Workshop detail page
+- [x] Build `ExerciseList` with progress indicators
+- [x] Create Exercise page with markdown rendering
+- [x] Implement `CompletionButton` with API call
+- [x] Add completion badges and animations
+- [x] Create Example page with code viewer
+- [x] Build `CodeViewer` with syntax highlighting
+- [x] Add copy/download buttons
+- [x] Create Guide page with markdown
 
 ### Phase 5.7: Agent Management Pages (6 hours)
 - [ ] Create Agent list page

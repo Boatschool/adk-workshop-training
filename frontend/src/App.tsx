@@ -12,21 +12,15 @@ import { AuthProvider } from '@contexts/AuthContext'
 import { TenantProvider } from '@contexts/TenantContext'
 import { ThemeProvider } from '@contexts/ThemeContext'
 import { RootLayout } from '@components/layout'
+
+// Page imports
 import { DashboardPage } from '@pages/dashboard'
+import { WorkshopsPage, WorkshopDetailPage } from '@pages/workshops'
+import { ExercisePage } from '@pages/exercises'
+import { GuidePage } from '@pages/guides'
+import { ExamplePage } from '@pages/examples'
 
-function WorkshopsPage() {
-  return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-      <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-4">
-        Workshops
-      </h1>
-      <p className="text-gray-600 dark:text-gray-300">
-        Workshop list coming soon...
-      </p>
-    </div>
-  )
-}
-
+// Placeholder pages - will be replaced with actual page components
 function AgentsPage() {
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
@@ -87,7 +81,7 @@ function App() {
                 {/* Public routes (no layout) */}
                 <Route path="/login" element={<LoginPage />} />
 
-                {/* Protected routes with layout */}
+                {/* Dashboard */}
                 <Route
                   path="/"
                   element={
@@ -96,6 +90,8 @@ function App() {
                     </RootLayout>
                   }
                 />
+
+                {/* Workshops */}
                 <Route
                   path="/workshops"
                   element={
@@ -105,6 +101,50 @@ function App() {
                   }
                 />
                 <Route
+                  path="/workshops/:id"
+                  element={
+                    <RootLayout>
+                      <WorkshopDetailPage />
+                    </RootLayout>
+                  }
+                />
+
+                {/* Exercises */}
+                <Route
+                  path="/exercises/:id"
+                  element={
+                    <RootLayout>
+                      <ExercisePage />
+                    </RootLayout>
+                  }
+                />
+
+                {/* Guides */}
+                <Route
+                  path="/guides/:slug"
+                  element={
+                    <RootLayout>
+                      <GuidePage />
+                    </RootLayout>
+                  }
+                />
+                <Route
+                  path="/getting-started"
+                  element={<Navigate to="/guides/getting-started" replace />}
+                />
+
+                {/* Examples */}
+                <Route
+                  path="/examples/:id"
+                  element={
+                    <RootLayout>
+                      <ExamplePage />
+                    </RootLayout>
+                  }
+                />
+
+                {/* Agents */}
+                <Route
                   path="/agents"
                   element={
                     <RootLayout>
@@ -112,6 +152,7 @@ function App() {
                     </RootLayout>
                   }
                 />
+
                 {/* Visual Builder is accessed via external ADK CLI at http://localhost:8000/dev-ui */}
 
                 {/* Catch-all */}
