@@ -179,10 +179,14 @@ class TaskQueue:
             },
         )
 
-        # Schedule execution
-        asyncio.create_task(
+        # Schedule execution and track the task
+        task = asyncio.create_task(
             self._execute_task(task_id, task_type, delay_seconds, kwargs)
         )
+        self._running_tasks[task_id] = task
+
+        # Clean up task reference when done
+        task.add_done_callback(lambda _: self._running_tasks.pop(task_id, None))
 
         logger.info(
             f"Task enqueued: {task_id}",

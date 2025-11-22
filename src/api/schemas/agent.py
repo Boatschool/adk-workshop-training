@@ -85,6 +85,7 @@ class AgentUpdate(BaseModel):
     agent_type: str | None = Field(None, min_length=1, max_length=100)
     config: dict[str, Any] | None = None
     status: AgentStatus | None = None
+    last_run_at: datetime | None = Field(None, description="Last execution timestamp")
 
 
 class AgentResponse(AgentBase):

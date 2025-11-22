@@ -447,12 +447,11 @@ async def execute_saved_agent(
     )
 
     # Update last_run_at timestamp
-    from src.api.schemas.agent import AgentUpdate
-    from datetime import datetime
+    from datetime import datetime, timezone
 
     await service.update_agent(
         agent_id,
-        AgentUpdate(status=agent.status),  # This triggers updated_at
+        AgentUpdate(last_run_at=datetime.now(timezone.utc)),
     )
 
     return AgentExecuteResponse(
