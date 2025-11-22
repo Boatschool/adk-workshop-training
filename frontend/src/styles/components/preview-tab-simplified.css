@@ -1,0 +1,441 @@
+/**
+ * Simplified Preview Tab Styling - Phase 1 Implementation
+ * Clean, Google ADK-style interface focusing only on final output
+ * Designed for novice users with minimal visual complexity
+ */
+
+/* ============================================
+   1. MAIN CONTAINER & LAYOUT
+   ============================================ */
+
+.preview-tab-simplified {
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  gap: 24px;
+  background: #ffffff;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
+}
+
+/* ============================================
+   2. TEST BUTTON CONTAINER
+   ============================================ */
+
+.test-button-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding-bottom: 24px;
+  border-bottom: 1px solid var(--gms-border-primary, #e0e0e0);
+  gap: 12px;
+}
+
+.test-workflow-primary {
+  /* Size and spacing */
+  padding: 16px 32px;
+  min-width: 200px;
+  height: 56px;
+  
+  /* Visual design */
+  background: linear-gradient(135deg, #00AAE7 0%, #00B8F0 100%);
+  border: none;
+  border-radius: 28px; /* Fully rounded for friendliness */
+  box-shadow: 0 4px 12px rgba(0, 170, 231, 0.25);
+  
+  /* Typography */
+  font-size: 16px;
+  font-weight: 600;
+  color: white;
+  letter-spacing: -0.01em;
+  
+  /* Icon integration */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  
+  /* Transition */
+  transition: all 200ms cubic-bezier(0.4, 0, 0.2, 1);
+  cursor: pointer;
+}
+
+/* Hover state - subtle lift */
+.test-workflow-primary:hover:not(.disabled):not(.executing) {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(0, 170, 231, 0.35);
+  background: linear-gradient(135deg, #00B8F0 0%, #00C4FA 100%);
+}
+
+/* Active state - pressed feel */
+.test-workflow-primary:active:not(.disabled) {
+  transform: translateY(0);
+  box-shadow: 0 2px 8px rgba(0, 170, 231, 0.25);
+}
+
+/* Executing state */
+.test-workflow-primary.executing {
+  background: linear-gradient(135deg, #6B7280 0%, #9CA3AF 100%);
+  cursor: default;
+  animation: executingPulse 2s infinite;
+}
+
+.test-workflow-primary.executing:hover {
+  background: linear-gradient(135deg, #EF4444 0%, #F87171 100%);
+  transform: none;
+}
+
+/* Disabled state */
+.test-workflow-primary.disabled {
+  background: linear-gradient(135deg, #D1D5DB 0%, #E5E7EB 100%);
+  color: #9CA3AF;
+  cursor: not-allowed;
+  box-shadow: none;
+}
+
+.test-workflow-primary.disabled:hover {
+  transform: none;
+  box-shadow: none;
+}
+
+@keyframes executingPulse {
+  0%, 100% {
+    box-shadow: 0 4px 12px rgba(107, 114, 128, 0.25);
+  }
+  50% {
+    box-shadow: 0 6px 20px rgba(107, 114, 128, 0.4);
+  }
+}
+
+/* Workflow info */
+.workflow-info {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.workflow-description {
+  font-size: 13px;
+  color: var(--gms-text-secondary, #6B7280);
+  font-weight: 500;
+  background: rgba(0, 170, 231, 0.05);
+  padding: 4px 12px;
+  border-radius: 12px;
+  border: 1px solid rgba(0, 170, 231, 0.1);
+}
+
+/* ============================================
+   3. FINAL OUTPUT DISPLAY
+   ============================================ */
+
+.final-output-display {
+  flex: 1;
+  background: #FAFBFC;
+  border-radius: 12px;
+  padding: 24px;
+  overflow-y: auto;
+  border: 1px solid var(--gms-border-light, #F0F0F0);
+  position: relative;
+}
+
+/* Output conversation styling */
+.output-conversation {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.output-status {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 16px;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.output-status.success {
+  background: rgba(16, 185, 129, 0.05);
+  color: #059669;
+  border: 1px solid rgba(16, 185, 129, 0.2);
+}
+
+.output-status.error {
+  background: rgba(239, 68, 68, 0.05);
+  color: #DC2626;
+  border: 1px solid rgba(239, 68, 68, 0.2);
+}
+
+.status-indicator {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.status-indicator.success {
+  background: #10B981;
+  color: white;
+}
+
+.status-indicator.error {
+  background: #EF4444;
+  color: white;
+}
+
+.conversation-text {
+  font-family: 'Inter', sans-serif;
+  font-size: 14px;
+  line-height: 1.6;
+  color: var(--gms-text-primary, #1F2937);
+  white-space: pre-wrap;
+  margin: 0;
+  background: white;
+  border-radius: 8px;
+  padding: 20px;
+  border: 1px solid var(--gms-border-light, #F0F0F0);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+}
+
+.error-hint {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 16px;
+  background: rgba(59, 130, 246, 0.05);
+  border-radius: 8px;
+  border: 1px solid rgba(59, 130, 246, 0.2);
+  color: #2563EB;
+  font-size: 13px;
+}
+
+/* ============================================
+   4. EXECUTION PROGRESS STATE
+   ============================================ */
+
+.execution-progress {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  padding: 40px 20px;
+  color: var(--gms-text-secondary, #6B7280);
+}
+
+.typing-indicator {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+  padding: 16px;
+}
+
+.typing-indicator span {
+  width: 10px;
+  height: 10px;
+  background: var(--gms-bright-blue, #00AAE7);
+  border-radius: 50%;
+  animation: typingPulse 1.4s infinite;
+  opacity: 0.3;
+}
+
+.typing-indicator span:nth-child(1) { 
+  animation-delay: 0s; 
+}
+
+.typing-indicator span:nth-child(2) { 
+  animation-delay: 0.2s; 
+}
+
+.typing-indicator span:nth-child(3) { 
+  animation-delay: 0.4s; 
+}
+
+@keyframes typingPulse {
+  0%, 60%, 100% { 
+    opacity: 0.3; 
+    transform: scale(1);
+  }
+  30% { 
+    opacity: 1; 
+    transform: scale(1.2);
+  }
+}
+
+.progress-text {
+  font-size: 15px;
+  font-weight: 500;
+  color: var(--gms-text-primary, #1F2937);
+}
+
+/* ============================================
+   5. EMPTY STATE
+   ============================================ */
+
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  padding: 60px 20px;
+  text-align: center;
+  color: var(--gms-text-secondary, #6B7280);
+}
+
+.empty-icon {
+  font-size: 48px;
+  line-height: 1;
+  opacity: 0.6;
+  animation: floatIcon 3s ease-in-out infinite;
+}
+
+@keyframes floatIcon {
+  0%, 100% { 
+    transform: translateY(0px); 
+  }
+  50% { 
+    transform: translateY(-5px); 
+  }
+}
+
+.empty-state h3 {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--gms-text-primary, #1F2937);
+}
+
+.empty-state p {
+  margin: 0;
+  font-size: 14px;
+  color: var(--gms-text-secondary, #6B7280);
+  max-width: 300px;
+  line-height: 1.5;
+}
+
+/* ============================================
+   6. RESPONSIVE DESIGN
+   ============================================ */
+
+@media (max-width: 600px) {
+  .preview-tab-simplified {
+    padding: 16px;
+    gap: 20px;
+  }
+  
+  .test-workflow-primary {
+    min-width: 180px;
+    padding: 14px 24px;
+    font-size: 15px;
+  }
+  
+  .final-output-display {
+    padding: 20px;
+  }
+  
+  .conversation-text {
+    font-size: 13px;
+    padding: 16px;
+  }
+}
+
+/* ============================================
+   7. ACCESSIBILITY ENHANCEMENTS
+   ============================================ */
+
+/* Focus indicators */
+.test-workflow-primary:focus-visible {
+  outline: 3px solid rgba(59, 130, 246, 0.5);
+  outline-offset: 2px;
+}
+
+/* High contrast mode support */
+@media (prefers-contrast: high) {
+  .test-workflow-primary {
+    border: 2px solid;
+  }
+  
+  .final-output-display {
+    border: 2px solid var(--gms-border-primary);
+  }
+  
+  .conversation-text {
+    border: 2px solid var(--gms-border-primary);
+  }
+}
+
+/* Reduced motion support */
+@media (prefers-reduced-motion: reduce) {
+  .test-workflow-primary {
+    transition: none;
+  }
+  
+  .typing-indicator span {
+    animation: none;
+    opacity: 0.7;
+  }
+  
+  .empty-icon {
+    animation: none;
+  }
+  
+  .test-workflow-primary.executing {
+    animation: none;
+  }
+}
+
+/* Dark mode support (if needed later) */
+@media (prefers-color-scheme: dark) {
+  .preview-tab-simplified {
+    background: #1F2937;
+  }
+  
+  .final-output-display {
+    background: #111827;
+    border-color: #374151;
+  }
+  
+  .conversation-text {
+    background: #1F2937;
+    color: #F9FAFB;
+    border-color: #374151;
+  }
+  
+  .workflow-description {
+    background: rgba(0, 170, 231, 0.1);
+    border-color: rgba(0, 170, 231, 0.3);
+    color: #E5E7EB;
+  }
+}
+
+/* ============================================
+   8. PRINT STYLES (for documentation)
+   ============================================ */
+
+@media print {
+  .preview-tab-simplified {
+    padding: 0;
+    background: white;
+  }
+  
+  .test-button-container {
+    display: none;
+  }
+  
+  .final-output-display {
+    background: white;
+    border: 1px solid #000;
+    box-shadow: none;
+  }
+  
+  .conversation-text {
+    background: white;
+    color: black;
+  }
+}

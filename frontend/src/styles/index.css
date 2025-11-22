@@ -1,0 +1,173 @@
+/**
+ * GraymatterStudio Design System
+ * Main entry point for all CSS imports
+ *
+ * NOTE: @import statements must come before @tailwind directives
+ */
+
+/* =====================
+   Core Design System
+   ===================== */
+
+/* Master design tokens - must be first */
+@import './unified-design-system.css';
+
+/* Healthcare-specific UI patterns */
+@import './healthcare-professional.css';
+
+/* Dashboard theme */
+@import './dashboard-theme.css';
+
+/* React Flow v12 overrides */
+@import './react-flow-overrides.css';
+
+/* =====================
+   Admin Styles
+   ===================== */
+
+@import './admin-design-tokens.css';
+@import './admin-responsive-framework.css';
+@import './admin-sidebar-themes.css';
+
+/* =====================
+   Component Styles
+   ===================== */
+
+@import './section-inspired-components.css';
+@import './workspace-mode-selector.css';
+
+/* Design Tokens */
+@import './design-tokens/healthcare-nodes.css';
+
+/* Chat & AI Components */
+@import './components/ai-assistant.css';
+@import './components/unified-chat-panel.css';
+@import './components/persistent-chat.css';
+@import './components/conversation-history.css';
+
+/* Code & Preview Components */
+@import './components/code-tab.css';
+@import './components/code-tab-template-enhanced.css';
+@import './components/preview-tab.css';
+@import './components/preview-tab-simplified.css';
+@import './components/preview-tab-split-layout.css';
+@import './components/preview-tab-template-enhanced.css';
+@import './components/console-tab-workflow.css';
+
+/* Config Components */
+@import './components/config-tab-enhanced.css';
+@import './components/config-bundle-export-import.css';
+@import './components/config-source-badge.css';
+@import './components/unified-config-container.css';
+
+/* Workflow Components */
+@import './components/workflow-agent-config.css';
+@import './components/workflow-agent-config-panel.css';
+@import './components/workflow-input-chat.css';
+@import './components/workflow-input-collector.css';
+
+/* Node & UI Components */
+@import './components/unified-healthcare-node.css';
+@import './components/sub-agent-accordion.css';
+@import './components/model-selection-dropdown.css';
+@import './components/progressive-disclosure.css';
+@import './components/bulk-actions-toolbar.css';
+@import './components/suggested-starters.css';
+
+/* =====================
+   Tailwind CSS directives
+   MUST come after @import statements
+   ===================== */
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* =====================
+   Custom Utilities
+   ===================== */
+
+/* Smooth scrolling for the entire app */
+html {
+  scroll-behavior: smooth;
+}
+
+/* Focus visible utilities */
+@layer utilities {
+  .focus-ring {
+    @apply outline-none ring-2 ring-primary-500 ring-offset-2;
+  }
+
+  /* Transition utilities */
+  .transition-colors-fast {
+    @apply transition-colors duration-150 ease-in-out;
+  }
+
+  .transition-all-fast {
+    @apply transition-all duration-150 ease-in-out;
+  }
+}
+
+/* Scrollbar utilities */
+.scrollbar-thin {
+  scrollbar-width: thin;
+  scrollbar-color: var(--color-neutral-400) transparent;
+}
+
+.scrollbar-thin::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+.scrollbar-thin::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.scrollbar-thin::-webkit-scrollbar-thumb {
+  background-color: var(--color-neutral-400);
+  border-radius: 3px;
+}
+
+.scrollbar-thin::-webkit-scrollbar-thumb:hover {
+  background-color: var(--color-neutral-500);
+}
+
+/* Hide scrollbar utility */
+.scrollbar-hidden {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.scrollbar-hidden::-webkit-scrollbar {
+  display: none;
+}
+
+/* =====================
+   Animation Classes
+   ===================== */
+
+@keyframes spin-slow {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.animate-spin-slow {
+  animation: spin-slow 3s linear infinite;
+}
+
+@keyframes bounce-subtle {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-5px);
+  }
+}
+
+.animate-bounce-subtle {
+  animation: bounce-subtle 2s ease-in-out infinite;
+}

@@ -1,0 +1,450 @@
+/**
+ * Config Bundle Export/Import Styles
+ * Phase 3B.3 - Export/Import Config Bundles UI
+ *
+ * Enables healthcare teams to share workflow templates and migrate
+ * configurations between development, staging, and production environments.
+ */
+
+.config-bundle-export-import {
+  background: var(--color-neutral-lightest, #f9fafb);
+  border: 1px solid var(--color-border-light, #e0e0e0);
+  border-radius: 8px;
+  padding: 20px;
+  margin-top: 24px;
+}
+
+.export-import-header {
+  margin-bottom: 16px;
+}
+
+.export-import-header .section-title {
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--color-text-primary, #212121);
+  margin: 0 0 6px 0;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.export-import-header .section-description {
+  font-size: 13px;
+  color: var(--color-text-secondary, #616161);
+  margin: 0;
+  line-height: 1.5;
+}
+
+/* Export/Import Controls */
+.export-import-controls {
+  display: flex;
+  gap: 24px;
+  align-items: flex-start;
+  margin-bottom: 16px;
+}
+
+.export-section,
+.import-section {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.control-group {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.control-label {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--color-text-primary, #212121);
+  white-space: nowrap;
+}
+
+.format-select {
+  flex: 1;
+  padding: 8px 12px;
+  font-size: 13px;
+  border: 1px solid var(--color-border, #bdbdbd);
+  border-radius: 6px;
+  background-color: white;
+  cursor: pointer;
+  transition: border-color 0.2s ease;
+}
+
+.format-select:hover:not(:disabled) {
+  border-color: var(--color-primary, #2196f3);
+}
+
+.format-select:focus {
+  outline: none;
+  border-color: var(--color-primary, #2196f3);
+  box-shadow: 0 0 0 3px rgba(33, 150, 243, 0.1);
+}
+
+.format-select:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Export Button */
+.export-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 10px 20px;
+  font-size: 14px;
+  font-weight: 600;
+  background-color: var(--color-primary, #2196f3);
+  color: white;
+  border: 1px solid var(--color-primary-dark, #1565c0);
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+}
+
+.export-button:hover:not(:disabled) {
+  background-color: var(--color-primary-dark, #1565c0);
+  transform: translateY(-1px);
+  box-shadow: 0 2px 6px rgba(33, 150, 243, 0.3);
+}
+
+.export-button:active:not(:disabled) {
+  transform: translateY(0);
+  box-shadow: none;
+}
+
+.export-button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none;
+}
+
+/* Import Button */
+.import-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 10px 20px;
+  font-size: 14px;
+  font-weight: 600;
+  background-color: var(--color-success, #4caf50);
+  color: white;
+  border: 1px solid var(--color-success-dark, #2e7d32);
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+}
+
+.import-button:hover:not(:disabled) {
+  background-color: var(--color-success-dark, #2e7d32);
+  transform: translateY(-1px);
+  box-shadow: 0 2px 6px rgba(76, 175, 80, 0.3);
+}
+
+.import-button:active:not(:disabled) {
+  transform: translateY(0);
+  box-shadow: none;
+}
+
+.import-button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.import-hint {
+  font-size: 12px;
+  color: var(--color-text-secondary, #757575);
+  margin: 0;
+  font-style: italic;
+}
+
+.import-hint strong {
+  font-weight: 600;
+  color: var(--color-text-primary, #424242);
+}
+
+/* Loading Spinner */
+.loading-spinner-small {
+  display: inline-block;
+  width: 14px;
+  height: 14px;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  border-top-color: white;
+  border-radius: 50%;
+  animation: spin 0.6s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Status Messages */
+.status-message {
+  padding: 12px 16px;
+  border-radius: 6px;
+  font-size: 13px;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 16px;
+}
+
+.status-message.success {
+  background-color: var(--color-success-light, #e8f5e9);
+  color: var(--color-success-dark, #2e7d32);
+  border: 1px solid var(--color-success, #4caf50);
+}
+
+.status-message.error {
+  background-color: var(--color-danger-light, #ffebee);
+  color: var(--color-danger-dark, #c62828);
+  border: 1px solid var(--color-danger, #f44336);
+}
+
+.status-message.info {
+  background-color: var(--color-info-light, #e3f2fd);
+  color: var(--color-info-dark, #1565c0);
+  border: 1px solid var(--color-info, #2196f3);
+}
+
+/* Validation Errors */
+.validation-errors {
+  background-color: var(--color-danger-lightest, #fff5f5);
+  border: 1px solid var(--color-danger, #f44336);
+  border-radius: 8px;
+  padding: 16px;
+  margin-top: 16px;
+}
+
+.errors-title {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--color-danger-dark, #c62828);
+  margin: 0 0 12px 0;
+}
+
+.errors-list {
+  list-style: none;
+  padding: 0;
+  margin: 0 0 12px 0;
+}
+
+.error-item {
+  font-size: 13px;
+  color: var(--color-danger-dark, #d32f2f);
+  margin-bottom: 8px;
+  padding-left: 20px;
+  position: relative;
+}
+
+.error-item::before {
+  content: '•';
+  position: absolute;
+  left: 8px;
+  font-weight: 700;
+}
+
+.error-item strong {
+  font-weight: 600;
+  color: var(--color-danger-darker, #b71c1c);
+}
+
+.errors-hint {
+  font-size: 12px;
+  color: var(--color-text-secondary, #616161);
+  margin: 0;
+  font-style: italic;
+}
+
+/* Import Success */
+.import-success {
+  background-color: var(--color-success-lightest, #f1f8f4);
+  border: 1px solid var(--color-success, #4caf50);
+  border-radius: 8px;
+  padding: 16px;
+  margin-top: 16px;
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+}
+
+.success-icon {
+  font-size: 24px;
+  line-height: 1;
+}
+
+.success-content h5 {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--color-success-dark, #2e7d32);
+  margin: 0 0 6px 0;
+}
+
+.success-content p {
+  font-size: 13px;
+  color: var(--color-text-secondary, #616161);
+  margin: 0;
+  line-height: 1.5;
+}
+
+/* Unsaved Warning */
+.unsaved-warning {
+  background-color: var(--color-warning-lightest, #fff8e1);
+  border: 1px solid var(--color-warning, #ff9800);
+  border-radius: 8px;
+  padding: 16px;
+  margin-top: 16px;
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+}
+
+.warning-icon {
+  font-size: 24px;
+  line-height: 1;
+}
+
+.warning-content strong {
+  display: block;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--color-warning-dark, #e65100);
+  margin-bottom: 4px;
+}
+
+.warning-content p {
+  font-size: 13px;
+  color: var(--color-text-secondary, #616161);
+  margin: 0;
+  line-height: 1.5;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .export-import-controls {
+    flex-direction: column;
+    gap: 16px;
+  }
+
+  .export-section,
+  .import-section {
+    width: 100%;
+  }
+
+  .control-group {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 8px;
+  }
+
+  .export-button,
+  .import-button {
+    width: 100%;
+  }
+}
+
+/* Accessibility - High Contrast Mode */
+@media (prefers-contrast: high) {
+  .config-bundle-export-import {
+    border-width: 2px;
+  }
+
+  .export-button,
+  .import-button,
+  .format-select {
+    border-width: 2px;
+  }
+
+  .status-message,
+  .validation-errors,
+  .import-success,
+  .unsaved-warning {
+    border-width: 2px;
+  }
+}
+
+/* Accessibility - Reduced Motion */
+@media (prefers-reduced-motion: reduce) {
+  .export-button,
+  .import-button,
+  .format-select,
+  .loading-spinner-small {
+    transition: none;
+    animation: none;
+  }
+
+  .export-button:hover:not(:disabled),
+  .import-button:hover:not(:disabled) {
+    transform: none;
+  }
+}
+
+/* Dark Mode Support */
+@media (prefers-color-scheme: dark) {
+  .config-bundle-export-import {
+    background-color: rgba(255, 255, 255, 0.05);
+    border-color: rgba(255, 255, 255, 0.1);
+  }
+
+  .format-select {
+    background-color: rgba(255, 255, 255, 0.05);
+    border-color: rgba(255, 255, 255, 0.2);
+    color: #e0e0e0;
+  }
+
+  .status-message.success {
+    background-color: rgba(76, 175, 80, 0.15);
+    color: #a5d6a7;
+  }
+
+  .status-message.error {
+    background-color: rgba(244, 67, 54, 0.15);
+    color: #ef9a9a;
+  }
+
+  .validation-errors {
+    background-color: rgba(244, 67, 54, 0.1);
+    border-color: rgba(244, 67, 54, 0.3);
+  }
+
+  .import-success {
+    background-color: rgba(76, 175, 80, 0.1);
+    border-color: rgba(76, 175, 80, 0.3);
+  }
+
+  .unsaved-warning {
+    background-color: rgba(255, 152, 0, 0.1);
+    border-color: rgba(255, 152, 0, 0.3);
+  }
+}
+
+/* Focus States for Accessibility */
+.export-button:focus-visible,
+.import-button:focus-visible {
+  outline: 2px solid var(--color-focus, #2196f3);
+  outline-offset: 2px;
+}
+
+/* Print Styles */
+@media print {
+  .export-import-controls {
+    display: none;
+  }
+
+  .status-message {
+    border: 1px solid #000;
+    print-color-adjust: exact;
+  }
+}

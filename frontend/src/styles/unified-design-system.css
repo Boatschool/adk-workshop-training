@@ -1,0 +1,2938 @@
+/**
+ * GraymatterStudio Unified Design System
+ * 
+ * Consolidated design tokens, components, and utilities that provide
+ * consistent styling across all platform pages:
+ * - Dashboard
+ * - Templates  
+ * - Help & Support
+ * - Organization Admin
+ * - Platform Admin
+ * - Authentication
+ * - Workspace Canvas
+ * - Healthcare Professional Demos
+ * 
+ * This system consolidates the previously fragmented token files:
+ * - dashboard-theme.css
+ * - admin-design-tokens.css  
+ * - design-tokens.module.css (DELETED - consolidated into this file)
+ * - section-inspired-components.css
+ * - healthcare-professional.css (NEW - healthcare professional UI)
+ */
+
+/* Import healthcare-specific professional styles */
+@import './healthcare-professional.css';
+
+/* ========================================================================
+   DESIGN TOKENS - FOUNDATION
+   ======================================================================== */
+
+:root {
+  /* === BRAND IDENTITY === */
+  
+  /* === OFFICIAL GRAYMATTERLAB HEALTHCARE BRAND COLORS === */
+  /* Core brand colors for healthcare professional identity */
+  --gms-matte-black: #1E1E1E;      /* Primary typography, backgrounds */
+  --gms-gunmetal-gray: #3B3B3B;    /* Secondary navigation elements */
+  --gms-bright-blue: #00AAE7;      /* Primary actions, trustworthy interactions */
+  --gms-papaya-orange: #FFA613;    /* Critical alerts only */
+  --gms-silver-gray: #D0D0D0;      /* Borders, subtle elements */
+  
+  /* Primary Brand Colors */
+  --gms-primary-50: #f8fafc;
+  --gms-primary-100: #f1f5f9;
+  --gms-primary-200: #e2e8f0;
+  --gms-primary-300: #cbd5e1;
+  --gms-primary-400: #94a3b8;
+  --gms-primary-500: #64748b;
+  --gms-primary-600: #475569;
+  --gms-primary-700: #334155;
+  --gms-primary-800: #1e293b;
+  --gms-primary-900: #0f172a;
+  --gms-primary: var(--gms-matte-black);
+  
+  /* Accent Colors */
+  --gms-accent-50: #eff6ff;
+  --gms-accent-100: #dbeafe;
+  --gms-accent-200: #bfdbfe;
+  --gms-accent-300: #93c5fd;
+  --gms-accent-400: #60a5fa;
+  --gms-accent-500: #3b82f6;
+  --gms-accent-600: #2563eb;
+  --gms-accent-700: #1d4ed8;
+  --gms-accent-800: #1e40af;
+  --gms-accent-900: #006687;
+  --gms-accent: var(--gms-bright-blue);
+  
+  /* Brand Neutrals - Extended from core colors */
+  --gms-neutral-50: #f9f9f9;
+  --gms-neutral-100: #f3f3f3;
+  --gms-neutral-200: #e5e5e5;
+  --gms-neutral-300: #d1d1d1;
+  --gms-neutral-400: #a3a3a3;
+  --gms-neutral-500: #6b6b6b;
+  --gms-neutral-600: #4b4b4b;
+  --gms-neutral-700: var(--gms-gunmetal-gray); /* #3B3B3B */
+  --gms-neutral-800: #2a2a2a;
+  --gms-neutral-900: var(--gms-matte-black);   /* #1E1E1E */
+  
+  /* Legacy admin color - now using brand orange */
+  --gms-admin: var(--gms-papaya-orange);
+  
+  /* Legacy highlight - now using brand orange */
+  --gms-highlight: var(--gms-papaya-orange);
+  
+  /* === SEMANTIC COLORS === */
+  
+  /* Status Colors */
+  --gms-success-50: #ecfdf5;
+  --gms-success-100: #d1fae5;
+  --gms-success-200: #a7f3d0;
+  --gms-success-300: #6ee7b7;
+  --gms-success-400: #34d399;
+  --gms-success-500: #10b981;
+  --gms-success-600: #059669;
+  --gms-success-700: #047857;
+  --gms-success-800: #065f46;
+  --gms-success-900: #064e3b;
+  --gms-success: var(--gms-success-500);
+  
+  --gms-warning-50: #fffbeb;
+  --gms-warning-100: #fef3c7;
+  --gms-warning-200: #fde68a;
+  --gms-warning-300: #fcd34d;
+  --gms-warning-400: #fbbf24;
+  --gms-warning-500: #f59e0b;
+  --gms-warning-600: #d97706;
+  --gms-warning-700: #b45309;
+  --gms-warning-800: #92400e;
+  --gms-warning-900: #78350f;
+  --gms-warning: var(--gms-warning-500);
+  
+  --gms-error-50: #fef2f2;
+  --gms-error-100: #fee2e2;
+  --gms-error-200: #fecaca;
+  --gms-error-300: #fca5a5;
+  --gms-error-400: #f87171;
+  --gms-error-500: #ef4444;
+  --gms-error-600: #dc2626;
+  --gms-error-700: #b91c1c;
+  --gms-error-800: #991b1b;
+  --gms-error-900: #7f1d1d;
+  --gms-error: var(--gms-error-500);
+  
+  --gms-info-50: #ecfeff;
+  --gms-info-100: #cffafe;
+  --gms-info-200: #a5f3fc;
+  --gms-info-300: #67e8f9;
+  --gms-info-400: #22d3ee;
+  --gms-info-500: #06b6d4;
+  --gms-info-600: #0891b2;
+  --gms-info-700: #0e7490;
+  --gms-info-800: #155e75;
+  --gms-info-900: #164e63;
+  --gms-info: var(--gms-info-500);
+
+  --gms-purple-50: #faf5ff;
+  --gms-purple-100: #f3e8ff;
+  --gms-purple-200: #e9d5ff;
+  --gms-purple-300: #d8b4fe;
+  --gms-purple-400: #c084fc;
+  --gms-purple-500: #a855f7;
+  --gms-purple-600: #8b5cf6;
+  --gms-purple-700: #7c3aed;
+  --gms-purple-800: #6d28d9;
+  --gms-purple-900: #5b21b6;
+  --gms-purple: var(--gms-purple-600);
+
+  /* === NEUTRAL COLORS === */
+  
+  --gms-neutral-50: #fafafa;
+  --gms-neutral-100: #f4f4f5;
+  --gms-neutral-200: #e4e4e7;
+  --gms-neutral-300: #d4d4d8;
+  --gms-neutral-400: #a1a1aa;
+  --gms-neutral-500: #71717a;
+  --gms-neutral-600: #52525b;
+  --gms-neutral-700: #3f3f46;
+  --gms-neutral-800: #27272a;
+  --gms-neutral-900: #18181b;
+  --gms-white: #ffffff;
+  --gms-black: #000000;
+  
+  /* === TEXT COLORS (WCAG 2.2 AA Compliant) === */
+  
+  --gms-text-primary: var(--gms-matte-black);     /* Primary text */
+  --gms-text-secondary: var(--gms-gunmetal-gray); /* Secondary text */
+  --gms-text-tertiary: #888888;                   /* Darker than silver-gray for better contrast */
+  --gms-text-inverse: var(--gms-white);
+  --gms-text-disabled: var(--gms-neutral-400);    /* Disabled text - 3.1:1 acceptable */
+  --gms-text-accent: var(--gms-bright-blue);      /* Links and accents */
+  
+  /* === BACKGROUND COLORS (Semantic) === */
+  
+  --gms-bg-primary: var(--gms-white);
+  --gms-bg-secondary: var(--gms-neutral-50);
+  --gms-bg-tertiary: var(--gms-neutral-100);
+  --gms-bg-elevated: var(--gms-white);
+  --gms-bg-surface: var(--gms-white);
+  --gms-bg-subtle: var(--gms-neutral-50);
+  --gms-success-bg: rgba(16, 185, 129, 0.1);
+  --gms-warning-bg: rgba(245, 158, 11, 0.1);
+  --gms-error-bg: rgba(239, 68, 68, 0.1);
+  --gms-skeleton-gradient: linear-gradient(90deg, #f1f5f9 25%, #e2e8f0 50%, #f1f5f9 75%);
+  --gms-bg-overlay: rgba(0, 0, 0, 0.6);
+  --gms-overlay: var(--gms-bg-overlay);           /* Shorthand for overlay */
+  
+  /* === BORDER COLORS (Semantic) === */
+  
+  --gms-border-primary: var(--gms-neutral-200);
+  --gms-border-secondary: var(--gms-neutral-300);
+  --gms-border-tertiary: var(--gms-neutral-400);
+  --gms-border-focus: var(--gms-accent);
+  --gms-border-error: var(--gms-error);
+  --gms-border-info: var(--gms-info-300);
+  --gms-border-success: var(--gms-success);
+  
+  /* Enhanced semantic border tokens */
+  --gms-border-subtle: var(--gms-neutral-200);
+  --gms-border-accent: var(--gms-primary);
+  
+  /* Error semantic tokens for components */
+  --gms-error-border: var(--gms-error-200);
+  --gms-error-text: var(--gms-error-600);
+  
+  /* === GRAYMATTERLAB TYPOGRAPHY SYSTEM === */
+  /* Official Typography Stack - Based on TYPOGRAPHY_SYSTEM.md */
+  
+  /* Font Families - Modern, highly legible for healthcare applications */
+  --gms-font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --gms-font-mono: 'Space Mono', 'SF Mono', Monaco, monospace;
+  --gms-font-display: 'Inter', var(--gms-font-sans); /* Unified with Inter */
+  
+  /* Display Sizes - Marketing/Heroes with responsive scaling */
+  --gms-display-xl: clamp(4.5rem, 12vw, 9rem);      /* 72px-144px */
+  --gms-display-lg: clamp(3rem, 8vw, 6rem);         /* 48px-96px */
+  --gms-display-md: clamp(2.25rem, 6vw, 4rem);      /* 36px-64px */
+  
+  /* Functional Sizes - Platform UI (Fixed sizes for consistency) */
+  --gms-heading-1: 3rem;         /* 48px - Section Headers */
+  --gms-heading-2: 2.25rem;      /* 36px - Major sections */
+  --gms-heading-3: 1.75rem;      /* 28px - Subsections */
+  --gms-heading-4: 1.5rem;       /* 24px - Component headers */
+  --gms-heading-5: 1.25rem;      /* 20px - Minor headers */
+  
+  /* Body Text - Optimized for healthcare readability */
+  --gms-body-lg: 1.125rem;       /* 18px - Large body text, clinical notes */
+  --gms-body-md: 1rem;           /* 16px - Default body text */
+  --gms-body-sm: 0.875rem;       /* 14px - Small body text */
+  
+  /* UI Elements - Interface components */
+  --gms-button-text: 1rem;       /* 16px - Button text */
+  --gms-label: 0.875rem;         /* 14px - Form labels */
+  --gms-caption: 0.75rem;        /* 12px - Captions, metadata */
+  
+  /* Navigation Elements - Healthcare Professional UI */
+  --gms-nav-primary: 1rem;       /* 16px - Main navigation links */
+  --gms-nav-secondary: 0.875rem; /* 14px - Sub-navigation elements */
+  --gms-nav-breadcrumb: 0.75rem; /* 12px - Breadcrumb navigation */
+  
+  /* Legacy aliases for backward compatibility */
+  --gms-text-xs: var(--gms-caption);     /* 12px */
+  --gms-text-sm: var(--gms-body-sm);     /* 14px */
+  --gms-text-base: var(--gms-body-md);   /* 16px */
+  --gms-text-lg: var(--gms-body-lg);     /* 18px */
+  --gms-text-xl: var(--gms-heading-5);   /* 20px */
+  --gms-text-2xl: var(--gms-heading-4);  /* 24px */
+  --gms-text-3xl: 1.875rem;              /* 30px */
+  --gms-text-4xl: var(--gms-heading-2);  /* 36px */
+  --gms-text-5xl: var(--gms-heading-1);  /* 48px */
+  --gms-text-6xl: 3.75rem;               /* 60px */
+  
+  /* Font Weights - GraymatterLab Usage Guidelines */
+  --gms-font-normal: 400;        /* Body text, default weight */
+  --gms-font-medium: 500;        /* Labels, medium emphasis */
+  --gms-font-semibold: 600;      /* Subsection headers, buttons, important UI */
+  --gms-font-bold: 700;          /* Primary headers, section titles */
+  --gms-font-extrabold: 800;     /* Large section headers, emphasis */
+  --gms-font-black: 900;         /* Display only - hero headlines, marketing */
+  
+  /* Legacy font weight aliases */
+  --gms-font-thin: 100;
+  --gms-font-extralight: 200;
+  --gms-font-light: 300;
+  
+  /* Line Heights - Optimized for readability */
+  --gms-leading-display: 0.9;        /* Display text (marketing) */
+  --gms-leading-display-md: 0.95;    /* Medium display text */
+  --gms-leading-display-sm: 1;       /* Small display text */
+  --gms-leading-heading: 1.1;        /* H1 headers */
+  --gms-leading-heading-2: 1.2;      /* H2 headers */
+  --gms-leading-heading-3: 1.3;      /* H3 headers */
+  --gms-leading-heading-4: 1.4;      /* H4-H5 headers */
+  --gms-leading-body: 1.6;           /* Default body text */
+  --gms-leading-body-lg: 1.7;        /* Large body text, clinical notes */
+  --gms-leading-body-sm: 1.5;        /* Small body text */
+  --gms-leading-ui: 1.4;             /* UI elements, captions */
+  
+  /* Legacy line height aliases */
+  --gms-leading-none: 1;
+  --gms-leading-tight: 1.25;
+  --gms-leading-snug: 1.375;
+  --gms-leading-normal: 1.5;
+  --gms-leading-relaxed: 1.625;
+  --gms-leading-loose: 2;
+  
+  /* Letter Spacing - Healthcare-optimized */
+  --gms-tracking-display: -0.04em;    /* XL display text */
+  --gms-tracking-display-lg: -0.03em; /* Large display text */
+  --gms-tracking-display-md: -0.02em; /* Medium display text */
+  --gms-tracking-heading: -0.02em;    /* H1 headers */
+  --gms-tracking-heading-2: -0.01em;  /* H2-H3 headers */
+  --gms-tracking-normal: 0em;         /* Default/body text */
+  --gms-tracking-button: 0.01em;      /* Button text */
+  --gms-tracking-label: 0.01em;       /* Form labels */
+  --gms-tracking-caps: 0.05em;        /* All caps text */
+  
+  /* Legacy letter spacing aliases */
+  --gms-tracking-tighter: -0.05em;
+  --gms-tracking-tight: -0.025em;
+  --gms-tracking-wide: 0.025em;
+  --gms-tracking-wider: 0.05em;
+  --gms-tracking-widest: 0.1em;
+  
+  /* === SPACING SCALE === */
+  
+  --gms-space-0: 0;
+  --gms-space-px: 1px;
+  --gms-space-0_5: 0.125rem;    /* 2px */
+  --gms-space-1: 0.25rem;       /* 4px */
+  --gms-space-1_5: 0.375rem;    /* 6px */
+  --gms-space-2: 0.5rem;        /* 8px */
+  --gms-space-2_5: 0.625rem;    /* 10px */
+  --gms-space-3: 0.75rem;       /* 12px */
+  --gms-space-1-5: 0.375rem;    /* 6px - Between space-1 and space-2 */
+  --gms-space-3_5: 0.875rem;    /* 14px */
+  --gms-space-4: 1rem;          /* 16px */
+  --gms-space-5: 1.25rem;       /* 20px */
+  --gms-space-6: 1.5rem;        /* 24px */
+  --gms-space-7: 1.75rem;       /* 28px */
+  --gms-space-8: 2rem;          /* 32px */
+  --gms-space-9: 2.25rem;       /* 36px */
+  --gms-space-10: 2.5rem;       /* 40px */
+  --gms-space-11: 2.75rem;      /* 44px */
+  --gms-space-12: 3rem;         /* 48px */
+  --gms-space-14: 3.5rem;       /* 56px */
+  --gms-space-16: 4rem;         /* 64px */
+  --gms-space-20: 5rem;         /* 80px */
+  --gms-space-24: 6rem;         /* 96px */
+  --gms-space-28: 7rem;         /* 112px */
+  --gms-space-32: 8rem;         /* 128px */
+  --gms-space-36: 9rem;         /* 144px */
+  --gms-space-40: 10rem;        /* 160px */
+  --gms-space-44: 11rem;        /* 176px */
+  --gms-space-48: 12rem;        /* 192px */
+  --gms-space-52: 13rem;        /* 208px */
+  --gms-space-56: 14rem;        /* 224px */
+  --gms-space-60: 15rem;        /* 240px */
+  --gms-space-64: 16rem;        /* 256px */
+  --gms-space-72: 18rem;        /* 288px */
+  --gms-space-80: 20rem;        /* 320px */
+  --gms-space-96: 24rem;        /* 384px */
+  
+  /* Semantic Spacing Aliases */
+  --gms-space-xs: var(--gms-space-2);      /* 8px */
+  --gms-space-sm: var(--gms-space-3);      /* 12px */
+  --gms-space-md: var(--gms-space-4);      /* 16px */
+  --gms-space-lg: var(--gms-space-6);      /* 24px */
+  --gms-space-xl: var(--gms-space-8);      /* 32px */
+  --gms-space-2xl: var(--gms-space-12);    /* 48px */
+  --gms-space-3xl: var(--gms-space-16);    /* 64px */
+  
+  /* === BORDER RADIUS === */
+  
+  --gms-radius-none: 0;
+  --gms-radius-sm: 0.125rem;    /* 2px */
+  --gms-radius-base: 0.25rem;   /* 4px */
+  --gms-radius-md: 0.375rem;    /* 6px */
+  --gms-radius-lg: 0.5rem;      /* 8px */
+  --gms-radius-xl: 0.75rem;     /* 12px */
+  --gms-radius-2xl: 1rem;       /* 16px */
+  --gms-radius-3xl: 1.5rem;     /* 24px */
+  --gms-radius-full: 9999px;
+  
+  /* === BORDER WIDTH === */
+  
+  --gms-border-0: 0;
+  --gms-border-base: 1px;
+  --gms-border-2: 2px;
+  --gms-border-4: 4px;
+  --gms-border-8: 8px;
+  
+  /* === SHADOWS === */
+  
+  --gms-shadow-xs: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+  --gms-shadow-sm: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px -1px rgba(0, 0, 0, 0.1);
+  --gms-shadow-base: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px -1px rgba(0, 0, 0, 0.1);
+  --gms-shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -2px rgba(0, 0, 0, 0.1);
+  --gms-shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -4px rgba(0, 0, 0, 0.1);
+  --gms-shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
+  --gms-shadow-2xl: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+  --gms-shadow-inner: inset 0 2px 4px 0 rgba(0, 0, 0, 0.05);
+  --gms-shadow-none: 0 0 #0000;
+  
+  /* Component-specific shadows */
+  --gms-shadow-card: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  --gms-shadow-card-hover: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+  --gms-shadow-modal: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+  --gms-shadow-dropdown: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -4px rgba(0, 0, 0, 0.1);
+  
+  /* === GRADIENTS === */
+  
+  --gms-gradient-primary: linear-gradient(135deg, var(--gms-accent-600) 0%, var(--gms-primary-700) 100%);
+  --gms-gradient-accent: linear-gradient(135deg, var(--gms-accent-500) 0%, var(--gms-accent-700) 100%);
+  --gms-gradient-success: linear-gradient(135deg, var(--gms-success-500) 0%, var(--gms-success-700) 100%);
+  --gms-gradient-warning: linear-gradient(135deg, var(--gms-warning-50) 0%, var(--gms-warning-100) 100%);
+  --gms-gradient-error: linear-gradient(135deg, var(--gms-error-50) 0%, var(--gms-error-100) 100%);
+  --gms-gradient-admin: linear-gradient(135deg, var(--gms-purple-600) 0%, var(--gms-purple-800) 100%);
+  
+  /* === TRANSITIONS === */
+  
+  --gms-transition-none: none;
+  --gms-transition-fast: 150ms cubic-bezier(0.4, 0, 0.2, 1);
+  --gms-transition-base: 250ms cubic-bezier(0.4, 0, 0.2, 1);
+  --gms-transition-slow: 350ms cubic-bezier(0.4, 0, 0.2, 1);
+  --gms-transition-smooth: 300ms cubic-bezier(0.25, 0.1, 0.25, 1);
+  
+  /* === Z-INDEX SCALE === */
+  
+  --gms-z-hide: -1;
+  --gms-z-auto: auto;
+  --gms-z-base: 0;
+  --gms-z-docked: 10;
+  
+  /* Header and Navigation Layers */
+  --gms-z-content-overlay: 100; /* Content modals/dropdowns */
+  --gms-z-dashboard-tabs: 130; /* Dashboard navigation */
+  --gms-z-header: 140; /* Main WorkspaceHeader */
+  --gms-z-admin-nav: 150; /* Admin navigation headers */
+  --gms-z-ribbon: 250; /* Workspace ribbon (highest navigation) - allows tooltips to appear above header */
+  
+  /* UI Layers */
+  --gms-z-dropdown: 1000;
+  --gms-z-sticky: 1020;
+  --gms-z-banner: 1030;
+  --gms-z-overlay: 1040;
+  --gms-z-modal: 1050;
+  --gms-z-popover: 1060;
+  --gms-z-skipLink: 1070;
+  --gms-z-toast: 1080;
+  --gms-z-tooltip: 1090;
+  
+  /* === BREAKPOINTS (for container queries) === */
+  
+  --gms-screen-sm: 640px;
+  --gms-screen-md: 768px;
+  --gms-screen-lg: 1024px;
+  --gms-screen-xl: 1280px;
+  --gms-screen-2xl: 1536px;
+  
+  /* === ACCESSIBILITY === */
+  
+  --gms-focus-ring-width: 2px;
+  --gms-focus-ring-offset: 2px;
+  --gms-focus-ring-color: var(--gms-accent);
+  --gms-focus-ring-style: solid;
+  --gms-focus-ring-shadow: 0 0 0 var(--gms-focus-ring-width) rgba(96, 165, 250, 0.1);
+  --gms-touch-target-min: 44px; /* WCAG 2.2 AA minimum touch target */
+  --gms-touch-target-sm: 32px; /* Only for decorative, non-interactive elements */
+  
+  /* === COMPONENT DIMENSIONS === */
+  
+  /* Layout */
+  --gms-header-height: 64px;
+  --gms-ribbon-height: 124px; /* Dynamic based on content */
+  --gms-dashboard-tabs-height: 48px;
+  --gms-total-header-offset: calc(var(--gms-header-height) + var(--gms-dashboard-tabs-height));
+  --gms-sidebar-width: 320px;
+  --gms-sidebar-collapsed: 64px;
+  --gms-content-max-width: 1400px;
+  
+  /* Controls */
+  --gms-button-height: 44px; /* WCAG 2.2 AA compliant touch target */
+  --gms-input-height: 40px;
+  --gms-select-height: 40px;
+  
+  /* Cards */
+  --gms-card-min-width: 280px;
+  --gms-card-padding: var(--gms-space-6);
+  --gms-card-border-radius: var(--gms-radius-2xl);
+  
+  /* React Flow Nodes - Healthcare Canvas Selection */
+  --gms-node-border-selected: var(--gms-bright-blue); /* Selected node border - healthcare blue */
+  --gms-node-shadow-selected: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 0 0 1px rgba(0, 170, 231, 0.4); /* Selected node shadow with blue ring */
+  --gms-node-border-hover: rgba(0, 170, 231, 0.3); /* Node hover border */
+  --gms-node-shadow: 0 2px 4px 0 rgba(0, 0, 0, 0.06); /* Default node shadow */
+  --gms-node-bg: var(--gms-white); /* Node background */
+  --gms-node-border: #e4e4e7; /* Default node border - subtle gray */
+  
+  /* Icons */
+  --gms-icon-xs: 12px;
+  --gms-icon-sm: 16px;
+  --gms-icon-md: 20px;
+  --gms-icon-lg: 24px;
+  --gms-icon-xl: 32px;
+  --gms-icon-2xl: 48px;
+  
+  /* Extended Component Dimensions - Missing Tokens for Ribbon */
+  --gms-touch-target-lg: 40px; /* Large touch targets */
+  --gms-touch-target-xl: 48px; /* Extra large touch targets */
+  --gms-dropdown-min-width: 220px; /* Dropdown minimum width */
+  --gms-dropdown-max-width: 320px; /* Dropdown maximum width */
+  
+  /* Extended UI Tokens - Missing for Ribbon Components */
+  --gms-overlay-bg: rgba(255, 255, 255, 0.8); /* Light overlay background */
+  --gms-tooltip-bg: rgba(0, 0, 0, 0.8); /* Tooltip background */
+  --gms-tooltip-text: var(--gms-white); /* Tooltip text color */
+  --gms-shadow-tooltip: var(--gms-shadow-lg); /* Tooltip shadow */
+}
+
+/* ========================================================================
+   COMPREHENSIVE DARK MODE SUPPORT
+   ======================================================================== */
+
+[data-theme="dark"] {
+  /* === PRIMARY COLOR INVERSIONS === */
+  --gms-primary: var(--gms-neutral-50);
+  --gms-primary-50: var(--gms-neutral-900);
+  --gms-primary-900: var(--gms-neutral-50);
+  
+  /* === TEXT COLORS - WCAG 2.2 AA Compliant Dark Mode === */
+  --gms-text-primary: var(--gms-white);           /* Primary text in dark mode */
+  --gms-text-secondary: #d1d5db;                  /* Secondary text in dark mode - higher contrast */
+  --gms-text-tertiary: var(--gms-neutral-400);    /* Tertiary text in dark mode */
+  --gms-text-inverse: var(--gms-matte-black);     /* Inverse text in dark mode */
+  --gms-text-accent: #60a5fa;                     /* Links and accents in dark mode - lighter blue */
+  --gms-text-disabled: var(--gms-neutral-500);    /* Disabled text in dark mode */
+  
+  /* === BACKGROUND COLORS - Healthcare Dark Mode === */
+  --gms-bg-primary: #0f0f0f;                      /* Primary background - deeper than matte black */
+  --gms-bg-secondary: #1a1a1a;                    /* Secondary background */
+  --gms-bg-tertiary: #2d2d2d;                     /* Tertiary background */
+  --gms-bg-elevated: #1f1f1f;                     /* Elevated surfaces */
+  --gms-bg-surface: #1a1a1a;                      /* Surface background */
+  --gms-bg-subtle: #242424;                       /* Subtle background */
+  --gms-bg-muted: #2a2a2a;                        /* Muted background */
+  --gms-bg-overlay: rgba(0, 0, 0, 0.8);           /* Overlay background */
+  
+  /* === SEMANTIC BACKGROUNDS - Status Colors for Dark Mode === */
+  --gms-success-bg: rgba(34, 197, 94, 0.1);       /* Success background */
+  --gms-warning-bg: rgba(251, 191, 36, 0.1);      /* Warning background */
+  --gms-error-bg: rgba(239, 68, 68, 0.1);         /* Error background */
+  --gms-info-bg: rgba(59, 130, 246, 0.1);         /* Info background */
+  
+  /* === BORDER COLORS - Enhanced for Dark Mode === */
+  --gms-border-primary: #404040;                  /* Primary borders */
+  --gms-border-secondary: #525252;                /* Secondary borders */
+  --gms-border-tertiary: #666666;                 /* Tertiary borders */
+  --gms-border-subtle: #333333;                   /* Subtle borders */
+  --gms-border-accent: var(--gms-primary);        /* Accent borders */
+  --gms-border-focus: #60a5fa;                    /* Focus borders */
+  --gms-error-border: #fca5a5;                    /* Error borders */
+  
+  /* === STATUS COLORS - Dark Mode Adjustments === */
+  --gms-success: #4ade80;                         /* Success color - brighter for contrast */
+  --gms-warning: #fbbf24;                         /* Warning color - brighter for contrast */
+  --gms-error: #f87171;                           /* Error color - brighter for contrast */
+  --gms-info: #60a5fa;                            /* Info color - brighter for contrast */
+  --gms-error-text: #fca5a5;                      /* Error text color */
+  
+  /* === GRADIENTS - Professional Dark Mode === */
+  --gms-gradient-primary: linear-gradient(135deg, #1a1a1a 0%, #0f0f0f 100%);
+  --gms-gradient-accent: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+  --gms-gradient-success: linear-gradient(135deg, #065f46 0%, #047857 100%);
+  --gms-gradient-warning: linear-gradient(135deg, #92400e 0%, #78350f 100%);
+  --gms-gradient-error: linear-gradient(135deg, #991b1b 0%, #7f1d1d 100%);
+  --gms-bg-surface-gradient: linear-gradient(135deg, #1a1a1a 0%, #0f0f0f 100%);
+  
+  /* === SKELETON LOADING - Dark Mode === */
+  --gms-skeleton-gradient: linear-gradient(90deg, #2a2a2a 25%, #404040 50%, #2a2a2a 75%);
+  
+  /* === SHADOWS - Enhanced for Dark Mode === */
+  --gms-shadow-xs: 0 1px 2px 0 rgba(0, 0, 0, 0.4);
+  --gms-shadow-sm: 0 1px 3px 0 rgba(0, 0, 0, 0.5), 0 1px 2px -1px rgba(0, 0, 0, 0.4);
+  --gms-shadow-base: 0 1px 3px 0 rgba(0, 0, 0, 0.5), 0 1px 2px -1px rgba(0, 0, 0, 0.4);
+  --gms-shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.5), 0 2px 4px -2px rgba(0, 0, 0, 0.4);
+  --gms-shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.5), 0 4px 6px -4px rgba(0, 0, 0, 0.4);
+  --gms-shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.6), 0 8px 10px -6px rgba(0, 0, 0, 0.5);
+  --gms-shadow-2xl: 0 25px 50px -12px rgba(0, 0, 0, 0.7);
+  --gms-shadow-inner: inset 0 2px 4px 0 rgba(0, 0, 0, 0.3);
+  
+  /* Component-specific shadows */
+  --gms-shadow-card: 0 4px 6px -1px rgba(0, 0, 0, 0.6), 0 2px 4px -1px rgba(0, 0, 0, 0.5);
+  --gms-shadow-card-hover: 0 20px 25px -5px rgba(0, 0, 0, 0.7), 0 10px 10px -5px rgba(0, 0, 0, 0.6);
+  --gms-shadow-modal: 0 25px 50px -12px rgba(0, 0, 0, 0.8);
+  --gms-shadow-dropdown: 0 10px 15px -3px rgba(0, 0, 0, 0.6), 0 4px 6px -4px rgba(0, 0, 0, 0.5);
+  
+  /* Dark Mode Overrides for New Tokens */
+  --gms-overlay-bg: rgba(0, 0, 0, 0.8); /* Dark overlay background */
+  --gms-tooltip-bg: rgba(40, 40, 40, 0.95); /* Dark tooltip background */
+  --gms-tooltip-text: var(--gms-white); /* Tooltip text stays white */
+  --gms-shadow-tooltip: var(--gms-shadow-xl); /* Enhanced tooltip shadow for dark mode */
+}
+
+/* ========================================================================
+   TYPOGRAPHY UTILITIES
+   ======================================================================== */
+
+.gms-font-sans { font-family: var(--gms-font-sans); }
+.gms-font-display { font-family: var(--gms-font-display); }
+.gms-font-mono { font-family: var(--gms-font-mono); }
+
+.gms-text-xs { font-size: var(--gms-text-xs); }
+.gms-text-sm { font-size: var(--gms-text-sm); }
+.gms-text-base { font-size: var(--gms-text-base); }
+.gms-text-lg { font-size: var(--gms-text-lg); }
+.gms-text-xl { font-size: var(--gms-text-xl); }
+.gms-text-2xl { font-size: var(--gms-text-2xl); }
+.gms-text-3xl { font-size: var(--gms-text-3xl); }
+.gms-text-4xl { font-size: var(--gms-text-4xl); }
+.gms-text-5xl { font-size: var(--gms-text-5xl); }
+.gms-text-6xl { font-size: var(--gms-text-6xl); }
+
+/* Display Sizes - For marketing/hero content */
+.gms-display-xl { font-size: var(--gms-display-xl); }
+.gms-display-lg { font-size: var(--gms-display-lg); }
+.gms-display-md { font-size: var(--gms-display-md); }
+.gms-display-sm { font-size: var(--gms-heading-1); } /* 48px */
+
+/* Font Family Classes */
+.gms-font-display { font-family: var(--gms-font-display); }
+.gms-font-sans { font-family: var(--gms-font-sans); }
+.gms-font-mono { font-family: var(--gms-font-mono); }
+
+/* Font Weight Classes */
+.gms-font-thin { font-weight: var(--gms-font-thin); }
+.gms-font-extralight { font-weight: var(--gms-font-extralight); }
+.gms-font-light { font-weight: var(--gms-font-light); }
+.gms-font-normal { font-weight: var(--gms-font-normal); }
+.gms-font-medium { font-weight: var(--gms-font-medium); }
+.gms-font-semibold { font-weight: var(--gms-font-semibold); }
+.gms-font-bold { font-weight: var(--gms-font-bold); }
+.gms-font-extrabold { font-weight: var(--gms-font-extrabold); }
+.gms-font-black { font-weight: var(--gms-font-black); }
+
+.gms-leading-none { line-height: var(--gms-leading-none); }
+.gms-leading-tight { line-height: var(--gms-leading-tight); }
+.gms-leading-snug { line-height: var(--gms-leading-snug); }
+.gms-leading-normal { line-height: var(--gms-leading-normal); }
+.gms-leading-relaxed { line-height: var(--gms-leading-relaxed); }
+.gms-leading-loose { line-height: var(--gms-leading-loose); }
+
+.gms-text-primary { color: var(--gms-text-primary); }
+.gms-text-secondary { color: var(--gms-text-secondary); }
+.gms-text-tertiary { color: var(--gms-text-tertiary); }
+.gms-text-inverse { color: var(--gms-text-inverse); }
+.gms-text-accent { color: var(--gms-text-accent); }
+.gms-text-success { color: var(--gms-success); }
+.gms-text-warning { color: var(--gms-warning); }
+.gms-text-error { color: var(--gms-error); }
+.gms-text-info { color: var(--gms-info); }
+
+/* ========================================================================
+   LAYOUT UTILITIES
+   ======================================================================== */
+
+.gms-container {
+  max-width: var(--gms-content-max-width);
+  margin: 0 auto;
+  padding-left: var(--gms-space-lg);
+  padding-right: var(--gms-space-lg);
+}
+
+/* === SPACING UTILITIES === */
+
+.gms-p-1 { padding: var(--gms-space-1); }
+.gms-p-2 { padding: var(--gms-space-2); }
+.gms-p-3 { padding: var(--gms-space-3); }
+.gms-p-4 { padding: var(--gms-space-4); }
+.gms-p-5 { padding: var(--gms-space-5); }
+.gms-p-6 { padding: var(--gms-space-6); }
+.gms-p-8 { padding: var(--gms-space-8); }
+.gms-p-10 { padding: var(--gms-space-10); }
+
+.gms-m-1 { margin: var(--gms-space-1); }
+.gms-m-2 { margin: var(--gms-space-2); }
+.gms-m-3 { margin: var(--gms-space-3); }
+.gms-m-4 { margin: var(--gms-space-4); }
+.gms-m-5 { margin: var(--gms-space-5); }
+.gms-m-6 { margin: var(--gms-space-6); }
+.gms-m-8 { margin: var(--gms-space-8); }
+
+.gms-mt-1 { margin-top: var(--gms-space-1); }
+.gms-mt-2 { margin-top: var(--gms-space-2); }
+.gms-mt-3 { margin-top: var(--gms-space-3); }
+.gms-mt-4 { margin-top: var(--gms-space-4); }
+.gms-mt-5 { margin-top: var(--gms-space-5); }
+.gms-mt-6 { margin-top: var(--gms-space-6); }
+
+.gms-mb-1 { margin-bottom: var(--gms-space-1); }
+.gms-mb-2 { margin-bottom: var(--gms-space-2); }
+.gms-mb-3 { margin-bottom: var(--gms-space-3); }
+.gms-mb-4 { margin-bottom: var(--gms-space-4); }
+.gms-mb-5 { margin-bottom: var(--gms-space-5); }
+.gms-mb-6 { margin-bottom: var(--gms-space-6); }
+.gms-mb-lg { margin-bottom: var(--gms-space-lg); }
+
+.gms-ml-1 { margin-left: var(--gms-space-1); }
+.gms-ml-2 { margin-left: var(--gms-space-2); }
+.gms-ml-3 { margin-left: var(--gms-space-3); }
+.gms-ml-4 { margin-left: var(--gms-space-4); }
+
+.gms-mr-1 { margin-right: var(--gms-space-1); }
+.gms-mr-2 { margin-right: var(--gms-space-2); }
+.gms-mr-3 { margin-right: var(--gms-space-3); }
+.gms-mr-4 { margin-right: var(--gms-space-4); }
+
+.gms-mx-auto { margin-left: auto; margin-right: auto; }
+
+/* Enhanced Spacing Utilities */
+.gms-space-y-4 > * + * { margin-top: var(--gms-space-4); }
+.gms-gap-xl { gap: var(--gms-space-xl); }
+.gms-py-12 { padding-top: 3rem; padding-bottom: 3rem; }
+.gms-px-3 { padding-left: var(--gms-space-3); padding-right: var(--gms-space-3); }
+.gms-px-6 { padding-left: var(--gms-space-6); padding-right: var(--gms-space-6); }
+.gms-px-8 { padding-left: var(--gms-space-8); padding-right: var(--gms-space-8); }
+.gms-py-2 { padding-top: var(--gms-space-2); padding-bottom: var(--gms-space-2); }
+.gms-py-3 { padding-top: var(--gms-space-3); padding-bottom: var(--gms-space-3); }
+.gms-py-4 { padding-top: var(--gms-space-4); padding-bottom: var(--gms-space-4); }
+.gms-pt-2 { padding-top: var(--gms-space-2); }
+.gms-mb-3 { margin-bottom: var(--gms-space-3); }
+
+.gms-pl-3 { padding-left: var(--gms-space-3); }
+.gms-pl-10 { padding-left: 2.5rem; }
+
+/* === SIZE UTILITIES === */
+
+.gms-w-3 { width: var(--gms-space-3); }
+.gms-w-4 { width: var(--gms-space-4); }
+.gms-w-6 { width: var(--gms-space-6); }
+.gms-w-8 { width: var(--gms-space-8); }
+.gms-w-10 { width: var(--gms-space-10); }
+.gms-w-12 { width: var(--gms-space-12); }
+.gms-w-16 { width: var(--gms-space-16); }
+.gms-w-full { width: 100%; }
+
+.gms-h-3 { height: var(--gms-space-3); }
+.gms-h-4 { height: var(--gms-space-4); }
+.gms-h-6 { height: var(--gms-space-6); }
+.gms-h-8 { height: var(--gms-space-8); }
+.gms-h-10 { height: var(--gms-space-10); }
+.gms-h-12 { height: var(--gms-space-12); }
+.gms-h-16 { height: var(--gms-space-16); }
+.gms-h-24 { height: 6rem; } /* 96px */
+
+.gms-w-5 { width: 1.25rem; } /* 20px */
+.gms-h-5 { height: 1.25rem; } /* 20px */
+.gms-w-24 { width: 6rem; } /* 96px */
+
+.gms-max-w-lg { max-width: 32rem; }
+.gms-max-w-xl { max-width: 36rem; }
+.gms-max-w-2xl { max-width: 42rem; }
+.gms-max-w-3xl { max-width: 48rem; }
+.gms-min-w-0 { min-width: 0; }
+
+/* === POSITION UTILITIES === */
+
+.gms-relative { position: relative; }
+.gms-absolute { position: absolute; }
+.gms-inset-y-0 { top: 0; bottom: 0; }
+.gms-left-0 { left: 0; }
+
+/* === DISPLAY UTILITIES === */
+
+.gms-block { display: block; }
+.gms-pointer-events-none { pointer-events: none; }
+
+/* === BORDER UTILITIES === */
+
+.gms-border { border: var(--gms-border-base) solid var(--gms-border-primary); }
+.gms-border-t { border-top: var(--gms-border-base) solid var(--gms-border-primary); }
+.gms-border-dashed { border-style: dashed; }
+.gms-border-accent-200 { border-color: var(--gms-accent-200); }
+.gms-rounded-md { border-radius: var(--gms-radius-md); }
+.gms-rounded-lg { border-radius: var(--gms-radius-lg); }
+.gms-rounded-full { border-radius: var(--gms-radius-full); }
+
+/* === BACKGROUND UTILITIES === */
+
+.gms-bg-accent-50 { background-color: var(--gms-accent-50); }
+.gms-bg-success-100 { background-color: var(--gms-success-100); }
+.gms-bg-neutral-50 { background-color: var(--gms-neutral-50); }
+.gms-bg-neutral-100 { background-color: var(--gms-neutral-100); }
+
+/* Background Gradient Utilities */
+.gms-bg-gradient-to-br { 
+  background-image: linear-gradient(to bottom right, var(--tw-gradient-stops)); 
+}
+.gms-from-accent-50 { --tw-gradient-from: var(--gms-accent-50); --tw-gradient-stops: var(--tw-gradient-from), var(--tw-gradient-to, rgba(239, 246, 255, 0)); }
+.gms-to-accent-100 { --tw-gradient-to: var(--gms-accent-100); }
+
+/* Grid Utilities */
+.gms-grid { display: grid; }
+.gms-grid-cols-1 { grid-template-columns: repeat(1, minmax(0, 1fr)); }
+.gms-md\\:grid-cols-2 { 
+  @media (min-width: 768px) {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+/* === FLEXBOX UTILITIES === */
+
+.gms-flex-1 { flex: 1 1 0%; }
+.gms-flex-shrink-0 { flex-shrink: 0; }
+.gms-flex-wrap { flex-wrap: wrap; }
+
+/* === TEXT UTILITIES === */
+
+.gms-truncate { 
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.gms-leading-tight { line-height: var(--gms-leading-tight); }
+.gms-leading-relaxed { line-height: var(--gms-leading-relaxed); }
+
+.gms-grid {
+  display: grid;
+}
+
+.gms-grid-cols-1 { grid-template-columns: repeat(1, minmax(0, 1fr)); }
+.gms-grid-cols-2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.gms-grid-cols-3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+.gms-grid-cols-4 { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+.gms-grid-cols-auto { grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); }
+
+.gms-gap-xs { gap: var(--gms-space-xs); }
+.gms-gap-sm { gap: var(--gms-space-sm); }
+.gms-gap-md { gap: var(--gms-space-md); }
+.gms-gap-lg { gap: var(--gms-space-lg); }
+.gms-gap-xl { gap: var(--gms-space-xl); }
+.gms-gap-2xl { gap: var(--gms-space-2xl); }
+
+.gms-flex { display: flex; }
+.gms-inline-flex { display: inline-flex; }
+.gms-flex-col { flex-direction: column; }
+.gms-flex-row { flex-direction: row; }
+.gms-items-center { align-items: center; }
+.gms-items-start { align-items: flex-start; }
+.gms-items-end { align-items: flex-end; }
+.gms-justify-center { justify-content: center; }
+.gms-justify-between { justify-content: space-between; }
+.gms-justify-start { justify-content: flex-start; }
+.gms-justify-end { justify-content: flex-end; }
+
+/* === SHADOW UTILITIES === */
+.gms-shadow-lg { box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05); }
+
+/* === TRANSFORM & TRANSITION UTILITIES === */
+.gms-transform { transform: var(--tw-transform); }
+.gms-transition-all { transition: all 0.15s ease-in-out; }
+.gms-hover\\:scale-105:hover { transform: scale(1.05); }
+
+/* ========================================================================
+   COMPONENT BASE CLASSES
+   ======================================================================== */
+
+/* === BUTTONS === */
+
+.gms-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: var(--gms-button-height);
+  padding: 0 var(--gms-space-4);
+  border-radius: var(--gms-radius-lg);
+  font-family: var(--gms-font-sans);
+  font-size: var(--gms-text-sm);
+  font-weight: var(--gms-font-medium);
+  line-height: 1;
+  border: none;
+  cursor: pointer;
+  transition: var(--gms-transition-base);
+  min-width: var(--gms-touch-target-min);
+  gap: var(--gms-space-2);
+}
+
+.gms-button:focus-visible {
+  outline: var(--gms-focus-ring-width) var(--gms-focus-ring-style) var(--gms-focus-ring-color);
+  outline-offset: var(--gms-focus-ring-offset);
+}
+
+.gms-button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.gms-button--primary {
+  background: var(--gms-primary);
+  color: var(--gms-text-inverse);
+}
+
+.gms-button--primary:hover:not(:disabled) {
+  background: var(--gms-primary-800);
+  transform: translateY(-1px);
+}
+
+.gms-button--secondary {
+  background: var(--gms-bg-primary);
+  color: var(--gms-text-primary);
+  border: var(--gms-border-base) solid var(--gms-border-primary);
+}
+
+.gms-button--secondary:hover:not(:disabled) {
+  background: var(--gms-bg-secondary);
+  border-color: var(--gms-border-secondary);
+}
+
+.gms-button--accent {
+  background: var(--gms-accent);
+  color: var(--gms-text-inverse);
+}
+
+.gms-button--accent:hover:not(:disabled) {
+  background: var(--gms-accent-600);
+  transform: translateY(-1px);
+}
+
+.gms-button--tertiary {
+  background: transparent;
+  color: var(--gms-text-secondary);
+  border: none;
+  padding: var(--gms-space-2) var(--gms-space-3);
+  min-height: var(--gms-touch-target-min);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.gms-button--tertiary:hover:not(:disabled) {
+  color: var(--gms-text-primary);
+  background: var(--gms-bg-secondary);
+  text-decoration: none;
+}
+
+.gms-button--tertiary:focus-visible {
+  outline: var(--gms-focus-ring-width) var(--gms-focus-ring-style) var(--gms-focus-ring-color);
+  outline-offset: var(--gms-focus-ring-offset);
+  text-decoration: none;
+}
+
+.gms-button--ghost {
+  background: transparent;
+  color: var(--gms-text-secondary);
+}
+
+.gms-button--ghost:hover:not(:disabled) {
+  background: var(--gms-bg-secondary);
+  color: var(--gms-text-primary);
+}
+
+.gms-button--small {
+  height: 32px;
+  padding: 0 var(--gms-space-3);
+  font-size: var(--gms-text-xs);
+}
+
+.gms-button--large {
+  height: 48px;
+  padding: 0 var(--gms-space-6);
+  font-size: var(--gms-text-base);
+}
+
+/* === CARDS === */
+
+.gms-card {
+  background: var(--gms-bg-elevated);
+  border: var(--gms-border-base) solid var(--gms-border-primary);
+  border-radius: var(--gms-card-border-radius);
+  padding: var(--gms-card-padding);
+  transition: var(--gms-transition-smooth);
+  box-shadow: var(--gms-shadow-card);
+}
+
+.gms-card:hover {
+  border-color: var(--gms-border-secondary);
+  box-shadow: var(--gms-shadow-card-hover);
+  transform: translateY(-2px);
+}
+
+.gms-card--interactive {
+  cursor: pointer;
+}
+
+.gms-card--interactive:hover {
+  border-color: var(--gms-accent);
+}
+
+.gms-card__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: var(--gms-space-md);
+  padding-bottom: var(--gms-space-md);
+  border-bottom: var(--gms-border-base) solid var(--gms-border-primary);
+}
+
+.gms-card__title {
+  font-size: var(--gms-text-lg);
+  font-weight: var(--gms-font-semibold);
+  color: var(--gms-text-primary);
+  margin: 0;
+}
+
+.gms-card__content {
+  color: var(--gms-text-secondary);
+  line-height: var(--gms-leading-relaxed);
+}
+
+.gms-card__footer {
+  margin-top: var(--gms-space-md);
+  padding-top: var(--gms-space-md);
+  border-top: var(--gms-border-base) solid var(--gms-border-primary);
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: var(--gms-space-2);
+}
+
+/* === INPUTS === */
+
+.gms-input {
+  display: block;
+  width: 100%;
+  height: var(--gms-input-height);
+  padding: 0 var(--gms-space-3);
+  background: var(--gms-bg-primary);
+  border: var(--gms-border-base) solid var(--gms-border-primary);
+  border-radius: var(--gms-radius-lg);
+  font-family: var(--gms-font-sans);
+  font-size: var(--gms-text-sm);
+  color: var(--gms-text-primary);
+  transition: var(--gms-transition-base);
+}
+
+.gms-input::placeholder {
+  color: var(--gms-text-tertiary);
+}
+
+.gms-input:focus {
+  outline: none;
+  border-color: var(--gms-border-focus);
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+.gms-input:disabled {
+  background: var(--gms-bg-secondary);
+  color: var(--gms-text-disabled);
+  cursor: not-allowed;
+}
+
+.gms-input--error {
+  border-color: var(--gms-border-error);
+}
+
+.gms-input--error:focus {
+  border-color: var(--gms-border-error);
+  box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.1);
+}
+
+/* === FORM FIELDS === */
+
+/* Field container - matches ConfigField component structure */
+.gms-field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  margin-bottom: 0.5rem;
+}
+
+.gms-field.gms-field--error {
+  --field-border-color: var(--gms-border-error);
+  --field-bg-color: var(--gms-error-50, #fef2f2);
+}
+
+.gms-field.gms-field--phi-sensitive {
+  --field-border-left-color: var(--gms-warning-500, #f59e0b);
+}
+
+/* Field label styling */
+.gms-field-label {
+  font-size: 0.8125rem;
+  font-weight: var(--gms-font-medium);
+  color: var(--gms-text-primary);
+  margin-bottom: 0.25rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 0.375rem;
+}
+
+.gms-field-label .gms-field-required {
+  color: var(--gms-error);
+  font-weight: var(--gms-font-semibold);
+}
+
+.gms-field-label .gms-field-phi-indicator {
+  font-size: 0.75rem;
+  filter: sepia(100%) saturate(150%) hue-rotate(15deg);
+}
+
+/* Field input container */
+.gms-field-input-container {
+  position: relative;
+}
+
+/* Enhanced input styling for fields */
+.gms-field .gms-input {
+  border-color: var(--field-border-color, var(--gms-border-primary));
+  background: var(--field-bg-color, var(--gms-bg-primary));
+}
+
+.gms-field.gms-field--phi-sensitive .gms-input {
+  border-left: 3px solid var(--field-border-left-color, var(--gms-warning-500));
+}
+
+/* Textarea specific styles */
+.gms-field textarea.gms-input {
+  resize: vertical;
+  min-height: 4rem;
+  line-height: 1.5;
+}
+
+/* Select specific styles */
+.gms-field select.gms-input {
+  appearance: none;
+  background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6,9 12,15 18,9'%3e%3c/polyline%3e%3c/svg%3e");
+  background-repeat: no-repeat;
+  background-position: right 0.75rem center;
+  background-size: 1rem;
+  padding-right: 2.5rem;
+}
+
+/* Field error message */
+.gms-field-error {
+  font-size: 0.75rem;
+  color: var(--gms-error);
+  font-weight: var(--gms-font-medium);
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+.gms-field-error::before {
+  content: '⚠';
+  font-size: 0.875rem;
+}
+
+/* Field help text */
+.gms-field-help {
+  font-size: 0.75rem;
+  color: var(--gms-text-secondary);
+  line-height: 1.4;
+}
+
+/* Checkbox field specific styling */
+.gms-field-checkbox {
+  margin-bottom: 0.75rem;
+}
+
+.gms-field-checkbox-label {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+  cursor: pointer;
+  padding: 0.75rem;
+  background: var(--gms-bg-secondary);
+  border: 1px solid var(--gms-border-secondary);
+  border-radius: var(--gms-radius-md);
+  transition: var(--gms-transition-base);
+}
+
+.gms-field-checkbox.gms-field--phi-sensitive .gms-field-checkbox-label {
+  border-left: 3px solid var(--gms-warning-500);
+}
+
+.gms-field-checkbox-label:hover {
+  border-color: var(--gms-border-primary);
+  background: var(--gms-bg-primary);
+}
+
+.gms-field-checkbox-input {
+  width: 1rem;
+  height: 1rem;
+  margin: 0.125rem 0 0 0;
+  accent-color: var(--gms-accent);
+  cursor: pointer;
+}
+
+.gms-field-checkbox-input:disabled {
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+
+.gms-field-checkbox-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.gms-field-checkbox-text {
+  font-size: 0.8125rem;
+  font-weight: var(--gms-font-medium);
+  color: var(--gms-text-primary);
+  display: flex;
+  align-items: center;
+  gap: 0.375rem;
+}
+
+.gms-field-checkbox-description {
+  font-size: 0.75rem;
+  color: var(--gms-text-secondary);
+  line-height: 1.4;
+}
+
+/* Focus states */
+.gms-field-checkbox-input:focus {
+  outline: 2px solid var(--gms-accent);
+  outline-offset: 2px;
+}
+
+/* Disabled state */
+.gms-field-checkbox-label:has(.gms-field-checkbox-input:disabled) {
+  opacity: 0.6;
+  cursor: not-allowed;
+  background: var(--gms-bg-tertiary);
+}
+
+/* Mobile adjustments */
+@media (max-width: 768px) {
+  .gms-field {
+    margin-bottom: 0.625rem;
+  }
+
+  .gms-field-label {
+    font-size: 0.75rem;
+  }
+
+  .gms-field .gms-input {
+    font-size: 0.875rem;
+  }
+
+  .gms-field-checkbox-label {
+    padding: 0.625rem;
+  }
+
+  .gms-field-checkbox-text {
+    font-size: 0.75rem;
+  }
+
+  .gms-field-checkbox-description {
+    font-size: 0.6875rem;
+  }
+}
+
+/* High contrast mode */
+@media (prefers-contrast: high) {
+  .gms-field .gms-input {
+    border-width: 2px;
+  }
+
+  .gms-field.gms-field--phi-sensitive .gms-input {
+    border-left-width: 4px;
+  }
+}
+
+/* === BADGES === */
+
+.gms-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: var(--gms-space-1) var(--gms-space-2);
+  border-radius: var(--gms-radius-base);
+  font-size: var(--gms-text-xs);
+  font-weight: var(--gms-font-medium);
+  text-transform: uppercase;
+  letter-spacing: var(--gms-tracking-wide);
+  gap: var(--gms-space-1);
+  min-height: var(--gms-touch-target-min);
+  line-height: 1.2;
+}
+
+.gms-badge--success {
+  background: var(--gms-success-100);
+  color: var(--gms-success-800);
+}
+
+.gms-badge--warning {
+  background: var(--gms-warning-100);
+  color: var(--gms-warning-800);
+}
+
+.gms-badge--error {
+  background: var(--gms-error-100);
+  color: var(--gms-error-800);
+}
+
+.gms-badge--info {
+  background: var(--gms-info-100);
+  color: var(--gms-info-800);
+}
+
+.gms-badge--neutral {
+  background: var(--gms-neutral-100);
+  color: var(--gms-neutral-800);
+}
+
+/* === PROFESSIONAL DATA SECURITY & COMPLIANCE BADGES === */
+
+.gms-badge--security {
+  background: var(--gms-warning-100);
+  color: var(--gms-warning-800);
+  border: 1px solid var(--gms-warning-300);
+}
+
+.gms-badge--compliance {
+  background: var(--gms-success-100);
+  color: var(--gms-success-800);
+  border: 1px solid var(--gms-success-300);
+}
+
+.gms-badge--sensitive-data {
+  background: var(--gms-orange-100);
+  color: var(--gms-orange-800);
+  border: 1px solid var(--gms-orange-300);
+}
+
+.gms-badge--confidential {
+  background: var(--gms-purple-100);
+  color: var(--gms-purple-800);
+  border: 1px solid var(--gms-purple-300);
+}
+
+.gms-badge--priority-high {
+  background: var(--gms-error-100);
+  color: var(--gms-error-800);
+  border: 1px solid var(--gms-error-300);
+  font-weight: var(--gms-font-semibold);
+}
+
+.gms-badge--priority-medium {
+  background: var(--gms-warning-100);
+  color: var(--gms-warning-800);
+  border: 1px solid var(--gms-warning-300);
+}
+
+.gms-badge--priority-low {
+  background: var(--gms-info-100);
+  color: var(--gms-info-800);
+  border: 1px solid var(--gms-info-300);
+}
+
+/* === PROFESSIONAL STATUS INDICATORS === */
+
+.gms-status-indicator {
+  display: inline-flex;
+  align-items: center;
+  padding: var(--gms-space-1) var(--gms-space-3);
+  border-radius: var(--gms-radius-lg);
+  font-size: var(--gms-text-sm);
+  font-weight: var(--gms-font-medium);
+  gap: var(--gms-space-2);
+  min-height: 32px;
+  line-height: 1.3;
+}
+
+.gms-status-indicator--active {
+  background: var(--gms-success-100);
+  color: var(--gms-success-700);
+  border: 1px solid var(--gms-success-200);
+}
+
+.gms-status-indicator--inactive {
+  background: var(--gms-neutral-100);
+  color: var(--gms-neutral-600);
+  border: 1px solid var(--gms-neutral-200);
+}
+
+.gms-status-indicator--pending {
+  background: var(--gms-warning-100);
+  color: var(--gms-warning-700);
+  border: 1px solid var(--gms-warning-200);
+}
+
+.gms-status-indicator--error {
+  background: var(--gms-error-100);
+  color: var(--gms-error-700);
+  border: 1px solid var(--gms-error-200);
+}
+
+.gms-status-indicator--processing {
+  background: var(--gms-info-100);
+  color: var(--gms-info-700);
+  border: 1px solid var(--gms-info-200);
+}
+
+/* Professional data handling indicators */
+.gms-data-indicator {
+  display: inline-flex;
+  align-items: center;
+  padding: var(--gms-space-1) var(--gms-space-2);
+  border-radius: var(--gms-radius-base);
+  font-size: var(--gms-text-xs);
+  font-weight: var(--gms-font-semibold);
+  text-transform: uppercase;
+  letter-spacing: var(--gms-tracking-wide);
+  gap: var(--gms-space-1);
+  border: 1px solid;
+}
+
+.gms-data-indicator--secure {
+  background: var(--gms-success-50);
+  color: var(--gms-success-700);
+  border-color: var(--gms-success-300);
+}
+
+.gms-data-indicator--encrypted {
+  background: var(--gms-purple-50);
+  color: var(--gms-purple-700);
+  border-color: var(--gms-purple-300);
+}
+
+.gms-data-indicator--sensitive {
+  background: var(--gms-warning-50);
+  color: var(--gms-warning-700);
+  border-color: var(--gms-warning-300);
+}
+
+/* === MODALS === */
+
+.gms-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: var(--gms-bg-overlay);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: var(--gms-z-modal);
+  padding: var(--gms-space-lg);
+}
+
+.gms-modal {
+  background: var(--gms-bg-elevated);
+  border-radius: var(--gms-radius-2xl);
+  box-shadow: var(--gms-shadow-modal);
+  width: 100%;
+  max-width: 600px;
+  max-height: 90vh;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+.gms-modal__header {
+  padding: var(--gms-space-xl) var(--gms-space-2xl);
+  border-bottom: var(--gms-border-base) solid var(--gms-border-primary);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.gms-modal__title {
+  font-size: var(--gms-text-xl);
+  font-weight: var(--gms-font-semibold);
+  color: var(--gms-text-primary);
+  margin: 0;
+}
+
+.gms-modal__content {
+  padding: var(--gms-space-2xl);
+  overflow-y: auto;
+  flex: 1;
+}
+
+.gms-modal__footer {
+  padding: var(--gms-space-lg) var(--gms-space-2xl);
+  border-top: var(--gms-border-base) solid var(--gms-border-primary);
+  background: var(--gms-bg-secondary);
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: var(--gms-space-3);
+}
+
+/* ========================================================================
+   ACCESSIBILITY UTILITIES
+   ======================================================================== */
+
+.gms-focus-visible {
+  outline: none;
+}
+
+.gms-focus-visible:focus-visible {
+  outline: var(--gms-focus-ring-width) var(--gms-focus-ring-style) var(--gms-focus-ring-color);
+  outline-offset: var(--gms-focus-ring-offset);
+}
+
+.gms-touch-target {
+  min-height: var(--gms-touch-target-min);
+  min-width: var(--gms-touch-target-min);
+}
+
+/* ========================================================================
+   ACCESSIBILITY UTILITIES
+   ======================================================================== */
+
+/* Screen Reader Only Content */
+.gms-sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+.gms-sr-only-focusable:focus {
+  position: static;
+  width: auto;
+  height: auto;
+  padding: var(--gms-space-2);
+  margin: 0;
+  overflow: visible;
+  clip: auto;
+  white-space: normal;
+  background: var(--gms-bg-primary);
+  border: 1px solid var(--gms-border-primary);
+  border-radius: var(--gms-radius-md);
+}
+
+/* High Contrast Support */
+@media (prefers-contrast: high) {
+  .gms-button {
+    border: 2px solid currentColor;
+  }
+  
+  .gms-card {
+    border: 2px solid var(--gms-border-primary);
+  }
+}
+
+/* Reduced Motion Support */
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+  
+  .gms-button:hover {
+    transform: none;
+  }
+}
+
+/* Focus Management */
+.gms-focus-trap {
+  position: relative;
+}
+
+.gms-skip-link {
+  position: absolute;
+  top: -40px;
+  left: 6px;
+  background: var(--gms-bg-primary);
+  color: var(--gms-text-primary);
+  padding: var(--gms-space-2) var(--gms-space-3);
+  text-decoration: none;
+  border-radius: var(--gms-radius-md);
+  border: 2px solid var(--gms-border-primary);
+  z-index: 1000;
+  transition: var(--gms-transition-base);
+}
+
+.gms-skip-link:focus {
+  top: 6px;
+}
+
+/* ARIA Live Regions */
+.gms-live-region {
+  position: absolute;
+  left: -10000px;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+}
+
+/* Status Indicators with Better Semantics */
+.gms-status-indicator {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--gms-space-1);
+  font-size: var(--gms-text-sm);
+  font-weight: var(--gms-font-medium);
+}
+
+.gms-status-indicator--success {
+  color: var(--gms-success);
+}
+
+.gms-status-indicator--warning {
+  color: var(--gms-warning);
+}
+
+.gms-status-indicator--error {
+  color: var(--gms-error);
+}
+
+.gms-status-indicator--info {
+  color: var(--gms-info);
+}
+
+/* Skip Navigation Styles */
+.gms-skip-navigation {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  z-index: 10000;
+  background: transparent;
+}
+
+/* Main Content and Landmark Styles */
+.gms-main-content {
+  outline: none;
+}
+
+.gms-main-content:focus-visible {
+  outline: 2px solid var(--gms-focus-ring-color);
+  outline-offset: 2px;
+}
+
+.gms-landmark {
+  position: relative;
+}
+
+/* Professional Loading States for Screen Readers */
+.gms-loading-indicator {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--gms-space-2);
+  color: var(--gms-text-secondary);
+}
+
+.gms-loading-indicator[aria-busy="true"] .gms-loading-spinner {
+  animation: gms-spin 1s linear infinite;
+}
+
+@keyframes gms-spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .gms-loading-indicator[aria-busy="true"] .gms-loading-spinner {
+    animation: none;
+  }
+}
+
+/* Professional Status Messages */
+.gms-status-message {
+  padding: var(--gms-space-3) var(--gms-space-4);
+  border-radius: var(--gms-radius-lg);
+  font-size: var(--gms-text-sm);
+  font-weight: var(--gms-font-medium);
+  display: flex;
+  align-items: center;
+  gap: var(--gms-space-2);
+}
+
+.gms-status-message--success {
+  background: var(--gms-success-100);
+  color: var(--gms-success-800);
+  border: 1px solid var(--gms-success-300);
+}
+
+.gms-status-message--error {
+  background: var(--gms-error-100);
+  color: var(--gms-error-800);
+  border: 1px solid var(--gms-error-300);
+}
+
+.gms-status-message--warning {
+  background: var(--gms-warning-100);
+  color: var(--gms-warning-800);
+  border: 1px solid var(--gms-warning-300);
+}
+
+.gms-status-message--info {
+  background: var(--gms-info-100);
+  color: var(--gms-info-800);
+  border: 1px solid var(--gms-info-300);
+}
+
+/* ========================================================================
+   TOUCH TARGET COMPLIANCE (WCAG 2.2 AA)
+   ======================================================================== */
+
+/* Minimum touch target utility classes */
+.gms-touch-target {
+  min-height: var(--gms-touch-target-min);
+  min-width: var(--gms-touch-target-min);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.gms-touch-target-sm {
+  min-height: var(--gms-touch-target-sm);
+  min-width: var(--gms-touch-target-sm);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Interactive element compliance */
+button:not(.gms-touch-target-sm),
+.gms-button,
+[role="button"]:not(.gms-touch-target-sm),
+input[type="button"],
+input[type="submit"],
+input[type="reset"] {
+  min-height: var(--gms-touch-target-min);
+}
+
+/* Link compliance for navigation */
+a[href]:not(.gms-touch-target-sm),
+.gms-link {
+  min-height: var(--gms-touch-target-min);
+  display: inline-flex;
+  align-items: center;
+  padding: var(--gms-space-2) var(--gms-space-1);
+}
+
+/* Checkbox and radio button compliance */
+input[type="checkbox"],
+input[type="radio"] {
+  min-height: var(--gms-touch-target-min);
+  min-width: var(--gms-touch-target-min);
+}
+
+/* Select dropdown compliance */
+select {
+  min-height: var(--gms-touch-target-min);
+  padding: var(--gms-space-2) var(--gms-space-3);
+}
+
+/* Icon button compliance */
+.gms-icon-button {
+  min-height: var(--gms-touch-target-min);
+  min-width: var(--gms-touch-target-min);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  border-radius: var(--gms-radius-md);
+  transition: var(--gms-transition-base);
+}
+
+.gms-icon-button:hover {
+  background: var(--gms-bg-secondary);
+}
+
+.gms-icon-button:focus-visible {
+  outline: var(--gms-focus-ring-width) var(--gms-focus-ring-style) var(--gms-focus-ring-color);
+  outline-offset: var(--gms-focus-ring-offset);
+}
+
+/* Professional healthcare form controls */
+.gms-form-control {
+  min-height: var(--gms-touch-target-min);
+  padding: var(--gms-space-2) var(--gms-space-3);
+  border: 1px solid var(--gms-border-secondary);
+  border-radius: var(--gms-radius-md);
+  font-family: var(--gms-font-sans);
+  font-size: var(--gms-text-sm);
+  background: var(--gms-bg-primary);
+  color: var(--gms-text-primary);
+  transition: var(--gms-transition-base);
+}
+
+.gms-form-control:focus {
+  outline: var(--gms-focus-ring-width) var(--gms-focus-ring-style) var(--gms-focus-ring-color);
+  outline-offset: var(--gms-focus-ring-offset);
+  border-color: var(--gms-accent);
+}
+
+.gms-form-control:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  background: var(--gms-bg-tertiary);
+}
+
+/* ========================================================================
+   RESPONSIVE UTILITIES
+   ======================================================================== */
+
+@media (max-width: 768px) {
+  .gms-container {
+    padding-left: var(--gms-space-md);
+    padding-right: var(--gms-space-md);
+  }
+  
+  .gms-grid-cols-4,
+  .gms-grid-cols-3,
+  .gms-grid-cols-2 {
+    grid-template-columns: 1fr;
+  }
+  
+  .gms-card {
+    padding: var(--gms-space-md);
+  }
+  
+  .gms-modal {
+    margin: var(--gms-space-4);
+  }
+  
+  .gms-modal__header,
+  .gms-modal__content {
+    padding: var(--gms-space-lg);
+  }
+}
+
+@media (max-width: 480px) {
+  .gms-container {
+    padding-left: var(--gms-space-sm);
+    padding-right: var(--gms-space-sm);
+  }
+  
+  .gms-card {
+    padding: var(--gms-space-sm);
+  }
+  
+  .gms-button {
+    min-width: auto;
+  }
+}
+
+/* ========================================================================
+   MOTION PREFERENCES
+   ======================================================================== */
+
+@media (prefers-reduced-motion: reduce) {
+  * {
+    transition: none !important;
+    animation: none !important;
+  }
+  
+  .gms-card:hover {
+    transform: none;
+  }
+  
+  .gms-button:hover {
+    transform: none;
+  }
+}
+
+/* ========================================================================
+   HIGH CONTRAST MODE SUPPORT
+   ======================================================================== */
+
+@media (prefers-contrast: high) {
+  :root {
+    --gms-border-primary: var(--gms-neutral-900);
+    --gms-border-secondary: var(--gms-neutral-800);
+    --gms-text-secondary: var(--gms-neutral-800);
+    --gms-text-tertiary: var(--gms-neutral-700);
+  }
+  
+  .gms-button--secondary {
+    border-width: 2px;
+  }
+  
+  .gms-input {
+    border-width: 2px;
+  }
+  
+  .gms-card {
+    border-width: 2px;
+  }
+}
+
+/* ========================================================================
+   UNIFIED LAYOUT SYSTEM - LEFT-ALIGNED HEALTHCARE DESIGN
+   ======================================================================== */
+
+/* 
+ * Layout Standardization for Healthcare Professional Experience
+ * Based on the successful Workspace canvas model
+ * Provides consistent left-aligned layout across all platform pages
+ */
+
+/* === LAYOUT FOUNDATION === */
+
+/* Unified page layout wrapper */
+.gms-unified-layout {
+  width: 100%;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  background: var(--gms-neutral-50);
+  color: var(--gms-text-primary);
+}
+
+/* Page header container */
+.gms-page-header {
+  position: sticky;
+  top: 0;
+  z-index: var(--gms-z-header, 100);
+  background: var(--gms-bg-primary);
+  border-bottom: 1px solid var(--gms-border-primary);
+}
+
+/* Layout sidebar for navigation */
+.gms-layout-sidebar {
+  width: var(--gms-sidebar-width, 280px);
+  background: var(--gms-bg-primary);
+  border-right: 1px solid var(--gms-border-primary);
+  overflow: auto;
+  flex-shrink: 0;
+}
+
+/* Main content area with left-aligned container */
+.gms-main-content {
+  flex: 1;
+  overflow: auto;
+  position: relative;
+  min-width: 0; /* Prevents flex overflow */
+}
+
+/* Standard left-aligned content container */
+.gms-content-container {
+  max-width: 1400px;
+  width: 100%;
+  padding: 0 var(--gms-space-8);
+  margin: 0; /* Left-aligned, not centered */
+  min-height: 100%;
+}
+
+/* === LAYOUT PATTERNS === */
+
+/* Left-aligned header pattern (replaces center-aligned) */
+.gms-header-left-aligned {
+  max-width: 1400px;
+  width: 100%;
+  padding: 0 var(--gms-space-8);
+  margin: 0; /* Left-aligned */
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: var(--gms-header-height, 64px);
+}
+
+/* Left-aligned dashboard content */
+.gms-dashboard-content {
+  max-width: 1400px;
+  width: 100%;
+  padding: var(--gms-space-8);
+  margin: 0; /* Left-aligned */
+}
+
+/* Left-aligned templates content */
+.gms-templates-content {
+  max-width: 1400px;
+  width: 100%;
+  padding: var(--gms-space-8);
+  margin: 0; /* Left-aligned */
+}
+
+/* === NAVIGATION PATTERNS === */
+
+/* Consistent navigation tabs (dashboard, templates, etc.) */
+.gms-nav-tabs {
+  background: var(--gms-bg-primary);
+  border-bottom: 1px solid var(--gms-border-primary);
+  padding: 0 var(--gms-space-6);
+  position: sticky;
+  top: 0;
+  z-index: var(--gms-z-navigation, 50);
+  overflow-x: auto;
+  scrollbar-width: none; /* Firefox */
+  -ms-overflow-style: none; /* IE 10+ */
+}
+
+.gms-nav-tabs::-webkit-scrollbar {
+  display: none; /* Chrome/Safari */
+}
+
+.gms-nav-tabs-container {
+  display: flex;
+  gap: var(--gms-space-8);
+  align-items: center;
+  max-width: 1400px;
+  margin: 0; /* Left-aligned */
+  min-width: max-content; /* Prevent wrapping */
+}
+
+.gms-nav-tab {
+  display: flex;
+  align-items: center;
+  gap: var(--gms-space-2);
+  padding: var(--gms-space-3) var(--gms-space-4);
+  text-decoration: none;
+  color: var(--gms-text-secondary);
+  font-weight: var(--gms-font-medium);
+  font-size: var(--gms-text-sm);
+  border-radius: var(--gms-radius-lg);
+  transition: var(--gms-transition-base);
+  position: relative;
+  min-height: var(--gms-touch-target-min);
+}
+
+.gms-nav-tab:hover {
+  color: var(--gms-text-primary);
+  background: var(--gms-neutral-100);
+}
+
+.gms-nav-tab.active {
+  color: var(--gms-accent);
+  background: rgba(59, 130, 246, 0.1);
+}
+
+.gms-nav-tab.active::after {
+  content: '';
+  position: absolute;
+  bottom: -1px;
+  left: var(--gms-space-4);
+  right: var(--gms-space-4);
+  height: 2px;
+  background: var(--gms-accent);
+  border-radius: 2px 2px 0 0;
+}
+
+/* === HEALTHCARE-SPECIFIC LAYOUT === */
+
+/* Healthcare theme modifier */
+.gms-healthcare-theme {
+  --gms-layout-bg: var(--gms-neutral-50);
+  --gms-header-bg: var(--gms-bg-primary);
+  --gms-content-bg: transparent;
+}
+
+/* Healthcare context indicators in layout */
+.gms-healthcare-layout {
+  position: relative;
+}
+
+.gms-healthcare-layout::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 4px;
+  height: 100%;
+  background: var(--gms-accent);
+  opacity: 0.1;
+  pointer-events: none;
+}
+
+/* === RESPONSIVE LAYOUT === */
+
+/* Tablet layout adjustments */
+@media (max-width: 1024px) {
+  .gms-layout-sidebar {
+    width: var(--gms-sidebar-width-tablet, 240px);
+  }
+  
+  .gms-content-container,
+  .gms-header-left-aligned,
+  .gms-dashboard-content,
+  .gms-templates-content {
+    padding-left: var(--gms-space-6);
+    padding-right: var(--gms-space-6);
+  }
+  
+  .gms-nav-tabs {
+    padding: 0 var(--gms-space-4);
+  }
+  
+  .gms-nav-tabs-container {
+    gap: var(--gms-space-6);
+  }
+}
+
+/* Mobile layout adjustments */
+@media (max-width: 768px) {
+  .gms-layout-sidebar {
+    display: none; /* Collapse sidebar on mobile */
+  }
+  
+  .gms-content-container,
+  .gms-header-left-aligned,
+  .gms-dashboard-content,
+  .gms-templates-content {
+    padding-left: var(--gms-space-4);
+    padding-right: var(--gms-space-4);
+  }
+  
+  .gms-nav-tabs {
+    padding: 0 var(--gms-space-4);
+  }
+  
+  .gms-nav-tabs-container {
+    gap: var(--gms-space-4);
+  }
+  
+  .gms-nav-tab {
+    padding: var(--gms-space-2) var(--gms-space-3);
+    font-size: var(--gms-text-xs);
+    white-space: nowrap;
+    flex-shrink: 0;
+  }
+}
+
+/* Small mobile layout adjustments */
+@media (max-width: 480px) {
+  .gms-content-container,
+  .gms-header-left-aligned,
+  .gms-dashboard-content,
+  .gms-templates-content {
+    padding-left: var(--gms-space-3);
+    padding-right: var(--gms-space-3);
+  }
+  
+  .gms-nav-tabs {
+    padding: 0 var(--gms-space-3);
+  }
+  
+  .gms-nav-tabs-container {
+    gap: var(--gms-space-3);
+  }
+}
+
+/* === LAYOUT ACCESSIBILITY === */
+
+/* Focus management for layout containers */
+.gms-main-content:focus-visible {
+  outline: 2px solid var(--gms-focus-ring-color);
+  outline-offset: 2px;
+}
+
+.gms-layout-sidebar:focus-visible {
+  outline: 2px solid var(--gms-focus-ring-color);
+  outline-offset: -2px;
+}
+
+/* Skip navigation for layout */
+.gms-layout-skip-nav {
+  position: absolute;
+  top: -40px;
+  left: var(--gms-space-2);
+  background: var(--gms-bg-primary);
+  color: var(--gms-text-primary);
+  padding: var(--gms-space-2) var(--gms-space-3);
+  text-decoration: none;
+  border-radius: var(--gms-radius-md);
+  border: 2px solid var(--gms-border-primary);
+  z-index: 10000;
+  transition: var(--gms-transition-base);
+}
+
+.gms-layout-skip-nav:focus {
+  top: var(--gms-space-2);
+}
+
+/* === PROFESSIONAL LAYOUT COMPONENTS === */
+
+/* Professional page section */
+.gms-page-section {
+  margin-bottom: var(--gms-space-8);
+}
+
+.gms-page-section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: var(--gms-space-6);
+  padding-bottom: var(--gms-space-4);
+  border-bottom: 1px solid var(--gms-border-primary);
+}
+
+.gms-page-section-title {
+  font-size: var(--gms-heading-4);
+  font-weight: var(--gms-font-semibold);
+  color: var(--gms-text-primary);
+  margin: 0;
+}
+
+.gms-page-section-subtitle {
+  color: var(--gms-text-secondary);
+  margin: var(--gms-space-1) 0 0 0;
+}
+
+/* Professional content grid */
+.gms-content-grid {
+  display: grid;
+  gap: var(--gms-space-6);
+  margin-bottom: var(--gms-space-8);
+}
+
+.gms-content-grid--2col {
+  grid-template-columns: repeat(2, 1fr);
+}
+
+.gms-content-grid--3col {
+  grid-template-columns: repeat(3, 1fr);
+}
+
+.gms-content-grid--4col {
+  grid-template-columns: repeat(4, 1fr);
+}
+
+@media (max-width: 1024px) {
+  .gms-content-grid--4col {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  
+  .gms-content-grid--3col {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 768px) {
+  .gms-content-grid--4col,
+  .gms-content-grid--3col,
+  .gms-content-grid--2col {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* === LAYOUT UTILITY CLASSES === */
+
+/* Alignment utilities */
+.gms-align-left {
+  text-align: left;
+}
+
+.gms-align-right {
+  text-align: right;
+}
+
+.gms-align-center {
+  text-align: center;
+}
+
+/* Container utilities */
+.gms-container-fluid {
+  width: 100%;
+  padding-left: var(--gms-space-8);
+  padding-right: var(--gms-space-8);
+}
+
+.gms-container-narrow {
+  max-width: 800px;
+  width: 100%;
+  padding-left: var(--gms-space-8);
+  padding-right: var(--gms-space-8);
+  margin: 0; /* Left-aligned */
+}
+
+.gms-container-wide {
+  max-width: 1600px;
+  width: 100%;
+  padding-left: var(--gms-space-8);
+  padding-right: var(--gms-space-8);
+  margin: 0; /* Left-aligned */
+}
+
+/* Layout spacing utilities */
+.gms-layout-spacing-sm {
+  padding: var(--gms-space-4);
+}
+
+.gms-layout-spacing-md {
+  padding: var(--gms-space-6);
+}
+
+.gms-layout-spacing-lg {
+  padding: var(--gms-space-8);
+}
+
+.gms-layout-spacing-xl {
+  padding: var(--gms-space-10);
+}
+
+/* Professional layout modifiers */
+.gms-layout-professional {
+  background: var(--gms-neutral-50);
+  min-height: 100vh;
+}
+
+.gms-layout-clinical {
+  background: var(--gms-bg-primary);
+  border-left: 4px solid var(--gms-accent);
+}
+
+.gms-layout-administrative {
+  background: var(--gms-neutral-50);
+  border-left: 4px solid var(--gms-success);
+}
+
+/* ========================================================================
+   REACT FLOW CANVAS INTERACTIONS
+   ======================================================================== */
+
+/* Drop ripple effect for enhanced canvas interactions */
+.drop-ripple-effect {
+  position: fixed;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: var(--gms-accent-500);
+  opacity: 0.6;
+  pointer-events: none;
+  z-index: 1000;
+  animation: dropRipple 0.6s ease-out forwards;
+}
+
+@keyframes dropRipple {
+  0% {
+    transform: scale(0.5);
+    opacity: 0.8;
+  }
+  50% {
+    transform: scale(1.2);
+    opacity: 0.4;
+  }
+  100% {
+    transform: scale(2);
+    opacity: 0;
+  }
+}
+
+/* ========================================================================
+   HEALTHCARE MINIMAP - NODE STYLING
+   ======================================================================== */
+
+/**
+ * Healthcare-specific MiniMap node classes for React Flow v11.10.4
+ * These classes enhance the visual distinction of healthcare nodes in the minimap
+ */
+
+/* Base minimap node styling */
+.minimap-node {
+  transition: all 0.2s ease-in-out;
+  border-radius: 2px;
+}
+
+.minimap-node-default {
+  border-radius: 2px;
+}
+
+/* PHI Handling Nodes - Orange for critical attention */
+.minimap-node-phi {
+  border: 2px solid var(--gms-papaya-orange, #FFA613);
+  box-shadow: 0 0 4px rgba(255, 166, 19, 0.4);
+}
+
+.minimap-node-phi:hover {
+  box-shadow: 0 0 8px rgba(255, 166, 19, 0.6);
+}
+
+/* ADK Agent Nodes - Enterprise dark styling */
+.minimap-node-adk {
+  border: 2px solid var(--gms-gunmetal-gray, #3B3B3B);
+  box-shadow: 0 0 4px rgba(59, 59, 59, 0.3);
+}
+
+/* Audit Required Nodes - Medium gray for compliance */
+.minimap-node-audit {
+  border: 2px solid var(--gms-primary-600, #475569);
+  box-shadow: 0 0 4px rgba(71, 85, 105, 0.3);
+}
+
+/* High Compliance Nodes - Bright blue for trust */
+.minimap-node-high-compliance {
+  border: 2px solid var(--gms-bright-blue, #00AAE7);
+  box-shadow: 0 0 4px rgba(0, 170, 231, 0.4);
+}
+
+.minimap-node-high-compliance:hover {
+  box-shadow: 0 0 8px rgba(0, 170, 231, 0.6);
+}
+
+/* Low Compliance Nodes - Red for critical attention */
+.minimap-node-low-compliance {
+  border: 2px solid var(--gms-alert-red, #DC2626);
+  box-shadow: 0 0 4px rgba(220, 38, 38, 0.4);
+  animation: pulse-warning 2s infinite;
+}
+
+.minimap-node-low-compliance:hover {
+  box-shadow: 0 0 8px rgba(220, 38, 38, 0.6);
+}
+
+/* Healthcare Safe Nodes - Green for approval */
+.minimap-node-safe {
+  border: 2px solid var(--gms-success-green, #10B981);
+  box-shadow: 0 0 4px rgba(16, 185, 129, 0.3);
+}
+
+/* Warning pulse animation for low compliance nodes */
+@keyframes pulse-warning {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.7;
+  }
+}
+
+/* MiniMap container enhancements for healthcare context */
+.floating-minimap {
+  /* Enhanced accessibility and healthcare context */
+  user-select: none;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+}
+
+/* High contrast mode support for healthcare accessibility */
+@media (prefers-contrast: high) {
+  .minimap-node-phi {
+    border-width: 3px;
+  }
+  
+  .minimap-node-low-compliance {
+    border-width: 3px;
+  }
+  
+  .minimap-node-high-compliance {
+    border-width: 3px;
+  }
+}
+
+/* Reduced motion support for healthcare professionals */
+@media (prefers-reduced-motion: reduce) {
+  .minimap-node,
+  .minimap-node-low-compliance {
+    animation: none;
+    transition: none;
+  }
+}
+
+/* ========================================================================
+   HEALTHCARE SMOOTH EDGES - REACT FLOW STYLING
+   ======================================================================== */
+
+/**
+ * Healthcare-specific smooth edge styling for React Flow v11.10.4
+ * Provides professional medical-grade appearance for workflow connections
+ */
+
+/* Default smooth edges - Professional healthcare appearance */
+.react-flow__edge.react-flow__edge-smoothstep {
+  stroke-width: 2px;
+  stroke: var(--gms-primary-400, #94a3b8);
+  transition: all 0.2s ease-in-out;
+}
+
+.react-flow__edge.react-flow__edge-smoothstep:hover {
+  stroke: var(--gms-bright-blue, #00AAE7);
+  stroke-width: 3px;
+}
+
+/* Selected smooth edges */
+.react-flow__edge.react-flow__edge-smoothstep.selected {
+  stroke: var(--gms-bright-blue, #00AAE7);
+  stroke-width: 3px;
+}
+
+/* Smooth edge markers/arrows */
+.react-flow__edge.react-flow__edge-smoothstep .react-flow__edge-path {
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+/* Healthcare-specific smooth edge variants for future use */
+.react-flow__edge.react-flow__edge-smoothstep.healthcare-phi {
+  stroke: var(--gms-papaya-orange, #FFA613);
+  stroke-width: 3px;
+}
+
+.react-flow__edge.react-flow__edge-smoothstep.healthcare-audit {
+  stroke: var(--gms-bright-blue, #00AAE7);
+  stroke-dasharray: 8 4;
+}
+
+.react-flow__edge.react-flow__edge-smoothstep.healthcare-compliant {
+  stroke: var(--gms-success-green, #10B981);
+  stroke-width: 2px;
+}
+
+.react-flow__edge.react-flow__edge-smoothstep.healthcare-error {
+  stroke: var(--gms-alert-red, #DC2626);
+  stroke-width: 3px;
+  animation: pulse-edge-warning 1.5s infinite;
+}
+
+/* Edge warning pulse animation */
+@keyframes pulse-edge-warning {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.7;
+  }
+}
+
+/* High contrast mode support for healthcare accessibility */
+@media (prefers-contrast: high) {
+  .react-flow__edge.react-flow__edge-smoothstep {
+    stroke-width: 3px;
+  }
+  
+  .react-flow__edge.react-flow__edge-smoothstep:hover {
+    stroke-width: 4px;
+  }
+}
+
+/* Reduced motion support for healthcare professionals */
+@media (prefers-reduced-motion: reduce) {
+  .react-flow__edge.react-flow__edge-smoothstep {
+    transition: none;
+  }
+  
+  .react-flow__edge.react-flow__edge-smoothstep.healthcare-error {
+    animation: none;
+  }
+}
+
+/* ========================================================================
+   UNIFIED AGENT NODE - HEALTHCARE VISUAL SYSTEM
+   ======================================================================== */
+
+/* Universal Adapter Fallback Styling */
+.universal-adapter-fallback {
+  padding: 16px;
+  background: var(--gms-bg-elevated);
+  border: 1px solid var(--gms-border-error);
+  border-radius: var(--gms-radius-lg);
+  color: var(--gms-text-error);
+  font-size: var(--gms-text-sm);
+  text-align: center;
+  min-width: 200px;
+}
+
+/* Agent Node Base Styling - Following mockup specifications */
+.unified-agent-node {
+  position: relative;
+  width: 320px; /* Fixed width matching ADKAgentNode component */
+  background: white;
+  border: 2px solid #d1d5db;
+  border-radius: 8px;
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -4px rgba(0, 0, 0, 0.1);
+  cursor: pointer;
+  transition: all 0.2s ease-in-out;
+}
+
+.unified-agent-node:hover {
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
+  transform: translateY(-2px);
+}
+
+/* Selected State - React Flow Integration */
+.unified-agent-node.selected {
+  border-color: #6366f1;
+  box-shadow: 0 0 0 1px #6366f1, 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+}
+
+/* ========================================================================
+   AGENT NODE STATES - ANIMATED VISUAL FEEDBACK
+   ======================================================================== */
+
+/* Active Agent Node - Healthcare-themed glow */
+.unified-agent-node.node-active {
+  border-color: var(--gms-success-500);
+  animation: pulse-glow 2s infinite;
+}
+
+@keyframes pulse-glow {
+  0%, 100% {
+    box-shadow: 0 0 0 1px var(--gms-success-500), 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+  }
+  50% {
+    box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.3), 0 0 20px rgba(20, 184, 166, 0.4), 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+  }
+}
+
+/* Executing Agent Node - Professional progress indication */
+.unified-agent-node.node-executing {
+  border-color: #3b82f6;
+  animation: executeGlow 2s infinite;
+}
+
+@keyframes executeGlow {
+  0%, 100% {
+    box-shadow: 0 0 0 1px #3b82f6, 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+    border-color: #3b82f6;
+  }
+  50% {
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.3), 0 0 15px rgba(59, 130, 246, 0.4), 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+    border-color: #2563eb;
+  }
+}
+
+/* Error Agent Node - Healthcare alert indication */
+.unified-agent-node.node-error {
+  border-color: var(--gms-error-500);
+  animation: error-shake 0.5s ease-in-out;
+}
+
+@keyframes error-shake {
+  0%, 100% {
+    transform: translateX(0);
+  }
+  25% {
+    transform: translateX(-2px);
+  }
+  75% {
+    transform: translateX(2px);
+  }
+}
+
+/* ========================================================================
+   HEALTHCARE COMPLIANCE VISUAL SYSTEM
+   ======================================================================== */
+
+/* Enhanced Healthcare Compliance Badges */
+.unified-agent-node .healthcare-compliance-badge {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 8px;
+  border-radius: 12px;
+  font-size: 10px;
+  font-weight: 600;
+  text-transform: uppercase;
+}
+
+.unified-agent-node .healthcare-compliance-badge.hipaa-compliant {
+  background: var(--gms-success-100);
+  color: var(--gms-success-700);
+  border: 1px solid var(--gms-success-200);
+}
+
+.unified-agent-node .healthcare-compliance-badge.phi-protected {
+  background: var(--gms-info-100);
+  color: var(--gms-info-700);
+  border: 1px solid var(--gms-info-200);
+}
+
+/* Generation Method Badges */
+.unified-agent-node .generation-method-badge {
+  padding: 2px 8px;
+  border-radius: 12px;
+  font-size: 10px;
+  font-weight: 500;
+  text-transform: uppercase;
+}
+
+.unified-agent-node .generation-method-badge.adk {
+  background: var(--gms-accent-100);
+  color: var(--gms-accent-700);
+}
+
+.unified-agent-node .generation-method-badge.python {
+  background: var(--gms-success-100);
+  color: var(--gms-success-700);
+}
+
+.unified-agent-node .generation-method-badge.legacy {
+  background: var(--gms-neutral-100);
+  color: var(--gms-neutral-700);
+}
+
+/* ========================================================================
+   PERFORMANCE METRICS ENHANCEMENT
+   ======================================================================== */
+
+/* Enhanced Performance Metric Cards */
+.unified-agent-node .performance-metric-card {
+  background: var(--gms-neutral-50);
+  border-radius: 6px;
+  padding: 8px;
+  text-align: center;
+  transition: all 0.2s ease;
+}
+
+.unified-agent-node .performance-metric-card:hover {
+  background: var(--gms-neutral-100);
+  transform: translateY(-1px);
+}
+
+/* Color-coded Metric Values */
+.unified-agent-node .metric-value.response-time {
+  color: var(--gms-success-600);
+  font-weight: 600;
+}
+
+.unified-agent-node .metric-value.cost {
+  color: #7c3aed; /* Purple-600 */
+  font-weight: 600;
+}
+
+.unified-agent-node .metric-value.throughput {
+  color: var(--gms-accent-600);
+  font-weight: 600;
+}
+
+/* Real-time Status Indicators */
+.unified-agent-node .status-indicator {
+  position: relative;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  border: 2px solid white;
+  box-shadow: 0 0 0 1px #d1d5db;
+}
+
+.unified-agent-node .status-indicator.deployed {
+  background: var(--gms-success-500);
+}
+
+.unified-agent-node .status-indicator.deploying {
+  background: var(--gms-warning-500);
+  animation: status-pulse 2s infinite;
+}
+
+.unified-agent-node .status-indicator.failed {
+  background: var(--gms-error-500);
+}
+
+.unified-agent-node .status-indicator.stopped {
+  background: var(--gms-neutral-500);
+}
+
+@keyframes status-pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+}
+
+/* Animated Ping Effect for Active Status */
+.unified-agent-node .status-indicator.deployed::after {
+  content: '';
+  position: absolute;
+  inset: -2px;
+  border-radius: 50%;
+  background: var(--gms-success-500);
+  animation: ping 2s cubic-bezier(0, 0, 0.2, 1) infinite;
+  opacity: 0.2;
+}
+
+@keyframes ping {
+  0% {
+    transform: scale(1);
+    opacity: 0.2;
+  }
+  75%, 100% {
+    transform: scale(1.5);
+    opacity: 0;
+  }
+}
+
+/* ========================================================================
+   CONNECTION HANDLE ENHANCEMENT
+   ======================================================================== */
+
+/* Enhanced React Flow Connection Handles - Optimized for Smoothstep Edges */
+.unified-agent-node .react-flow__handle {
+  width: 16px;
+  height: 16px;
+  border: 3px solid white;
+  border-radius: 50%;
+  background: var(--gms-accent-500);
+  box-shadow: 0 3px 6px rgba(0, 0, 0, 0.2);
+  cursor: crosshair;
+  transition: all 0.2s ease;
+  opacity: 0.9;
+  z-index: 100;
+}
+
+.unified-agent-node:hover .react-flow__handle,
+.unified-agent-node .react-flow__handle:hover {
+  opacity: 1;
+  background: var(--gms-accent-600);
+  border-color: white;
+  box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.4), 0 4px 8px rgba(0, 0, 0, 0.25);
+  transform: scale(1.3);
+}
+
+/* Healthcare-themed Handle Colors - Enhanced visibility */
+.unified-agent-node .react-flow__handle.react-flow__handle-left {
+  left: -8px;
+  background: var(--gms-info-500);
+}
+
+.unified-agent-node .react-flow__handle.react-flow__handle-left:hover {
+  background: var(--gms-info-600);
+}
+
+.unified-agent-node .react-flow__handle.react-flow__handle-right {
+  right: -8px;
+  background: var(--gms-success-500);
+}
+
+.unified-agent-node .react-flow__handle.react-flow__handle-right:hover {
+  background: var(--gms-success-600);
+}
+
+/* Enhanced connection line preview for smoothstep edges */
+.react-flow__connection-path,
+.react-flow__connection {
+  stroke: var(--gms-accent-500) !important;
+  stroke-width: 3px !important;
+  stroke-dasharray: 8, 4 !important;
+  opacity: 0.8 !important;
+  animation: dash 1s linear infinite;
+  fill: none !important;
+}
+
+@keyframes dash {
+  to {
+    stroke-dashoffset: -12;
+  }
+}
+
+/* Smoothstep edge styling improvements */
+.react-flow__edge-path {
+  stroke-width: 2px;
+  stroke: var(--gms-text-tertiary);
+  transition: all 0.2s ease;
+  fill: none;
+}
+
+.react-flow__edge:hover .react-flow__edge-path {
+  stroke-width: 3px;
+  stroke: var(--gms-accent-500);
+}
+
+/* Healthcare compliance edge styling */
+.react-flow__edge[data-healthcare-compliant="true"] .react-flow__edge-path {
+  stroke: var(--gms-success-500);
+  stroke-width: 3px;
+  stroke-dasharray: none;
+}
+
+.react-flow__edge[data-healthcare-compliant="false"] .react-flow__edge-path {
+  stroke: var(--gms-warning-500);
+  stroke-dasharray: 5, 5;
+}
+
+/* ========================================================================
+   PROGRESS ELEMENTS FOR EXECUTING NODES
+   ======================================================================== */
+
+/* Progress Bar for Executing Agents */
+.unified-agent-node .progress-bar {
+  height: 2px;
+  background: linear-gradient(
+    90deg,
+    rgba(59, 130, 246, 0.8) 0%,
+    rgba(59, 130, 246, 0.4) 50%,
+    rgba(59, 130, 246, 0.8) 100%
+  );
+  background-size: 200% 100%;
+  animation: progress-flow 1.5s infinite linear;
+  border-radius: 1px;
+  margin-top: 8px;
+}
+
+@keyframes progress-flow {
+  0% {
+    background-position: 0% 0%;
+  }
+  100% {
+    background-position: 100% 0%;
+  }
+}
+
+/* ========================================================================
+   ACCESSIBILITY & REDUCED MOTION SUPPORT
+   ======================================================================== */
+
+/* Reduced motion support for healthcare professionals */
+@media (prefers-reduced-motion: reduce) {
+  .unified-agent-node,
+  .unified-agent-node .react-flow__handle,
+  .unified-agent-node .performance-metric-card {
+    transition: none;
+  }
+  
+  .unified-agent-node.node-active {
+    animation: none;
+    border-color: var(--gms-success-500);
+  }
+  
+  .unified-agent-node.node-executing {
+    animation: none;
+    border-color: #3b82f6;
+  }
+  
+  .unified-agent-node.node-error {
+    animation: none;
+    border-color: var(--gms-error-500);
+  }
+  
+  .unified-agent-node .progress-bar {
+    animation: none;
+  }
+  
+  .unified-agent-node .status-indicator.deploying {
+    animation: none;
+  }
+  
+  .unified-agent-node .status-indicator.deployed::after {
+    animation: none;
+    opacity: 0;
+  }
+}
+
+/* High contrast mode support for healthcare accessibility */
+@media (prefers-contrast: high) {
+  .unified-agent-node {
+    border-width: 3px;
+  }
+  
+  .unified-agent-node .react-flow__handle {
+    border-width: 3px;
+  }
+  
+  .unified-agent-node .healthcare-compliance-badge {
+    border-width: 2px;
+  }
+}

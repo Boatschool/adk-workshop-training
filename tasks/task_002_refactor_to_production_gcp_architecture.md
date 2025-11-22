@@ -2248,11 +2248,20 @@ Coverage by new modules:
 
 #### Phase 5: Frontend Modernization
 
-- [ ] Build new Next.js frontend with TypeScript (or keep Flask templates)
-- [ ] Migrate Jinja2 templates to React components
-- [ ] Implement authentication flow in frontend
-- [ ] Create reusable UI components
-- [ ] Integrate with FastAPI backend
+> **See Task #002a** (`tasks/task_002a_frontend_modernization.md`) for detailed implementation plan.
+
+**Stack Decision (2025-11-22):** React 18 + Vite 7 + TypeScript (aligned with GraymatterLab Studio)
+
+- [ ] Project scaffolding (Vite + React 18 + TypeScript)
+- [ ] Design system migration (GraymatterStudio CSS)
+- [ ] Core infrastructure (Auth, API client, React Query)
+- [ ] Layout & navigation components
+- [ ] Dashboard page
+- [ ] Workshop & exercise pages
+- [ ] Agent management pages
+- [ ] Visual Builder (React Flow)
+- [ ] Admin pages
+- [ ] Testing setup (Vitest + Playwright)
 
 #### Phase 6: GCP Infrastructure
 
@@ -2283,7 +2292,7 @@ Coverage by new modules:
 #### Deferred (Out of MVP Scope)
 
 - [ ] Implement authentication with Firebase Auth (deferred - using simple JWT)
-- [ ] Build new Next.js frontend with TypeScript (deferred - keeping Flask templates)
+- [x] ~~Build new Next.js frontend with TypeScript~~ → **Now Active: Task #002a** (React 18 + Vite)
 - [ ] Set up Terraform infrastructure for GCP (deferred - local development only)
 - [ ] Configure Cloud Run deployment with autoscaling (deferred)
 - [ ] Implement Cloud Logging, Monitoring, Tracing (deferred)

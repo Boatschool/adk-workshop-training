@@ -1,0 +1,618 @@
+/**
+ * Healthcare Professional UI Styling System
+ * 
+ * Professional medical-grade design system specifically crafted for healthcare
+ * professionals including clinical coordinators, prior auth specialists, 
+ * patient registrars, and practice managers.
+ * 
+ * Design Principles:
+ * - Clinical credibility and professional appearance
+ * - HIPAA compliance visual prominence  
+ * - Medical practice workflow terminology
+ * - Healthcare-native color psychology
+ * - Medical record-style information architecture
+ */
+
+/* ========================================
+   Healthcare Professional Color System
+   ======================================== */
+
+:root {
+  /* Primary Healthcare Professional Palette */
+  --medical-blue-primary: #1E40AF;           /* Professional Medical Blue */
+  --medical-blue-secondary: #3B82F6;        /* Healthcare Information Blue */
+  --medical-blue-light: #DBEAFE;            /* Medical Background Blue */
+  
+  /* Clinical Success & Safety Colors */
+  --clinical-green: #059669;                /* Healthcare Success Green */
+  --clinical-green-light: #D1FAE5;         /* Clinical Success Background */
+  --safety-red: #DC2626;                   /* Medical Alert Red */
+  --safety-red-light: #FEE2E2;            /* Medical Alert Background */
+  
+  /* Healthcare Specialty Colors */
+  --clinical-purple: #7C3AED;              /* Clinical Review Purple */
+  --clinical-purple-light: #EDE9FE;        /* Clinical Background Purple */
+  --pharma-orange: #D97706;                /* Clinical Caution Orange */
+  --pharma-orange-light: #FED7AA;          /* Pharmacy Background Orange */
+  
+  /* HIPAA Compliance Colors */
+  --hipaa-green: #065F46;                  /* HIPAA Compliance Green */
+  --hipaa-green-light: #D1FAE5;           /* HIPAA Background Green */
+  --phi-purple: #6B21A8;                  /* PHI Protection Purple */
+  --phi-purple-light: #F3E8FF;            /* PHI Background Purple */
+  
+  /* Professional Healthcare Grays */
+  --medical-gray-50: #F9FAFB;              /* Medical Chart Background */
+  --medical-gray-100: #F3F4F6;             /* Clinical Form Background */
+  --medical-gray-200: #E5E7EB;             /* Medical Border Light */
+  --medical-gray-300: #D1D5DB;             /* Medical Border Standard */
+  --medical-gray-400: #9CA3AF;             /* Medical Text Secondary */
+  --medical-gray-500: #6B7280;             /* Medical Text Muted */
+  --medical-gray-600: #4B5563;             /* Medical Text Primary */
+  --medical-gray-700: #374151;             /* Medical Headers */
+  --medical-gray-800: #1F2937;             /* Medical Text Strong */
+  --medical-gray-900: #111827;             /* Medical Text Maximum */
+  
+  /* Healthcare Professional Typography */
+  --medical-font-family: 'Inter', 'Segoe UI', 'Roboto', sans-serif;
+  --clinical-header-size: 1.125rem;        /* 18px - Medical chart headers */
+  --clinical-body-size: 0.875rem;          /* 14px - Clinical documentation */
+  --compliance-text-size: 0.75rem;         /* 12px - Regulatory text */
+  --medical-line-height: 1.5;              /* Medical readability standard */
+  
+  /* Healthcare Micro-interaction Timings */
+  --clinical-transition-fast: 150ms;        /* Quick feedback */
+  --clinical-transition-standard: 200ms;    /* Standard transitions */
+  --clinical-transition-slow: 300ms;        /* Complex animations */
+  
+  /* Healthcare Professional Shadows */
+  --medical-shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+  --medical-shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  --medical-shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+  
+  /* Healthcare Compliance Visual Indicators */
+  --hipaa-indicator-glow: 0 0 0 3px rgba(6, 95, 70, 0.1);
+  --phi-protection-glow: 0 0 0 3px rgba(107, 33, 168, 0.1);
+  --medical-alert-glow: 0 0 0 3px rgba(220, 38, 38, 0.1);
+}
+
+/* ========================================
+   Healthcare Professional Base Styling
+   ======================================== */
+
+.healthcare-professional {
+  font-family: var(--medical-font-family);
+  line-height: var(--medical-line-height);
+  color: var(--medical-gray-700);
+  background-color: var(--medical-gray-50);
+}
+
+/* Medical Chart-Style Containers */
+.medical-chart-container {
+  background: white;
+  border: 1px solid var(--medical-gray-200);
+  border-radius: 8px;
+  box-shadow: var(--medical-shadow-sm);
+  transition: box-shadow var(--clinical-transition-standard) ease;
+}
+
+.medical-chart-container:hover {
+  box-shadow: var(--medical-shadow-md);
+}
+
+/* Clinical Headers */
+.clinical-header-primary {
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: var(--medical-gray-800);
+  margin-bottom: 0.5rem;
+  border-bottom: 2px solid var(--medical-blue-primary);
+  padding-bottom: 0.5rem;
+}
+
+.clinical-header-secondary {
+  font-size: var(--clinical-header-size);
+  font-weight: 600;
+  color: var(--medical-gray-700);
+  margin-bottom: 0.75rem;
+}
+
+/* Clinical Body Text */
+.clinical-text {
+  font-size: var(--clinical-body-size);
+  color: var(--medical-gray-600);
+  line-height: var(--medical-line-height);
+}
+
+.clinical-text-muted {
+  color: var(--medical-gray-500);
+  font-size: var(--compliance-text-size);
+}
+
+/* ========================================
+   Healthcare Workflow Components
+   ======================================== */
+
+/* Medical Workflow Steps */
+.medical-workflow-step {
+  background: white;
+  border: 2px solid var(--medical-gray-200);
+  border-radius: 12px;
+  padding: 1.5rem;
+  margin-bottom: 1rem;
+  transition: all var(--clinical-transition-standard) ease;
+  position: relative;
+}
+
+.medical-workflow-step:hover {
+  border-color: var(--medical-blue-primary);
+  box-shadow: var(--medical-shadow-md);
+  transform: translateY(-2px);
+}
+
+.medical-workflow-step.active {
+  border-color: var(--medical-blue-primary);
+  background: var(--medical-blue-light);
+  box-shadow: var(--medical-shadow-lg);
+}
+
+.medical-workflow-step.completed {
+  border-color: var(--clinical-green);
+  background: var(--clinical-green-light);
+}
+
+.medical-workflow-step.error {
+  border-color: var(--safety-red);
+  background: var(--safety-red-light);
+}
+
+/* Clinical Process Indicators */
+.clinical-process-indicator {
+  position: absolute;
+  top: 0.75rem;
+  right: 0.75rem;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  animation: clinicalPulse 2s infinite;
+}
+
+.clinical-process-indicator.processing {
+  background: var(--clinical-purple);
+}
+
+.clinical-process-indicator.completed {
+  background: var(--clinical-green);
+  animation: none;
+}
+
+.clinical-process-indicator.error {
+  background: var(--safety-red);
+  animation: clinicalAlert 1s infinite;
+}
+
+/* ========================================
+   HIPAA Compliance Visual System
+   ======================================== */
+
+/* HIPAA Protected Elements */
+.hipaa-protected {
+  position: relative;
+  border: 2px solid var(--hipaa-green);
+  background: var(--hipaa-green-light);
+  border-radius: 6px;
+  padding: 0.75rem;
+}
+
+.hipaa-protected::before {
+  content: "🔒 HIPAA Protected";
+  position: absolute;
+  top: -0.5rem;
+  left: 0.75rem;
+  background: var(--hipaa-green);
+  color: white;
+  font-size: var(--compliance-text-size);
+  font-weight: 600;
+  padding: 0.25rem 0.5rem;
+  border-radius: 3px;
+}
+
+/* PHI Protection Indicators */
+.phi-protected {
+  position: relative;
+  border: 1px solid var(--phi-purple);
+  background: var(--phi-purple-light);
+  border-radius: 4px;
+  padding: 0.5rem;
+}
+
+.phi-protected::after {
+  content: "PHI";
+  position: absolute;
+  top: -0.375rem;
+  right: 0.5rem;
+  background: var(--phi-purple);
+  color: white;
+  font-size: 0.625rem;
+  font-weight: 700;
+  padding: 0.125rem 0.375rem;
+  border-radius: 2px;
+}
+
+/* Medical Alert System */
+.medical-alert {
+  border: 2px solid var(--safety-red);
+  background: var(--safety-red-light);
+  border-radius: 6px;
+  padding: 0.75rem;
+  position: relative;
+}
+
+.medical-alert::before {
+  content: "⚠️ Medical Alert";
+  font-weight: 600;
+  color: var(--safety-red);
+  display: block;
+  margin-bottom: 0.25rem;
+}
+
+/* ========================================
+   Healthcare Professional Forms
+   ======================================== */
+
+/* Medical Form Styling */
+.medical-form {
+  background: white;
+  border: 1px solid var(--medical-gray-200);
+  border-radius: 8px;
+  padding: 1.5rem;
+  box-shadow: var(--medical-shadow-sm);
+}
+
+.medical-form-section {
+  margin-bottom: 1.5rem;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid var(--medical-gray-200);
+}
+
+.medical-form-section:last-child {
+  border-bottom: none;
+  margin-bottom: 0;
+}
+
+/* Clinical Input Fields */
+.clinical-input {
+  width: 100%;
+  padding: 0.75rem;
+  border: 2px solid var(--medical-gray-300);
+  border-radius: 6px;
+  font-size: var(--clinical-body-size);
+  font-family: var(--medical-font-family);
+  transition: all var(--clinical-transition-standard) ease;
+  background: white;
+}
+
+.clinical-input:focus {
+  border-color: var(--medical-blue-primary);
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(30, 64, 175, 0.1);
+}
+
+.clinical-input.error {
+  border-color: var(--safety-red);
+  box-shadow: var(--medical-alert-glow);
+}
+
+.clinical-input.hipaa-field {
+  border-color: var(--hipaa-green);
+  background: var(--hipaa-green-light);
+}
+
+/* Medical Labels */
+.clinical-label {
+  display: block;
+  font-size: var(--clinical-body-size);
+  font-weight: 600;
+  color: var(--medical-gray-700);
+  margin-bottom: 0.5rem;
+}
+
+.clinical-label.required::after {
+  content: "*";
+  color: var(--safety-red);
+  margin-left: 0.25rem;
+}
+
+/* ========================================
+   Healthcare Professional Buttons
+   ======================================== */
+
+/* Primary Medical Actions */
+.medical-button-primary {
+  background: var(--medical-blue-primary);
+  color: white;
+  border: 2px solid var(--medical-blue-primary);
+  padding: 0.75rem 1.5rem;
+  border-radius: 6px;
+  font-weight: 600;
+  font-size: var(--clinical-body-size);
+  cursor: pointer;
+  transition: all var(--clinical-transition-standard) ease;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.medical-button-primary:hover {
+  background: var(--medical-blue-secondary);
+  border-color: var(--medical-blue-secondary);
+  transform: translateY(-1px);
+  box-shadow: var(--medical-shadow-md);
+}
+
+.medical-button-primary:active {
+  transform: translateY(0);
+}
+
+/* Clinical Success Actions */
+.medical-button-success {
+  background: var(--clinical-green);
+  color: white;
+  border: 2px solid var(--clinical-green);
+  padding: 0.75rem 1.5rem;
+  border-radius: 6px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all var(--clinical-transition-standard) ease;
+}
+
+.medical-button-success:hover {
+  background: #047857;
+  border-color: #047857;
+  box-shadow: var(--medical-shadow-md);
+}
+
+/* Medical Alert Actions */
+.medical-button-alert {
+  background: var(--safety-red);
+  color: white;
+  border: 2px solid var(--safety-red);
+  padding: 0.75rem 1.5rem;
+  border-radius: 6px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all var(--clinical-transition-standard) ease;
+}
+
+.medical-button-alert:hover {
+  background: #B91C1C;
+  border-color: #B91C1C;
+  box-shadow: var(--medical-shadow-md);
+}
+
+/* Secondary Medical Actions */
+.medical-button-secondary {
+  background: white;
+  color: var(--medical-gray-700);
+  border: 2px solid var(--medical-gray-300);
+  padding: 0.75rem 1.5rem;
+  border-radius: 6px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all var(--clinical-transition-standard) ease;
+}
+
+.medical-button-secondary:hover {
+  border-color: var(--medical-gray-400);
+  background: var(--medical-gray-50);
+  box-shadow: var(--medical-shadow-sm);
+}
+
+/* ========================================
+   Healthcare Professional Animations
+   ======================================== */
+
+/* Clinical Process Pulse */
+@keyframes clinicalPulse {
+  0%, 100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.7;
+    transform: scale(1.1);
+  }
+}
+
+/* Medical Alert Animation */
+@keyframes clinicalAlert {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+}
+
+/* Workflow Step Progress Animation */
+@keyframes workflowProgress {
+  0% {
+    transform: translateX(-100%);
+    opacity: 0;
+  }
+  100% {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+/* Clinical Success Animation */
+@keyframes clinicalSuccess {
+  0% {
+    transform: scale(0.8);
+    opacity: 0;
+  }
+  50% {
+    transform: scale(1.05);
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+/* ========================================
+   Healthcare Professional Status System
+   ======================================== */
+
+/* Clinical Status Badges */
+.clinical-status-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375rem;
+  padding: 0.375rem 0.75rem;
+  border-radius: 9999px;
+  font-size: var(--compliance-text-size);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.025em;
+}
+
+.clinical-status-badge.in-review {
+  background: var(--clinical-purple-light);
+  color: var(--clinical-purple);
+  border: 1px solid var(--clinical-purple);
+}
+
+.clinical-status-badge.approved {
+  background: var(--clinical-green-light);
+  color: var(--clinical-green);
+  border: 1px solid var(--clinical-green);
+}
+
+.clinical-status-badge.alert {
+  background: var(--safety-red-light);
+  color: var(--safety-red);
+  border: 1px solid var(--safety-red);
+}
+
+.clinical-status-badge.hipaa-compliant {
+  background: var(--hipaa-green-light);
+  color: var(--hipaa-green);
+  border: 1px solid var(--hipaa-green);
+}
+
+/* ========================================
+   Healthcare Professional Progress System
+   ======================================== */
+
+/* Clinical Progress Bar */
+.clinical-progress-container {
+  background: var(--medical-gray-200);
+  border-radius: 9999px;
+  height: 8px;
+  overflow: hidden;
+  position: relative;
+}
+
+.clinical-progress-bar {
+  background: linear-gradient(90deg, var(--medical-blue-primary), var(--clinical-green));
+  height: 100%;
+  border-radius: 9999px;
+  transition: width var(--clinical-transition-slow) ease;
+  position: relative;
+}
+
+.clinical-progress-bar::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+  animation: clinicalProgressShimmer 2s infinite;
+}
+
+@keyframes clinicalProgressShimmer {
+  0% {
+    transform: translateX(-100%);
+  }
+  100% {
+    transform: translateX(100%);
+  }
+}
+
+/* ========================================
+   Healthcare Professional Responsive Design
+   ======================================== */
+
+/* Mobile Healthcare Professional */
+@media (max-width: 768px) {
+  .medical-workflow-step {
+    padding: 1rem;
+    margin-bottom: 0.75rem;
+  }
+  
+  .medical-form {
+    padding: 1rem;
+  }
+  
+  .clinical-header-primary {
+    font-size: 1.25rem;
+  }
+  
+  .medical-button-primary,
+  .medical-button-secondary,
+  .medical-button-success,
+  .medical-button-alert {
+    width: 100%;
+    justify-content: center;
+  }
+}
+
+/* Tablet Healthcare Professional */
+@media (max-width: 1024px) {
+  .medical-chart-container {
+    margin: 0.5rem;
+  }
+  
+  .medical-workflow-step {
+    padding: 1.25rem;
+  }
+}
+
+/* ========================================
+   Healthcare Professional Accessibility
+   ======================================== */
+
+/* High Contrast for Medical Professionals */
+@media (prefers-contrast: high) {
+  :root {
+    --medical-blue-primary: #1E3A8A;
+    --clinical-green: #047857;
+    --safety-red: #B91C1C;
+    --medical-gray-700: #000000;
+  }
+}
+
+/* Reduced Motion for Clinical Focus */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* Focus Indicators for Medical Accessibility */
+.clinical-input:focus,
+.medical-button-primary:focus,
+.medical-button-secondary:focus,
+.medical-button-success:focus,
+.medical-button-alert:focus {
+  outline: 3px solid var(--medical-blue-primary);
+  outline-offset: 2px;
+}
