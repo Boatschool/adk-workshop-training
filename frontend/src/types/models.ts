@@ -64,6 +64,7 @@ export interface Workshop {
   title: string
   description: string | null
   status: WorkshopStatus
+  order_index?: number
   start_date: string | null
   end_date: string | null
   created_by: string | null
@@ -78,9 +79,11 @@ export interface Exercise {
   id: string
   workshop_id: string
   title: string
+  description?: string | null
   content_type: ContentType
   content_path: string | null
   order_index: number
+  estimated_minutes?: number | null
   created_at: string
   updated_at: string
 }

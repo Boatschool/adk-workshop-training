@@ -18,7 +18,7 @@ export function VisualBuilderStatus() {
     const checkStatus = async () => {
       try {
         // Try to reach the ADK server
-        const response = await fetch(ADK_HEALTH_URL, {
+        await fetch(ADK_HEALTH_URL, {
           method: 'HEAD',
           mode: 'no-cors',
         })

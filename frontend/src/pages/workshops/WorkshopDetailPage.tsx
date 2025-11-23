@@ -20,7 +20,8 @@ const mockExercises: Exercise[] = [
     workshop_id: '1',
     title: 'Build Your First Agent',
     description: 'Create a simple conversational agent using ADK',
-    content: '',
+    content_type: 'markdown',
+    content_path: '/exercises/basic-agent.md',
     order_index: 1,
     estimated_minutes: 30,
     created_at: new Date().toISOString(),
@@ -31,7 +32,8 @@ const mockExercises: Exercise[] = [
     workshop_id: '1',
     title: 'Adding Tools to Your Agent',
     description: 'Extend your agent with custom tools and capabilities',
-    content: '',
+    content_type: 'markdown',
+    content_path: '/exercises/agent-tools.md',
     order_index: 2,
     estimated_minutes: 45,
     created_at: new Date().toISOString(),
@@ -42,7 +44,8 @@ const mockExercises: Exercise[] = [
     workshop_id: '1',
     title: 'Multi-Agent Collaboration',
     description: 'Build a system with multiple agents working together',
-    content: '',
+    content_type: 'markdown',
+    content_path: '/exercises/multi-agent.md',
     order_index: 3,
     estimated_minutes: 60,
     created_at: new Date().toISOString(),
@@ -53,9 +56,9 @@ const mockExercises: Exercise[] = [
 const completedExercises = ['exercise-1-basic-agent']
 
 export function WorkshopDetailPage() {
-  const { id } = useParams<{ id: string }>()
+  const { id: _workshopId } = useParams<{ id: string }>()
 
-  // In real app, fetch workshop by id
+  // In real app, fetch workshop by _workshopId
   const workshop = mockWorkshop
   const exercises = mockExercises
   const completedCount = completedExercises.length

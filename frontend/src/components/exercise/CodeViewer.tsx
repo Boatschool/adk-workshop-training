@@ -27,10 +27,10 @@ export function CodeViewer({
     try {
       await navigator.clipboard.writeText(code)
       setCopied(true)
-      addToast({ type: 'success', message: 'Code copied to clipboard!' })
+      addToast({ type: 'success', title: 'Copied', message: 'Code copied to clipboard!' })
       setTimeout(() => setCopied(false), 2000)
     } catch {
-      addToast({ type: 'error', message: 'Failed to copy code' })
+      addToast({ type: 'error', title: 'Error', message: 'Failed to copy code' })
     }
   }
 
@@ -44,7 +44,7 @@ export function CodeViewer({
     a.click()
     window.URL.revokeObjectURL(url)
     document.body.removeChild(a)
-    addToast({ type: 'success', message: 'Code downloaded!' })
+    addToast({ type: 'success', title: 'Downloaded', message: 'Code downloaded!' })
   }
 
   const lines = code.split('\n')

@@ -15,7 +15,7 @@ interface CompletionButtonProps {
 }
 
 export function CompletionButton({
-  exerciseId,
+  exerciseId: _exerciseId,
   isCompleted: initialCompleted,
   onComplete,
   size = 'md',
@@ -30,7 +30,7 @@ export function CompletionButton({
     setIsLoading(true)
     try {
       // TODO: Replace with actual API call
-      // await api.post(`/api/v1/progress/exercises/${exerciseId}/complete`)
+      // await api.post(`/api/v1/progress/exercises/${_exerciseId}/complete`)
 
       // Simulate API call
       await new Promise(resolve => setTimeout(resolve, 500))
@@ -38,12 +38,14 @@ export function CompletionButton({
       setIsCompleted(true)
       addToast({
         type: 'success',
+        title: 'Success',
         message: 'Exercise marked as complete!',
       })
       onComplete?.()
-    } catch (error) {
+    } catch {
       addToast({
         type: 'error',
+        title: 'Error',
         message: 'Failed to mark as complete',
       })
     } finally {
