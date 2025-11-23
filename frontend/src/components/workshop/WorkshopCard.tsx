@@ -16,7 +16,10 @@ interface WorkshopCardProps {
 }
 
 export function WorkshopCard({ workshop, progress }: WorkshopCardProps) {
-  const percentage = progress ? (progress.completed / progress.total) * 100 : 0
+  // Guard against division by zero or missing data
+  const percentage = progress && progress.total > 0
+    ? (progress.completed / progress.total) * 100
+    : 0
 
   return (
     <Link
