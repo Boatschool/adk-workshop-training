@@ -35,10 +35,9 @@ const DOMPURIFY_CONFIG = {
     'colspan', 'rowspan', 'scope',
     'aria-label', 'aria-describedby', 'role',
   ],
-  // Only allow safe URI schemes
-  ALLOWED_URI_REGEXP: /^(?:(?:https?|mailto|tel):|[^a-z]|[a-z+.-]+(?:[^a-z+.\-:]|$))/i,
-  // Force all links to open safely
-  ADD_ATTR: ['target', 'rel'],
+  // Only allow safe URI schemes - anchored regex that trims whitespace
+  // Matches: https://, http://, mailto:, tel:, or relative paths starting with / or #
+  ALLOWED_URI_REGEXP: /^(?:https?|mailto|tel):|^[#/]/i,
   // Prevent DOM clobbering attacks
   SANITIZE_DOM: true,
   // Remove dangerous content
