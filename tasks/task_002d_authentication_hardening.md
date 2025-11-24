@@ -119,7 +119,8 @@ The current authentication system has a solid foundation with JWT tokens, bcrypt
 **Change Password:**
 - Requires current password verification
 - Validates new password is different from current
-- Does NOT invalidate sessions (user stays logged in)
+- Revokes all refresh tokens (forces re-login on all devices)
+- Consistent with reset-password security behavior
 
 **Files Modified:**
 - `src/api/routes/auth.py` - Added change-password endpoint

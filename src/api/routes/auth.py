@@ -190,7 +190,7 @@ async def change_password(
     Change password for the currently authenticated user.
 
     Requires the current password for verification.
-    Does NOT invalidate existing sessions (user stays logged in).
+    Invalidates all existing sessions (refresh tokens revoked) for security.
 
     Args:
         request: Current password and new password
@@ -199,11 +199,14 @@ async def change_password(
         tenant_id: Tenant ID from header
 
     Returns:
-        MessageResponse: Success message
+        MessageResponse: Success message with count of revoked sessions
 
     Raises:
         HTTPException: If current password is incorrect
     """
+    # Set tenant context for DB operations
+    TenantContext.set(tenant_id)
+
     # Verify current password
     if not verify_password(request.current_password, current_user.hashed_password):
         raise HTTPException(
@@ -220,9 +223,17 @@ async def change_password(
 
     # Update password
     current_user.hashed_password = hash_password(request.new_password)
+
+    # Revoke all refresh tokens (force re-login on all devices)
+    # This ensures stolen tokens cannot be used after password change
+    refresh_service = RefreshTokenService(db, tenant_id)
+    revoked_count = await refresh_service.revoke_all_user_tokens(current_user.id)
+
     await db.commit()
 
-    return MessageResponse(message="Password changed successfully.")
+    return MessageResponse(
+        message=f"Password changed successfully. {revoked_count} session(s) invalidated."
+    )
 
 
 @router.post("/logout", response_model=MessageResponse)
