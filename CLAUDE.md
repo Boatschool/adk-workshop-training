@@ -18,8 +18,11 @@ docker-compose up -d postgres
 # Run database migrations
 poetry run alembic upgrade head
 
-# Start API server (development)
-poetry run uvicorn src.api.main:app --reload --port 8000
+# Start API server (development) - uses port 8080 to avoid conflict with ADK Visual Builder
+poetry run uvicorn src.api.main:app --reload --port 8080
+
+# Start ADK Visual Builder (separate service on port 8000)
+./start_visual_builder.sh
 
 # Run tests with coverage
 poetry run pytest
@@ -123,8 +126,45 @@ Required in `.env` (copy from `.env.example`):
 
 ## Local Development
 
-The PostgreSQL container exposes port 5433 (not 5432) to avoid conflicts. The API runs on port 8000 by default.
+### Port Configuration
 
-API docs available at:
-- Swagger UI: http://localhost:8000/docs
-- ReDoc: http://localhost:8000/redoc
+| Service | Port | URL |
+|---------|------|-----|
+| React Frontend | 4000 | http://localhost:4000 |
+| FastAPI Backend | 8080 | http://localhost:8080 |
+| ADK Visual Builder | 8000 | http://localhost:8000/dev-ui |
+| PostgreSQL | 5433 | localhost:5433 |
+
+The PostgreSQL container exposes port 5433 (not 5432) to avoid conflicts with local PostgreSQL installations.
+
+### Starting All Services
+
+```bash
+# 1. Start PostgreSQL
+docker-compose up -d postgres
+
+# 2. Run database migrations
+poetry run alembic upgrade head
+
+# 3. Start FastAPI backend (port 8080)
+poetry run uvicorn src.api.main:app --reload --port 8080
+
+# 4. Start React frontend (in another terminal)
+cd frontend && npm run dev
+
+# 5. Start ADK Visual Builder (in another terminal)
+./start_visual_builder.sh
+```
+
+### API Documentation
+
+- Swagger UI: http://localhost:8080/docs
+- ReDoc: http://localhost:8080/redoc
+
+### ADK Visual Builder
+
+The Visual Builder runs as a separate service using Google's `adk web` command:
+- Launch: `./start_visual_builder.sh`
+- Stop: `./stop_visual_builder.sh`
+- Restart: `./restart_visual_builder.sh`
+- Access: http://localhost:8000/dev-ui

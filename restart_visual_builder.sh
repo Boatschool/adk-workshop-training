@@ -11,10 +11,10 @@ echo "=============================================="
 echo ""
 
 # Stop the builder
-"$SCRIPT_DIR/stop.sh"
+"$SCRIPT_DIR/stop_visual_builder.sh"
 
 # Give it a moment
 sleep 1
 
 # Start the builder
-"$SCRIPT_DIR/start.sh"
+"$SCRIPT_DIR/start_visual_builder.sh"

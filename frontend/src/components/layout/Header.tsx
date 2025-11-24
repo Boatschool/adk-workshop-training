@@ -1,8 +1,10 @@
 /**
  * Header Component
  * Main navigation header with logo, nav links, and user menu
+ * Includes GraymatterLab ecosystem navigation
  */
 
+import { useState } from 'react'
 import { Link, useLocation } from 'react-router-dom'
 import { useAuth } from '@contexts/AuthContext'
 import { useTheme } from '@contexts/ThemeContext'
@@ -12,17 +14,91 @@ import { cn } from '@utils/cn'
 const navLinks = [
   { name: 'Dashboard', path: '/', external: false },
   { name: 'Workshops', path: '/workshops', external: false },
-  { name: 'Agents', path: '/agents', external: false },
+  { name: 'Guides', path: '/guides', external: false },
 ]
 
 // ADK Visual Builder is an external tool running on the ADK CLI
 const ADK_VISUAL_BUILDER_URL = 'http://localhost:8000/dev-ui'
+
+// GraymatterStudio - Production agent platform (stub URL for now)
+const GRAYMATTER_STUDIO_URL = 'https://studio.graymatterlab.ai'
+
+// Ecosystem products for dropdown
+const ecosystemProducts = [
+  {
+    name: 'ADK Training',
+    description: 'Learn AI agent development',
+    href: '/',
+    external: false,
+    icon: 'graduation',
+    badge: 'Current',
+    badgeColor: 'bg-primary-100 text-primary-700 dark:bg-primary-900/50 dark:text-primary-300',
+  },
+  {
+    name: 'Visual Builder',
+    description: 'Practice building agents locally',
+    href: ADK_VISUAL_BUILDER_URL,
+    external: true,
+    icon: 'blocks',
+    badge: 'Local',
+    badgeColor: 'bg-amber-100 text-amber-700 dark:bg-amber-900/50 dark:text-amber-300',
+  },
+  {
+    name: 'GraymatterStudio',
+    description: 'Production agent platform',
+    href: GRAYMATTER_STUDIO_URL,
+    external: true,
+    icon: 'rocket',
+    badge: 'Pro',
+    badgeColor: 'bg-purple-100 text-purple-700 dark:bg-purple-900/50 dark:text-purple-300',
+  },
+]
+
+// Icon components for ecosystem products
+function GraduationIcon({ className }: { className?: string }) {
+  return (
+    <svg className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor">
+      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M4.26 10.147a60.436 60.436 0 00-.491 6.347A48.627 48.627 0 0112 20.904a48.627 48.627 0 018.232-4.41 60.46 60.46 0 00-.491-6.347m-15.482 0a50.57 50.57 0 00-2.658-.813A59.905 59.905 0 0112 3.493a59.902 59.902 0 0110.399 5.84c-.896.248-1.783.52-2.658.814m-15.482 0A50.697 50.697 0 0112 13.489a50.702 50.702 0 017.74-3.342M6.75 15a.75.75 0 100-1.5.75.75 0 000 1.5zm0 0v-3.675A55.378 55.378 0 0112 8.443m-7.007 11.55A5.981 5.981 0 006.75 15.75v-1.5" />
+    </svg>
+  )
+}
+
+function BlocksIcon({ className }: { className?: string }) {
+  return (
+    <svg className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor">
+      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M3.75 6A2.25 2.25 0 016 3.75h2.25A2.25 2.25 0 0110.5 6v2.25a2.25 2.25 0 01-2.25 2.25H6a2.25 2.25 0 01-2.25-2.25V6zM3.75 15.75A2.25 2.25 0 016 13.5h2.25a2.25 2.25 0 012.25 2.25V18a2.25 2.25 0 01-2.25 2.25H6A2.25 2.25 0 013.75 18v-2.25zM13.5 6a2.25 2.25 0 012.25-2.25H18A2.25 2.25 0 0120.25 6v2.25A2.25 2.25 0 0118 10.5h-2.25a2.25 2.25 0 01-2.25-2.25V6zM13.5 15.75a2.25 2.25 0 012.25-2.25H18a2.25 2.25 0 012.25 2.25V18A2.25 2.25 0 0118 20.25h-2.25A2.25 2.25 0 0113.5 18v-2.25z" />
+    </svg>
+  )
+}
+
+function RocketIcon({ className }: { className?: string }) {
+  return (
+    <svg className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor">
+      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M15.59 14.37a6 6 0 01-5.84 7.38v-4.8m5.84-2.58a14.98 14.98 0 006.16-12.12A14.98 14.98 0 009.631 8.41m5.96 5.96a14.926 14.926 0 01-5.841 2.58m-.119-8.54a6 6 0 00-7.381 5.84h4.8m2.581-5.84a14.927 14.927 0 00-2.58 5.84m2.699 2.7c-.103.021-.207.041-.311.06a15.09 15.09 0 01-2.448-2.448 14.9 14.9 0 01.06-.312m-2.24 2.39a4.493 4.493 0 00-1.757 4.306 4.493 4.493 0 004.306-1.758M16.5 9a1.5 1.5 0 11-3 0 1.5 1.5 0 013 0z" />
+    </svg>
+  )
+}
+
+function ExternalLinkIcon({ className }: { className?: string }) {
+  return (
+    <svg className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor">
+      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+    </svg>
+  )
+}
+
+const iconMap = {
+  graduation: GraduationIcon,
+  blocks: BlocksIcon,
+  rocket: RocketIcon,
+}
 
 export function Header() {
   const { user, logout, isAuthenticated } = useAuth()
   const { theme, toggleTheme } = useTheme()
   const location = useLocation()
   const { toggleMobileMenu, mobileMenuOpen } = useUIStore()
+  const [ecosystemOpen, setEcosystemOpen] = useState(false)
 
   return (
     <header className="sticky top-0 z-40 w-full border-b border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900">
@@ -56,18 +132,86 @@ export function Header() {
                 {link.name}
               </Link>
             ))}
-            {/* ADK Visual Builder - External Link */}
-            <a
-              href={ADK_VISUAL_BUILDER_URL}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="px-3 py-2 rounded-md text-sm font-medium transition-colors-fast text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 inline-flex items-center gap-1"
-            >
-              Visual Builder
-              <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
-              </svg>
-            </a>
+
+            {/* Ecosystem Dropdown */}
+            <div className="relative">
+              <button
+                onClick={() => setEcosystemOpen(!ecosystemOpen)}
+                onBlur={() => setTimeout(() => setEcosystemOpen(false), 150)}
+                className={cn(
+                  'px-3 py-2 rounded-md text-sm font-medium transition-colors-fast inline-flex items-center gap-1',
+                  ecosystemOpen
+                    ? 'bg-primary-100 dark:bg-primary-900/30 text-primary-700 dark:text-primary-300'
+                    : 'text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800'
+                )}
+              >
+                Products
+                <svg
+                  className={cn('w-4 h-4 transition-transform', ecosystemOpen && 'rotate-180')}
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                >
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                </svg>
+              </button>
+
+              {/* Dropdown Menu */}
+              {ecosystemOpen && (
+                <div className="absolute left-0 mt-2 w-72 rounded-xl bg-white dark:bg-gray-800 shadow-lg ring-1 ring-black/5 dark:ring-white/10 p-2 z-50">
+                  <div className="px-3 py-2 border-b border-gray-100 dark:border-gray-700 mb-2">
+                    <p className="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                      GraymatterLab Ecosystem
+                    </p>
+                  </div>
+                  {ecosystemProducts.map((product) => {
+                    const IconComponent = iconMap[product.icon as keyof typeof iconMap]
+                    const content = (
+                      <div className="flex items-start gap-3 p-3 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors">
+                        <div className="flex-shrink-0 w-10 h-10 bg-gray-100 dark:bg-gray-700 rounded-lg flex items-center justify-center">
+                          <IconComponent className="w-5 h-5 text-gray-600 dark:text-gray-300" />
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center gap-2">
+                            <span className="text-sm font-medium text-gray-900 dark:text-white">
+                              {product.name}
+                            </span>
+                            {product.external && <ExternalLinkIcon className="w-3 h-3 text-gray-400" />}
+                            <span className={cn('text-xs px-1.5 py-0.5 rounded-full font-medium', product.badgeColor)}>
+                              {product.badge}
+                            </span>
+                          </div>
+                          <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">
+                            {product.description}
+                          </p>
+                        </div>
+                      </div>
+                    )
+
+                    return product.external ? (
+                      <a
+                        key={product.name}
+                        href={product.href}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="block"
+                      >
+                        {content}
+                      </a>
+                    ) : (
+                      <Link
+                        key={product.name}
+                        to={product.href}
+                        className="block"
+                        onClick={() => setEcosystemOpen(false)}
+                      >
+                        {content}
+                      </Link>
+                    )
+                  })}
+                </div>
+              )}
+            </div>
           </nav>
 
           {/* Right side */}
@@ -165,19 +309,50 @@ export function Header() {
                   {link.name}
                 </Link>
               ))}
-              {/* ADK Visual Builder - External Link */}
-              <a
-                href={ADK_VISUAL_BUILDER_URL}
-                target="_blank"
-                rel="noopener noreferrer"
-                onClick={toggleMobileMenu}
-                className="px-3 py-2 rounded-md text-base font-medium text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 inline-flex items-center gap-2"
-              >
-                Visual Builder
-                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
-                </svg>
-              </a>
+
+              {/* Ecosystem Section */}
+              <div className="pt-4 mt-2 border-t border-gray-200 dark:border-gray-700">
+                <p className="px-3 py-2 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                  GraymatterLab Ecosystem
+                </p>
+                {ecosystemProducts.map((product) => {
+                  const IconComponent = iconMap[product.icon as keyof typeof iconMap]
+                  const content = (
+                    <div className="flex items-center gap-3 px-3 py-2">
+                      <IconComponent className="w-5 h-5 text-gray-500 dark:text-gray-400" />
+                      <span className="flex-1 text-base font-medium text-gray-600 dark:text-gray-300">
+                        {product.name}
+                      </span>
+                      <span className={cn('text-xs px-1.5 py-0.5 rounded-full font-medium', product.badgeColor)}>
+                        {product.badge}
+                      </span>
+                      {product.external && <ExternalLinkIcon className="w-4 h-4 text-gray-400" />}
+                    </div>
+                  )
+
+                  return product.external ? (
+                    <a
+                      key={product.name}
+                      href={product.href}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      onClick={toggleMobileMenu}
+                      className="block rounded-md hover:bg-gray-100 dark:hover:bg-gray-800"
+                    >
+                      {content}
+                    </a>
+                  ) : (
+                    <Link
+                      key={product.name}
+                      to={product.href}
+                      onClick={toggleMobileMenu}
+                      className="block rounded-md hover:bg-gray-100 dark:hover:bg-gray-800"
+                    >
+                      {content}
+                    </Link>
+                  )
+                })}
+              </div>
             </nav>
           </div>
         )}

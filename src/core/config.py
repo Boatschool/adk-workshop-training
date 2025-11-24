@@ -27,7 +27,13 @@ class Settings(BaseSettings):
 
     # Server
     host: str = Field(default="0.0.0.0", alias="HOST")
-    port: int = Field(default=8000, alias="PORT")
+    port: int = Field(default=8080, alias="PORT")  # 8080 to avoid conflict with ADK Visual Builder on 8000
+
+    # ADK Visual Builder
+    adk_visual_builder_port: int = Field(default=8000, alias="ADK_VISUAL_BUILDER_PORT")
+    adk_visual_builder_url: str = Field(
+        default="http://localhost:8000/dev-ui", alias="ADK_VISUAL_BUILDER_URL"
+    )
 
     # Database
     database_url: str = Field(
@@ -49,7 +55,7 @@ class Settings(BaseSettings):
 
     # CORS
     cors_origins: str = Field(
-        default="http://localhost:3000,http://localhost:8000", alias="CORS_ORIGINS"
+        default="http://localhost:4000,http://localhost:8080,http://localhost:8000", alias="CORS_ORIGINS"
     )
 
     # Logging
