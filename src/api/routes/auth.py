@@ -6,11 +6,12 @@ from fastapi import APIRouter, Body, Depends, HTTPException, status
 from pydantic import BaseModel, EmailStr, Field
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from src.api.dependencies import get_tenant_id
+from src.api.dependencies import get_current_user, get_tenant_id
 from src.api.schemas.user import TokenResponse
+from src.db.models.user import User
 from src.core.config import get_settings
 from src.core.exceptions import AuthenticationError, ValidationError
-from src.core.security import create_access_token
+from src.core.security import create_access_token, hash_password, verify_password
 from src.core.tenancy import TenantContext
 from src.db.session import get_db
 from src.services.password_reset_service import PasswordResetService
@@ -31,6 +32,13 @@ class ResetPasswordRequest(BaseModel):
     """Schema for reset password request."""
 
     token: str = Field(..., description="Password reset token")
+    new_password: str = Field(..., min_length=8, description="New password (min 8 chars)")
+
+
+class ChangePasswordRequest(BaseModel):
+    """Schema for change password request."""
+
+    current_password: str = Field(..., description="Current password for verification")
     new_password: str = Field(..., min_length=8, description="New password (min 8 chars)")
 
 
@@ -169,3 +177,80 @@ async def reset_password(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail=str(e),
         )
+
+
+@router.post("/change-password", response_model=MessageResponse)
+async def change_password(
+    request: ChangePasswordRequest,
+    db: Annotated[AsyncSession, Depends(get_db)],
+    current_user: Annotated[User, Depends(get_current_user)],
+    tenant_id: Annotated[str, Depends(get_tenant_id)],
+):
+    """
+    Change password for the currently authenticated user.
+
+    Requires the current password for verification.
+    Does NOT invalidate existing sessions (user stays logged in).
+
+    Args:
+        request: Current password and new password
+        db: Database session
+        current_user: Currently authenticated user
+        tenant_id: Tenant ID from header
+
+    Returns:
+        MessageResponse: Success message
+
+    Raises:
+        HTTPException: If current password is incorrect
+    """
+    # Verify current password
+    if not verify_password(request.current_password, current_user.hashed_password):
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Current password is incorrect",
+        )
+
+    # Check that new password is different from current
+    if verify_password(request.new_password, current_user.hashed_password):
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="New password must be different from current password",
+        )
+
+    # Update password
+    current_user.hashed_password = hash_password(request.new_password)
+    await db.commit()
+
+    return MessageResponse(message="Password changed successfully.")
+
+
+@router.post("/logout", response_model=MessageResponse)
+async def logout(
+    db: Annotated[AsyncSession, Depends(get_db)],
+    current_user: Annotated[User, Depends(get_current_user)],
+    tenant_id: Annotated[str, Depends(get_tenant_id)],
+):
+    """
+    Logout the current user by revoking all refresh tokens.
+
+    This invalidates all sessions for the user across all devices.
+    The current access token remains valid until it expires.
+
+    Args:
+        db: Database session
+        current_user: Currently authenticated user
+        tenant_id: Tenant ID from header
+
+    Returns:
+        MessageResponse: Success message with count of revoked sessions
+    """
+    TenantContext.set(tenant_id)
+    refresh_service = RefreshTokenService(db, tenant_id)
+
+    # Revoke all refresh tokens for this user
+    revoked_count = await refresh_service.revoke_all_user_tokens(current_user.id)
+
+    return MessageResponse(
+        message=f"Logged out successfully. {revoked_count} session(s) invalidated."
+    )
