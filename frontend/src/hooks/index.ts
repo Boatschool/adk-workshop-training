@@ -13,3 +13,6 @@ export * from './useAgents'
 export * from './useProgress'
 export * from './useUsers'
 export * from './useTenants'
+
+// Settings hooks
+export * from './useUserSettings'

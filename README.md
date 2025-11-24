@@ -10,11 +10,59 @@ A production-ready, scalable platform for building and deploying AI agents using
 
 ## 🚀 Features
 
+### Training Platform
+- **Interactive Workshops**: Hands-on courses with step-by-step exercises for learning AI agent development
+- **Setup Wizard**: Guided installation for local ADK Visual Builder with platform-specific instructions
+- **Progress Tracking**: Badge/achievement system to track learning milestones
+- **Visual Builder Integration**: Seamless connection to Google's ADK Visual Builder for hands-on practice
+- **User Settings**: Configurable development environment and preferences
+- **Ecosystem Navigation**: Clear path from learning to production with GraymatterLab ecosystem
+
+### Platform Infrastructure
 - **Multi-Tenant Architecture**: Schema-per-tenant isolation for enterprise security
 - **Modern Python Stack**: FastAPI, SQLAlchemy 2.0, Pydantic v2, async/await
 - **Google ADK Integration**: Build and deploy AI agents with Google's Agent Development Kit
 - **Developer Experience**: Poetry, Ruff, Black, MyPy, pre-commit hooks
 - **Production Ready**: Docker, PostgreSQL, comprehensive testing, structured logging
+
+## 🎓 Training Platform
+
+The ADK Training Platform provides a complete learning environment for mastering AI agent development:
+
+### Getting Started
+1. **Visit the Setup Wizard**: Navigate to `/getting-started` on the frontend (http://localhost:4000/getting-started)
+2. **Follow Platform-Specific Instructions**: Automatically detects your OS (macOS, Windows, Linux)
+3. **Install ADK Locally**: Copy-to-clipboard commands for easy setup
+4. **Launch Visual Builder**: Connect to Google's ADK Visual Builder for hands-on practice
+5. **Earn Achievements**: Complete setup to earn your first badge
+
+### Learning Journey
+- **Setup Wizard** - 7-step guided installation (30 minutes)
+  - Prerequisites check (Python 3.11+)
+  - Virtual environment setup
+  - ADK installation
+  - Google API key configuration
+  - Visual Builder launch and verification
+
+- **Workshops** - Interactive courses with exercises (coming soon)
+  - Introduction to AI Agents
+  - Building Your First Agent
+  - Advanced Agent Patterns
+  - Multi-Agent Systems
+
+- **Progress Tracking** - Badge system with 4 achievements:
+  - 🚀 Environment Setup - Complete the setup wizard
+  - 🎓 Workshop Graduate - Finish your first workshop
+  - ✅ First Steps - Complete your first exercise
+  - 🛠️ Visual Builder Master - Build an agent with Visual Builder
+
+### Ecosystem Integration
+The platform connects three products in the GraymatterLab ecosystem:
+1. **ADK Training Portal** (this app) - Learn agent fundamentals
+2. **ADK Visual Builder** (Google) - Practice building agents locally
+3. **GraymatterStudio** (production) - Deploy enterprise agents
+
+See [docs/ecosystem.md](./docs/ecosystem.md) for the complete learning-to-production pipeline.
 
 ## 📁 Project Structure
 
@@ -126,7 +174,17 @@ The API will be available at http://localhost:8080
 
 API Documentation: http://localhost:8080/docs
 
-8. **Start the ADK Visual Builder** (optional, for agent development)
+8. **Start the Frontend** (React application)
+
+```bash
+cd frontend
+npm install
+npm run dev
+```
+
+The frontend will be available at http://localhost:4000
+
+9. **Start the ADK Visual Builder** (optional, for agent development)
 
 ```bash
 ./start_visual_builder.sh
@@ -134,7 +192,21 @@ API Documentation: http://localhost:8080/docs
 
 The Visual Builder will be available at http://localhost:8000/dev-ui
 
-> **Note**: The API runs on port 8080 to avoid conflict with the ADK Visual Builder which uses port 8000.
+> **Note**:
+> - React frontend runs on port 4000
+> - FastAPI backend runs on port 8080
+> - ADK Visual Builder runs on port 8000
+> - PostgreSQL runs on port 5433
+
+### All Services Running
+
+| Service | Port | URL |
+|---------|------|-----|
+| React Frontend | 4000 | http://localhost:4000 |
+| FastAPI Backend | 8080 | http://localhost:8080 |
+| API Docs | 8080 | http://localhost:8080/docs |
+| Visual Builder | 8000 | http://localhost:8000/dev-ui |
+| PostgreSQL | 5433 | localhost:5433 |
 
 ### Development Commands
 
@@ -295,7 +367,12 @@ docker run -p 8080:8080 \
 
 ## 📖 Documentation
 
+### Training Resources
+- [Setup Wizard](http://localhost:4000/getting-started) - Interactive setup guide for new users
+- [GraymatterLab Ecosystem](./docs/ecosystem.md) - Complete guide to learning-to-production pipeline
 - [Workshop Materials](./README_WORKSHOP.md) - Original workshop guide
+
+### Developer Documentation
 - [Architecture Overview](./docs/architecture/system-design.md) - Coming soon
 - [API Reference](./docs/api/openapi.yaml) - Coming soon
 - [Development Guide](./docs/development/setup.md) - Coming soon

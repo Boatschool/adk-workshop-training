@@ -13,3 +13,6 @@ export {
   type CardProps,
 } from './Card'
 export { ToastContainer } from './Toast'
+export { CopyButton } from './CopyButton'
+export { CodeBlock } from './CodeBlock'
+export { BadgeCard } from './BadgeCard'

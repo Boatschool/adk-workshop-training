@@ -4,11 +4,12 @@
  * Includes GraymatterLab ecosystem navigation
  */
 
-import { useState } from 'react'
+import { useState, useMemo } from 'react'
 import { Link, useLocation } from 'react-router-dom'
 import { useAuth } from '@contexts/AuthContext'
 import { useTheme } from '@contexts/ThemeContext'
 import { useUIStore } from '@stores/uiStore'
+import { useUserSettings } from '@hooks/useUserSettings'
 import { cn } from '@utils/cn'
 
 const navLinks = [
@@ -17,42 +18,8 @@ const navLinks = [
   { name: 'Guides', path: '/guides', external: false },
 ]
 
-// ADK Visual Builder is an external tool running on the ADK CLI
-const ADK_VISUAL_BUILDER_URL = 'http://localhost:8000/dev-ui'
-
 // GraymatterStudio - Production agent platform (stub URL for now)
 const GRAYMATTER_STUDIO_URL = 'https://studio.graymatterlab.ai'
-
-// Ecosystem products for dropdown
-const ecosystemProducts = [
-  {
-    name: 'ADK Training',
-    description: 'Learn AI agent development',
-    href: '/',
-    external: false,
-    icon: 'graduation',
-    badge: 'Current',
-    badgeColor: 'bg-primary-100 text-primary-700 dark:bg-primary-900/50 dark:text-primary-300',
-  },
-  {
-    name: 'Visual Builder',
-    description: 'Practice building agents locally',
-    href: ADK_VISUAL_BUILDER_URL,
-    external: true,
-    icon: 'blocks',
-    badge: 'Local',
-    badgeColor: 'bg-amber-100 text-amber-700 dark:bg-amber-900/50 dark:text-amber-300',
-  },
-  {
-    name: 'GraymatterStudio',
-    description: 'Production agent platform',
-    href: GRAYMATTER_STUDIO_URL,
-    external: true,
-    icon: 'rocket',
-    badge: 'Pro',
-    badgeColor: 'bg-purple-100 text-purple-700 dark:bg-purple-900/50 dark:text-purple-300',
-  },
-]
 
 // Icon components for ecosystem products
 function GraduationIcon({ className }: { className?: string }) {
@@ -98,7 +65,40 @@ export function Header() {
   const { theme, toggleTheme } = useTheme()
   const location = useLocation()
   const { toggleMobileMenu, mobileMenuOpen } = useUIStore()
+  const { getBuilderUrl } = useUserSettings()
   const [ecosystemOpen, setEcosystemOpen] = useState(false)
+  const [userMenuOpen, setUserMenuOpen] = useState(false)
+
+  // Build ecosystem products with dynamic Visual Builder URL
+  const ecosystemProducts = useMemo(() => [
+    {
+      name: 'ADK Training',
+      description: 'Learn AI agent development',
+      href: '/',
+      external: false,
+      icon: 'graduation' as const,
+      badge: 'Current',
+      badgeColor: 'bg-primary-100 text-primary-700 dark:bg-primary-900/50 dark:text-primary-300',
+    },
+    {
+      name: 'Visual Builder',
+      description: 'Practice building agents locally',
+      href: getBuilderUrl(),
+      external: true,
+      icon: 'blocks' as const,
+      badge: 'Local',
+      badgeColor: 'bg-amber-100 text-amber-700 dark:bg-amber-900/50 dark:text-amber-300',
+    },
+    {
+      name: 'GraymatterStudio',
+      description: 'Production agent platform',
+      href: GRAYMATTER_STUDIO_URL,
+      external: true,
+      icon: 'rocket' as const,
+      badge: 'Pro',
+      badgeColor: 'bg-purple-100 text-purple-700 dark:bg-purple-900/50 dark:text-purple-300',
+    },
+  ], [getBuilderUrl])
 
   return (
     <header className="sticky top-0 z-40 w-full border-b border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900">
@@ -241,7 +241,8 @@ export function Header() {
             {isAuthenticated ? (
               <div className="relative">
                 <button
-                  onClick={logout}
+                  onClick={() => setUserMenuOpen(!userMenuOpen)}
+                  onBlur={() => setTimeout(() => setUserMenuOpen(false), 150)}
                   className="flex items-center space-x-2 px-3 py-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors-fast"
                 >
                   <div className="w-8 h-8 bg-gray-200 dark:bg-gray-700 rounded-full flex items-center justify-center">
@@ -252,7 +253,45 @@ export function Header() {
                   <span className="hidden sm:block text-sm text-gray-700 dark:text-gray-300">
                     {user?.full_name || user?.email}
                   </span>
+                  <svg
+                    className={cn('w-4 h-4 text-gray-400 transition-transform', userMenuOpen && 'rotate-180')}
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                  >
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                  </svg>
                 </button>
+
+                {/* User Dropdown Menu */}
+                {userMenuOpen && (
+                  <div className="absolute right-0 mt-2 w-48 rounded-xl bg-white dark:bg-gray-800 shadow-lg ring-1 ring-black/5 dark:ring-white/10 py-1 z-50">
+                    <Link
+                      to="/profile/settings"
+                      className="flex items-center gap-2 px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700"
+                      onClick={() => setUserMenuOpen(false)}
+                    >
+                      <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                      </svg>
+                      Settings
+                    </Link>
+                    <div className="border-t border-gray-100 dark:border-gray-700 my-1" />
+                    <button
+                      onClick={() => {
+                        setUserMenuOpen(false)
+                        logout()
+                      }}
+                      className="flex items-center gap-2 w-full px-4 py-2 text-sm text-red-600 dark:text-red-400 hover:bg-gray-100 dark:hover:bg-gray-700"
+                    >
+                      <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+                      </svg>
+                      Sign out
+                    </button>
+                  </div>
+                )}
               </div>
             ) : (
               <Link

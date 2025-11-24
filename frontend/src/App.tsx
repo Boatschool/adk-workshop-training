@@ -20,6 +20,8 @@ import { ExercisePage } from '@pages/exercises'
 import { GuidePage } from '@pages/guides'
 import { ExamplePage } from '@pages/examples'
 import { AdminUsersPage, AdminTenantsPage } from '@pages/admin'
+import { SettingsPage } from '@pages/profile'
+import { SetupWizard } from '@pages/getting-started'
 
 // Placeholder pages - will be replaced with actual page components
 function AgentsPage() {
@@ -129,9 +131,15 @@ function App() {
                     </RootLayout>
                   }
                 />
+
+                {/* Getting Started / Setup Wizard */}
                 <Route
                   path="/getting-started"
-                  element={<Navigate to="/guides/getting-started" replace />}
+                  element={
+                    <RootLayout>
+                      <SetupWizard />
+                    </RootLayout>
+                  }
                 />
 
                 {/* Examples */}
@@ -155,6 +163,16 @@ function App() {
                 />
 
                 {/* Visual Builder is accessed via external ADK CLI at http://localhost:8000/dev-ui */}
+
+                {/* Profile Routes */}
+                <Route
+                  path="/profile/settings"
+                  element={
+                    <RootLayout>
+                      <SettingsPage />
+                    </RootLayout>
+                  }
+                />
 
                 {/* Admin Routes */}
                 <Route

@@ -152,3 +152,94 @@ export interface AgentTemplate {
   category: string
   default_config: AgentConfig
 }
+
+/**
+ * Setup Steps for progress tracking
+ */
+export type SetupStep =
+  | 'welcome'
+  | 'prerequisites'
+  | 'venv'
+  | 'install-adk'
+  | 'api-key'
+  | 'verify'
+  | 'complete'
+
+/**
+ * Achievement/Badge types
+ */
+export type BadgeType =
+  | 'environment-setup'
+  | 'first-workshop'
+  | 'first-exercise'
+  | 'visual-builder-master'
+
+export interface Badge {
+  id: BadgeType
+  name: string
+  description: string
+  icon: string
+  earnedAt: string | null
+}
+
+/**
+ * User Settings model
+ * Stored in localStorage and optionally synced to backend
+ */
+export interface UserSettings {
+  // Development Environment
+  localBuilderUrl: string
+  autoDetectBuilder: boolean
+
+  // Setup Progress
+  setupCompleted: boolean
+  setupCompletedAt: string | null
+  setupStepsCompleted: SetupStep[]
+  currentSetupStep: SetupStep
+
+  // Achievements
+  badges: Badge[]
+
+  // Preferences
+  theme: 'light' | 'dark' | 'system'
+  emailNotifications: boolean
+}
+
+export const AVAILABLE_BADGES: Omit<Badge, 'earnedAt'>[] = [
+  {
+    id: 'environment-setup',
+    name: 'Environment Setup',
+    description: 'Successfully configured your local ADK development environment',
+    icon: '🚀',
+  },
+  {
+    id: 'first-workshop',
+    name: 'Workshop Graduate',
+    description: 'Completed your first workshop',
+    icon: '🎓',
+  },
+  {
+    id: 'first-exercise',
+    name: 'First Steps',
+    description: 'Completed your first exercise',
+    icon: '✅',
+  },
+  {
+    id: 'visual-builder-master',
+    name: 'Visual Builder Master',
+    description: 'Built your first agent with the Visual Builder',
+    icon: '🛠️',
+  },
+]
+
+export const DEFAULT_USER_SETTINGS: UserSettings = {
+  localBuilderUrl: 'http://localhost:8000',
+  autoDetectBuilder: true,
+  setupCompleted: false,
+  setupCompletedAt: null,
+  setupStepsCompleted: [],
+  currentSetupStep: 'welcome',
+  badges: AVAILABLE_BADGES.map(badge => ({ ...badge, earnedAt: null })),
+  theme: 'system',
+  emailNotifications: true,
+}

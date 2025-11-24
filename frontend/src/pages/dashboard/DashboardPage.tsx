@@ -4,9 +4,11 @@
  */
 
 import {
+  AchievementsSection,
   ProgressCard,
   QuickStartCard,
   ResourceSection,
+  SetupProgressBanner,
   TipCard,
   VisualBuilderStatus,
 } from '@components/dashboard'
@@ -139,10 +141,16 @@ export function DashboardPage() {
         Main content
       </a>
 
+      {/* Setup Progress Banner for new users */}
+      <SetupProgressBanner />
+
       {/* Welcome Section with Visual Builder Status */}
       <section className="mb-8">
         <VisualBuilderStatus />
       </section>
+
+      {/* Achievements Section */}
+      <AchievementsSection />
 
       {/* Progress Overview */}
       <section className="mb-8" aria-labelledby="progress-heading">

@@ -1,24 +1,30 @@
 /**
  * Visual Builder Status Component
  * Shows status indicator and launch button for ADK Visual Builder
+ * Uses user-configured URL from settings
  */
 
 import { useState, useEffect } from 'react'
+import { Link } from 'react-router-dom'
+import { useUserSettings } from '@hooks/useUserSettings'
 import { cn } from '@utils/cn'
-
-const ADK_VISUAL_BUILDER_URL = 'http://localhost:8000/dev-ui'
-const ADK_HEALTH_URL = 'http://localhost:8000'
 
 type BuilderStatus = 'checking' | 'online' | 'offline'
 
 export function VisualBuilderStatus() {
+  const { settings, getBuilderUrl, getHealthUrl } = useUserSettings()
   const [status, setStatus] = useState<BuilderStatus>('checking')
 
   useEffect(() => {
+    if (!settings.autoDetectBuilder) {
+      setStatus('offline')
+      return
+    }
+
     const checkStatus = async () => {
       try {
-        // Try to reach the ADK server
-        await fetch(ADK_HEALTH_URL, {
+        // Try to reach the ADK server using user-configured URL
+        await fetch(getHealthUrl(), {
           method: 'HEAD',
           mode: 'no-cors',
         })
@@ -32,7 +38,7 @@ export function VisualBuilderStatus() {
     checkStatus()
     const interval = setInterval(checkStatus, 10000) // Check every 10 seconds
     return () => clearInterval(interval)
-  }, [])
+  }, [settings.autoDetectBuilder, getHealthUrl])
 
   const statusStyles = {
     checking: 'bg-yellow-400 animate-pulse',
@@ -57,7 +63,7 @@ export function VisualBuilderStatus() {
         </p>
 
         <a
-          href={ADK_VISUAL_BUILDER_URL}
+          href={getBuilderUrl()}
           target="_blank"
           rel="noopener noreferrer"
           className={cn(
@@ -90,9 +96,20 @@ export function VisualBuilderStatus() {
         </div>
 
         {status === 'offline' && (
-          <p className="mt-3 text-xs text-primary-200">
-            Run <code className="bg-primary-800/50 px-1.5 py-0.5 rounded">./start_visual_builder.sh</code> to start the builder
-          </p>
+          <div className="mt-3 text-xs text-primary-200">
+            <p>
+              Run <code className="bg-primary-800/50 px-1.5 py-0.5 rounded">./start_visual_builder.sh</code> to start the builder
+            </p>
+            <p className="mt-1">
+              <Link
+                to="/profile/settings"
+                className="text-primary-100 hover:text-white underline"
+              >
+                Configure builder URL
+              </Link>
+              {' '}if using a different port
+            </p>
+          </div>
         )}
       </div>
     </div>
