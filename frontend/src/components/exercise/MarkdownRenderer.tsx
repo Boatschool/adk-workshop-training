@@ -35,15 +35,15 @@ const DOMPURIFY_CONFIG = {
     'colspan', 'rowspan', 'scope',
     'aria-label', 'aria-describedby', 'role',
   ],
-  // Only allow safe URI schemes - anchored regex prevents whitespace/javascript bypass
+  // Only allow safe URI schemes - anchored regex prevents javascript/data scheme attacks
   // Matches:
   // - Absolute URLs: https://, http://, mailto:, tel:
   // - Anchor links: #section
-  // - Absolute paths: /path/to/page
-  // - Relative paths: ./lesson-1, ../images/diagram.png
-  // - Bare relative paths: images/photo.jpg (no colon before first slash)
-  // Blocks: javascript:, data:, vbscript:, and any scheme with leading whitespace
-  ALLOWED_URI_REGEXP: /^(?:https?|mailto|tel):|^[#/.]|^[^:]*$/i,
+  // - Paths starting with / or . (absolute and relative paths)
+  // - Relative paths with colons in filenames/queries: images/icon:small.png, ./asset?v=12:30
+  // Blocks: javascript:, data:, vbscript: (scheme followed by non-path content)
+  // Strategy: Allow if no colon, or if colon appears after a slash (not a scheme separator)
+  ALLOWED_URI_REGEXP: /^(?:https?|mailto|tel):|^[#/.]|^[^/:]*\/|^[^:]*$/i,
   // Prevent DOM clobbering attacks
   SANITIZE_DOM: true,
   // Remove dangerous content
