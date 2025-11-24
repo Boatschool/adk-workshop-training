@@ -28,6 +28,7 @@ class Settings(BaseSettings):
     # Server
     host: str = Field(default="0.0.0.0", alias="HOST")
     port: int = Field(default=8080, alias="PORT")  # 8080 to avoid conflict with ADK Visual Builder on 8000
+    frontend_url: str = Field(default="http://localhost:4000", alias="FRONTEND_URL")
 
     # ADK Visual Builder
     adk_visual_builder_port: int = Field(default=8000, alias="ADK_VISUAL_BUILDER_PORT")
@@ -50,6 +51,9 @@ class Settings(BaseSettings):
         default=60, alias="JWT_ACCESS_TOKEN_EXPIRE_MINUTES"
     )
     refresh_token_expire_days: int = Field(default=7, alias="REFRESH_TOKEN_EXPIRE_DAYS")
+    password_reset_token_expire_hours: int = Field(
+        default=1, alias="PASSWORD_RESET_TOKEN_EXPIRE_HOURS"
+    )
 
     # Account Lockout (Brute Force Protection)
     max_login_attempts: int = Field(default=5, alias="MAX_LOGIN_ATTEMPTS")

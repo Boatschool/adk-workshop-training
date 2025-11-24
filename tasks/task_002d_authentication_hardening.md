@@ -10,9 +10,9 @@
 - **Assigned To**: Claude Code
 - **Created Date**: 2025-11-24
 - **Due Date**: TBD
-- **Status**: 🚧 IN PROGRESS (Phases 1-2 Complete)
+- **Status**: 🚧 IN PROGRESS (Phases 1-3 Complete)
 - **Completion Date**: -
-- **Actual Effort**: ~6 hours (Phase 1: ~3h, Phase 2: ~3h)
+- **Actual Effort**: ~8 hours (Phase 1: ~3h, Phase 2: ~3h, Phase 3: ~2h)
 
 ## Description
 
@@ -28,7 +28,7 @@ The current authentication system has a solid foundation with JWT tokens, bcrypt
 |-------|-------------|--------|--------|--------|
 | **Phase 1** | Critical Security Fixes | ✅ Complete | ~3h | `e7b6f45`, `bd4a2b6` |
 | **Phase 2** | Refresh Tokens | ✅ Complete | ~3h | `54cabd6` |
-| **Phase 3** | Password Reset Flow | 📋 Planned | 4-6h | - |
+| **Phase 3** | Password Reset Flow | ✅ Complete | ~2h | (pending) |
 | **Phase 4** | Logout & Token Revocation | 📋 Planned | 2-4h | - |
 | **Phase 5** | Change Password | 📋 Planned | 2-4h | - |
 
@@ -75,6 +75,31 @@ The current authentication system has a solid foundation with JWT tokens, bcrypt
 - `src/api/routes/users.py` - login returns both tokens
 - `src/api/main.py` - added auth router
 - `src/core/config.py` - REFRESH_TOKEN_EXPIRE_DAYS
+
+### Phase 3 Completed ✅
+
+**Password Reset Flow:**
+- PasswordResetToken model for secure token storage
+- 1-hour token expiry (configurable via PASSWORD_RESET_TOKEN_EXPIRE_HOURS)
+- Single-use tokens (marked as used after reset)
+- All refresh tokens revoked on password reset (force re-login)
+- Email enumeration protection (always returns success)
+- Integrates with existing email service
+
+**Files Created:**
+- `src/db/models/password_reset_token.py`
+- `src/services/password_reset_service.py`
+- `src/db/migrations/versions/06da01720794_add_password_reset_tokens_table.py`
+
+**Files Modified:**
+- `src/db/models/user.py` - password_reset_tokens relationship
+- `src/db/models/__init__.py` - export PasswordResetToken
+- `src/api/routes/auth.py` - forgot-password and reset-password endpoints
+- `src/core/config.py` - PASSWORD_RESET_TOKEN_EXPIRE_HOURS, FRONTEND_URL
+
+**Endpoints Added:**
+- `POST /api/v1/auth/forgot-password` - Request password reset email
+- `POST /api/v1/auth/reset-password` - Reset password with token
 
 ## Current State Assessment
 
