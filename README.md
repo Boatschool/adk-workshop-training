@@ -116,15 +116,25 @@ docker-compose up -d postgres
 poetry run alembic upgrade head
 ```
 
-7. **Start the application**
+7. **Start the API server**
 
 ```bash
-poetry run uvicorn src.api.main:app --reload --port 8000
+poetry run uvicorn src.api.main:app --reload --port 8080
 ```
 
-The API will be available at http://localhost:8000
+The API will be available at http://localhost:8080
 
-API Documentation: http://localhost:8000/docs
+API Documentation: http://localhost:8080/docs
+
+8. **Start the ADK Visual Builder** (optional, for agent development)
+
+```bash
+./start_visual_builder.sh
+```
+
+The Visual Builder will be available at http://localhost:8000/dev-ui
+
+> **Note**: The API runs on port 8080 to avoid conflict with the ADK Visual Builder which uses port 8000.
 
 ### Development Commands
 
@@ -132,8 +142,11 @@ API Documentation: http://localhost:8000/docs
 # Install dependencies
 poetry install
 
-# Run application
-poetry run uvicorn src.api.main:app --reload
+# Run API server (port 8080)
+poetry run uvicorn src.api.main:app --reload --port 8080
+
+# Run ADK Visual Builder (port 8000)
+./start_visual_builder.sh
 
 # Run tests
 poetry run pytest
@@ -239,11 +252,11 @@ poetry run pytest tests/integration/
 
 ## 📚 API Documentation
 
-Once the application is running, visit:
+Once the API server is running (port 8080), visit:
 
-- **Swagger UI**: http://localhost:8000/docs
-- **ReDoc**: http://localhost:8000/redoc
-- **OpenAPI JSON**: http://localhost:8000/openapi.json
+- **Swagger UI**: http://localhost:8080/docs
+- **ReDoc**: http://localhost:8080/redoc
+- **OpenAPI JSON**: http://localhost:8080/openapi.json
 
 ## 🔐 Security
 
@@ -261,8 +274,8 @@ Once the application is running, visit:
 # Build image
 docker build -t adk-platform:latest .
 
-# Run container
-docker run -p 8000:8000 \
+# Run container (API on port 8080)
+docker run -p 8080:8080 \
   -e DATABASE_URL=postgresql://... \
   -e SECRET_KEY=... \
   -e GOOGLE_API_KEY=... \

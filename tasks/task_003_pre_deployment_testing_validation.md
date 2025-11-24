@@ -291,11 +291,11 @@ pip install locust
 
 # Run load test (10 users)
 cd tests/load
-locust -f locustfile.py --host http://localhost:8000 \
+locust -f locustfile.py --host http://localhost:8080 \
   --users 10 --spawn-rate 2 --run-time 5m --headless
 
 # Run stress test (100 users)
-locust -f locustfile.py --host http://localhost:8000 \
+locust -f locustfile.py --host http://localhost:8080 \
   --users 100 --spawn-rate 10 --run-time 10m --headless \
   --html report-stress.html
 
@@ -398,7 +398,7 @@ poetry run bandit -r src/
 # OWASP ZAP automated scan (requires ZAP installed)
 zap-cli quick-scan --self-contained \
   --start-options '-config api.key=12345' \
-  http://localhost:8000
+  http://localhost:8080
 
 # Check for hardcoded secrets
 poetry run detect-secrets scan
