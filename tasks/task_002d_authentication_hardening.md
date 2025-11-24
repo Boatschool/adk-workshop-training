@@ -7,12 +7,12 @@
 - **Task Name**: Authentication System Hardening & Security Gaps
 - **Priority**: CRITICAL
 - **Estimated Effort**: 16-24 hours
-- **Assigned To**: TBD
+- **Assigned To**: Claude Code
 - **Created Date**: 2025-11-24
 - **Due Date**: TBD
-- **Status**: 📋 PLANNED
+- **Status**: 🚧 IN PROGRESS (Phases 1-2 Complete)
 - **Completion Date**: -
-- **Actual Effort**: -
+- **Actual Effort**: ~6 hours (Phase 1: ~3h, Phase 2: ~3h)
 
 ## Description
 
@@ -21,6 +21,60 @@ The current authentication system has a solid foundation with JWT tokens, bcrypt
 **Business Value:** Enables secure production deployment, prevents account takeover attacks, provides proper user account management, and meets enterprise security requirements for healthcare organizations.
 
 **Scope:** Authentication hardening, security fixes, and missing auth features. Does not include OAuth/SSO integration (separate task).
+
+## Implementation Progress
+
+| Phase | Description | Status | Effort | Commit |
+|-------|-------------|--------|--------|--------|
+| **Phase 1** | Critical Security Fixes | ✅ Complete | ~3h | `e7b6f45`, `bd4a2b6` |
+| **Phase 2** | Refresh Tokens | ✅ Complete | ~3h | `54cabd6` |
+| **Phase 3** | Password Reset Flow | 📋 Planned | 4-6h | - |
+| **Phase 4** | Logout & Token Revocation | 📋 Planned | 2-4h | - |
+| **Phase 5** | Change Password | 📋 Planned | 2-4h | - |
+
+### Phase 1 Completed ✅
+
+**Security Fixes Implemented:**
+- Fixed privilege escalation: Registration now forces PARTICIPANT role
+- Added admin-only `POST /api/v1/users/create` for elevated roles
+- Account lockout after 5 failed attempts (15 min lockout)
+- Rate limiting: 60 req/min general, 10 req/min for auth endpoints
+
+**Files Created:**
+- `src/api/middleware/rate_limit.py`
+- `src/db/migrations/versions/69b9c231e4cb_add_account_lockout_fields_to_users.py`
+
+**Files Modified:**
+- `src/api/schemas/user.py` - Split UserCreate/UserCreateAdmin
+- `src/services/user_service.py` - Lockout logic, dual create methods
+- `src/api/routes/users.py` - New admin endpoint, handle AccountLockedError
+- `src/core/config.py` - MAX_LOGIN_ATTEMPTS, LOCKOUT_DURATION_MINUTES, rate limit settings
+- `src/core/exceptions.py` - AccountLockedError
+- `src/db/models/user.py` - failed_login_attempts, locked_until fields
+- `src/api/main.py` - Rate limiting middleware
+
+### Phase 2 Completed ✅
+
+**Refresh Token Support:**
+- RefreshToken model with secure token storage
+- 7-day refresh tokens (configurable via REFRESH_TOKEN_EXPIRE_DAYS)
+- Token rotation on refresh (old token revoked, new pair issued)
+- Updated login returns both access + refresh tokens
+- New `POST /api/v1/auth/refresh` endpoint
+
+**Files Created:**
+- `src/db/models/refresh_token.py`
+- `src/services/refresh_token_service.py`
+- `src/api/routes/auth.py`
+- `src/db/migrations/versions/eef9007a89c5_add_refresh_tokens_table.py`
+
+**Files Modified:**
+- `src/db/models/user.py` - refresh_tokens relationship
+- `src/db/models/__init__.py` - export RefreshToken
+- `src/api/schemas/user.py` - TokenResponse, updated UserWithToken
+- `src/api/routes/users.py` - login returns both tokens
+- `src/api/main.py` - added auth router
+- `src/core/config.py` - REFRESH_TOKEN_EXPIRE_DAYS
 
 ## Current State Assessment
 
