@@ -113,3 +113,7 @@ export const toast = {
   info: (title: string, message?: string) =>
     useUIStore.getState().addToast({ type: 'info', title, message }),
 }
+
+// Simple showToast helper for common use
+export const showToast = (title: string, type: ToastType = 'info', message?: string) =>
+  useUIStore.getState().addToast({ type, title, message })

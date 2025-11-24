@@ -19,6 +19,7 @@ import { WorkshopsPage, WorkshopDetailPage } from '@pages/workshops'
 import { ExercisePage } from '@pages/exercises'
 import { GuidePage } from '@pages/guides'
 import { ExamplePage } from '@pages/examples'
+import { AdminUsersPage, AdminTenantsPage } from '@pages/admin'
 
 // Placeholder pages - will be replaced with actual page components
 function AgentsPage() {
@@ -154,6 +155,24 @@ function App() {
                 />
 
                 {/* Visual Builder is accessed via external ADK CLI at http://localhost:8000/dev-ui */}
+
+                {/* Admin Routes */}
+                <Route
+                  path="/admin/users"
+                  element={
+                    <RootLayout>
+                      <AdminUsersPage />
+                    </RootLayout>
+                  }
+                />
+                <Route
+                  path="/admin/tenants"
+                  element={
+                    <RootLayout>
+                      <AdminTenantsPage />
+                    </RootLayout>
+                  }
+                />
 
                 {/* Catch-all */}
                 <Route

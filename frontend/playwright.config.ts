@@ -6,11 +6,12 @@ export default defineConfig({
   forbidOnly: !!process.env.CI,
   retries: process.env.CI ? 2 : 0,
   workers: process.env.CI ? 1 : undefined,
-  reporter: 'html',
+  reporter: [['html'], ['list']],
   use: {
-    baseURL: 'http://localhost:3003',
+    baseURL: 'http://localhost:4000',
     trace: 'on-first-retry',
     screenshot: 'only-on-failure',
+    video: 'on-first-retry',
   },
   projects: [
     {
@@ -32,7 +33,8 @@ export default defineConfig({
   ],
   webServer: {
     command: 'npm run dev',
-    url: 'http://localhost:3003',
+    url: 'http://localhost:4000',
     reuseExistingServer: !process.env.CI,
+    timeout: 120000,
   },
 })
