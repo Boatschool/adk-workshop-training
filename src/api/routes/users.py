@@ -14,6 +14,7 @@ from src.api.schemas.user import (
     UserUpdate,
     UserWithToken,
 )
+from src.core.config import get_settings
 from src.core.exceptions import (
     AccountLockedError,
     AuthenticationError,
@@ -24,7 +25,10 @@ from src.core.security import create_access_token
 from src.core.tenancy import TenantContext
 from src.db.models.user import User
 from src.db.session import get_db
+from src.services.refresh_token_service import RefreshTokenService
 from src.services.user_service import UserService
+
+settings = get_settings()
 
 router = APIRouter()
 
@@ -119,7 +123,7 @@ async def login_user(
         service = UserService(db, tenant_id)
         user = await service.authenticate_user(credentials.email, credentials.password)
 
-        # Create JWT token
+        # Create JWT access token
         token_data = {
             "user_id": str(user.id),
             "tenant_id": tenant_id,
@@ -127,10 +131,19 @@ async def login_user(
         }
         access_token = create_access_token(token_data)
 
+        # Create refresh token
+        refresh_service = RefreshTokenService(db, tenant_id)
+        refresh_token = await refresh_service.create_refresh_token(user.id)
+
+        # Calculate expiry in seconds
+        expires_in = settings.jwt_access_token_expire_minutes * 60
+
         return UserWithToken(
             **user.__dict__,
             access_token=access_token,
+            refresh_token=refresh_token.token,
             token_type="bearer",
+            expires_in=expires_in,
         )
     except AccountLockedError as e:
         raise HTTPException(

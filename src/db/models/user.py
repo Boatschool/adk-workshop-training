@@ -3,7 +3,7 @@
 from datetime import datetime
 
 from sqlalchemy import Boolean, DateTime, Integer, String
-from sqlalchemy.orm import Mapped, mapped_column
+from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from src.core.constants import UserRole
 from src.db.base import BaseModel
@@ -29,6 +29,11 @@ class User(BaseModel):
     )
     locked_until: Mapped[datetime | None] = mapped_column(
         DateTime(timezone=True), nullable=True
+    )
+
+    # Relationships
+    refresh_tokens: Mapped[list["RefreshToken"]] = relationship(
+        "RefreshToken", back_populates="user", cascade="all, delete-orphan"
     )
 
     def __repr__(self) -> str:

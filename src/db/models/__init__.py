@@ -1,8 +1,9 @@
 """Database models"""
 
 from src.db.models.agent import Agent
+from src.db.models.refresh_token import RefreshToken
 from src.db.models.tenant import Tenant
 from src.db.models.user import User
 from src.db.models.workshop import Exercise, Progress, Workshop
 
-__all__ = ["Agent", "Tenant", "User", "Workshop", "Exercise", "Progress"]
+__all__ = ["Agent", "RefreshToken", "Tenant", "User", "Workshop", "Exercise", "Progress"]

@@ -53,9 +53,10 @@ app.add_middleware(
 app.add_middleware(TenantMiddleware)
 
 # Include routers
-from src.api.routes import agents, exercises, health, progress, tenants, users, workshops
+from src.api.routes import agents, auth, exercises, health, progress, tenants, users, workshops
 
 app.include_router(health.router, prefix="/health", tags=["health"])
+app.include_router(auth.router, prefix="/api/v1/auth", tags=["auth"])
 app.include_router(tenants.router, prefix="/api/v1/tenants", tags=["tenants"])
 app.include_router(users.router, prefix="/api/v1/users", tags=["users"])
 app.include_router(workshops.router, prefix="/api/v1/workshops", tags=["workshops"])

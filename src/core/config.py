@@ -49,6 +49,7 @@ class Settings(BaseSettings):
     jwt_access_token_expire_minutes: int = Field(
         default=60, alias="JWT_ACCESS_TOKEN_EXPIRE_MINUTES"
     )
+    refresh_token_expire_days: int = Field(default=7, alias="REFRESH_TOKEN_EXPIRE_DAYS")
 
     # Account Lockout (Brute Force Protection)
     max_login_attempts: int = Field(default=5, alias="MAX_LOGIN_ATTEMPTS")

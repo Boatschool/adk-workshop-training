@@ -57,8 +57,19 @@ class UserResponse(UserBase):
         from_attributes = True
 
 
-class UserWithToken(UserResponse):
-    """Schema for user with authentication token."""
+class TokenResponse(BaseModel):
+    """Schema for token response."""
 
     access_token: str
+    refresh_token: str
     token_type: str = "bearer"
+    expires_in: int = Field(..., description="Access token expiry in seconds")
+
+
+class UserWithToken(UserResponse):
+    """Schema for user with authentication tokens."""
+
+    access_token: str
+    refresh_token: str
+    token_type: str = "bearer"
+    expires_in: int = Field(..., description="Access token expiry in seconds")
