@@ -29,12 +29,13 @@ const steps: Step[] = [
 ]
 
 export function SetupWizard() {
-  const [currentStep, setCurrentStep] = useState<SetupStep>('welcome')
   const [platform, setPlatform] = useState<Platform>('unknown')
   const [builderConnected, setBuilderConnected] = useState(false)
   const [showCelebration, setShowCelebration] = useState(false)
-  const { settings, updateSetting, earnBadge, getHealthUrl } = useUserSettings()
+  const { settings, updateSetting, earnBadge, getHealthUrl, completeSetupStep } = useUserSettings()
 
+  // Use currentSetupStep from settings, default to 'welcome'
+  const currentStep = settings.currentSetupStep || 'welcome'
   const currentStepIndex = steps.findIndex(s => s.id === currentStep)
 
   useEffect(() => {
@@ -63,21 +64,25 @@ export function SetupWizard() {
   }, [currentStep, getHealthUrl])
 
   const goToStep = (step: SetupStep) => {
-    setCurrentStep(step)
+    completeSetupStep(step)
     window.scrollTo({ top: 0, behavior: 'smooth' })
   }
 
   const nextStep = () => {
     const nextIndex = currentStepIndex + 1
     if (nextIndex < steps.length) {
-      goToStep(steps[nextIndex].id)
+      const nextStepId = steps[nextIndex].id
+      completeSetupStep(nextStepId)
+      window.scrollTo({ top: 0, behavior: 'smooth' })
     }
   }
 
   const prevStep = () => {
     const prevIndex = currentStepIndex - 1
     if (prevIndex >= 0) {
-      goToStep(steps[prevIndex].id)
+      const prevStepId = steps[prevIndex].id
+      completeSetupStep(prevStepId)
+      window.scrollTo({ top: 0, behavior: 'smooth' })
     }
   }
 

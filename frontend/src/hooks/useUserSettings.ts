@@ -131,7 +131,12 @@ export function useUserSettings() {
   const getSetupProgress = useCallback(() => {
     const totalSteps = 7 // welcome, prerequisites, venv, install-adk, api-key, verify, complete
     const completedSteps = settings.setupStepsCompleted.length
-    return Math.round((completedSteps / totalSteps) * 100)
+    const percentage = (completedSteps / totalSteps) * 100
+    return {
+      completedSteps,
+      totalSteps,
+      percentage,
+    }
   }, [settings.setupStepsCompleted])
 
   // Get earned badges

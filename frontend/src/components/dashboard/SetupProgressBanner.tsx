@@ -7,12 +7,16 @@ import { Link } from 'react-router-dom'
 import { useUserSettings } from '@hooks/useUserSettings'
 
 export function SetupProgressBanner() {
-  const { settings } = useUserSettings()
+  const { settings, getSetupProgress } = useUserSettings()
 
   // Don't show if setup is already completed
   if (settings.setupCompleted) {
     return null
   }
+
+  const progress = getSetupProgress()
+  const progressPercentage = Math.round(progress.percentage)
+  const isInProgress = progress.completedSteps > 0
 
   return (
     <div className="mb-8 bg-gradient-to-r from-amber-50 to-orange-50 dark:from-amber-900/20 dark:to-orange-900/20 border border-amber-200 dark:border-amber-800 rounded-xl p-6">
@@ -25,10 +29,13 @@ export function SetupProgressBanner() {
 
         <div className="flex-1">
           <h3 className="text-lg font-semibold text-amber-900 dark:text-amber-100 mb-1">
-            Complete Your Environment Setup
+            {isInProgress ? 'Continue Your Environment Setup' : 'Complete Your Environment Setup'}
           </h3>
           <p className="text-amber-800 dark:text-amber-200 mb-4">
-            Before you can start building AI agents, you need to set up your local development environment. This takes about 15-20 minutes.
+            {isInProgress
+              ? `You're ${progressPercentage}% complete! Continue where you left off.`
+              : 'Before you can start building AI agents, you need to set up your local development environment. This takes about 15-20 minutes.'
+            }
           </p>
 
           <div className="flex flex-col sm:flex-row gap-3">
@@ -39,7 +46,7 @@ export function SetupProgressBanner() {
               <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
               </svg>
-              Start Setup Wizard
+              {isInProgress ? 'Continue Setup' : 'Start Setup Wizard'}
             </Link>
 
             <Link
@@ -57,9 +64,11 @@ export function SetupProgressBanner() {
         {/* Progress indicator */}
         <div className="hidden lg:flex flex-col items-center gap-2">
           <div className="w-16 h-16 rounded-full border-4 border-amber-200 dark:border-amber-800 flex items-center justify-center">
-            <span className="text-2xl font-bold text-amber-600 dark:text-amber-400">0%</span>
+            <span className="text-2xl font-bold text-amber-600 dark:text-amber-400">{progressPercentage}%</span>
           </div>
-          <span className="text-xs text-amber-700 dark:text-amber-300 font-medium">Not Started</span>
+          <span className="text-xs text-amber-700 dark:text-amber-300 font-medium">
+            {isInProgress ? `${progress.completedSteps}/${progress.totalSteps}` : 'Not Started'}
+          </span>
         </div>
       </div>
 

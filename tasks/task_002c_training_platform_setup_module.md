@@ -10,9 +10,9 @@
 - **Assigned To**: TBD
 - **Created Date**: 2025-11-24
 - **Due Date**: TBD
-- **Status**: ✅ COMPLETE
+- **Status**: ✅ COMPLETE (Code Review Fixes Applied)
 - **Completion Date**: 2025-11-24
-- **Actual Effort**: ~7 hours (All phases complete)
+- **Actual Effort**: ~7.5 hours (All phases complete + fixes)
 
 ## Description
 
@@ -782,6 +782,198 @@ interface UserSettings {
 - Troubleshooting FAQ integrated into setup wizard steps (inline guidance)
 - CLAUDE.md already had comprehensive navigation notes, no updates needed
 - Ecosystem documentation ready for public launch
+
+---
+
+## Code Review Fixes (2025-11-24)
+
+### Issues Identified
+
+**Issue 1: Setup wizard not persisting step progress**
+- Setup wizard kept progress in local component state (`useState`)
+- Never called `completeSetupStep()` from `useUserSettings`
+- `setupStepsCompleted` and `currentSetupStep` remained empty
+- Progress lost when navigating away from wizard
+
+**Issue 2: Dashboard banner showing static progress**
+- Banner rendered static "0% / Not Started" indicator
+- Did not consume `getSetupProgress()` data
+- Never reflected partial completion
+- No dynamic messaging based on progress state
+
+### Fixes Applied
+
+**Fix 1: SetupWizard.tsx - Persist Step Completion**
+
+**Before:**
+```typescript
+const [currentStep, setCurrentStep] = useState<SetupStep>('welcome')
+
+const goToStep = (step: SetupStep) => {
+  setCurrentStep(step)  // Only local state
+  window.scrollTo({ top: 0, behavior: 'smooth' })
+}
+```
+
+**After:**
+```typescript
+// Use currentSetupStep from settings (persisted)
+const currentStep = settings.currentSetupStep || 'welcome'
+
+const goToStep = (step: SetupStep) => {
+  completeSetupStep(step)  // Persist to useUserSettings
+  window.scrollTo({ top: 0, behavior: 'smooth' })
+}
+
+const nextStep = () => {
+  const nextIndex = currentStepIndex + 1
+  if (nextIndex < steps.length) {
+    const nextStepId = steps[nextIndex].id
+    completeSetupStep(nextStepId)  // Persist each step
+    window.scrollTo({ top: 0, behavior: 'smooth' })
+  }
+}
+```
+
+**Changes:**
+- Removed local `useState` for `currentStep`
+- Read `currentStep` from `settings.currentSetupStep` (persisted to localStorage)
+- Call `completeSetupStep()` in `goToStep()`, `nextStep()`, and `prevStep()`
+- Progress now survives navigation away and back to wizard
+
+**Fix 2: SetupProgressBanner.tsx - Show Real Progress**
+
+**Before:**
+```typescript
+export function SetupProgressBanner() {
+  const { settings } = useUserSettings()
+  // ...
+  <span className="text-2xl font-bold">0%</span>
+  <span className="text-xs">Not Started</span>
+}
+```
+
+**After:**
+```typescript
+export function SetupProgressBanner() {
+  const { settings, getSetupProgress } = useUserSettings()
+
+  const progress = getSetupProgress()
+  const progressPercentage = Math.round(progress.percentage)
+  const isInProgress = progress.completedSteps > 0
+
+  return (
+    // Dynamic heading
+    <h3>{isInProgress ? 'Continue Your Environment Setup' : 'Complete Your Environment Setup'}</h3>
+
+    // Dynamic description
+    <p>{isInProgress
+      ? `You're ${progressPercentage}% complete! Continue where you left off.`
+      : 'Before you can start building AI agents...'
+    }</p>
+
+    // Dynamic button text
+    <button>{isInProgress ? 'Continue Setup' : 'Start Setup Wizard'}</button>
+
+    // Dynamic progress indicator
+    <span className="text-2xl font-bold">{progressPercentage}%</span>
+    <span className="text-xs">
+      {isInProgress ? `${progress.completedSteps}/${progress.totalSteps}` : 'Not Started'}
+    </span>
+  )
+}
+```
+
+**Changes:**
+- Import and call `getSetupProgress()` from `useUserSettings`
+- Calculate `progressPercentage` from actual completed steps
+- Determine `isInProgress` based on completed steps > 0
+- Dynamic heading: "Continue" vs "Complete"
+- Dynamic description: shows percentage when in progress
+- Dynamic button: "Continue Setup" vs "Start Setup Wizard"
+- Dynamic progress indicator: shows X/7 steps when in progress
+
+**Fix 3: useUserSettings.ts - Return Progress Object**
+
+**Before:**
+```typescript
+const getSetupProgress = useCallback(() => {
+  const totalSteps = 7
+  const completedSteps = settings.setupStepsCompleted.length
+  return Math.round((completedSteps / totalSteps) * 100)  // Just a number
+}, [settings.setupStepsCompleted])
+```
+
+**After:**
+```typescript
+const getSetupProgress = useCallback(() => {
+  const totalSteps = 7
+  const completedSteps = settings.setupStepsCompleted.length
+  const percentage = (completedSteps / totalSteps) * 100
+  return {
+    completedSteps,
+    totalSteps,
+    percentage,
+  }
+}, [settings.setupStepsCompleted])
+```
+
+**Changes:**
+- Return object with `completedSteps`, `totalSteps`, and `percentage`
+- Allows banner to show "3/7" style progress
+- More flexible for future UI enhancements
+
+### Testing Results
+
+**Setup Wizard Progress Persistence:**
+- ✅ Navigate to wizard → step 1 (welcome)
+- ✅ Click "Next" → step 2 → `completeSetupStep('prerequisites')` called
+- ✅ Navigate away to dashboard → `setupStepsCompleted: ['welcome', 'prerequisites']` persisted
+- ✅ Return to wizard → starts at step 2 (last completed step)
+- ✅ Banner shows "29% / 2/7" on dashboard
+
+**Dashboard Banner Dynamic Updates:**
+- ✅ Fresh user: "Complete Your Environment Setup" / "0% / Not Started"
+- ✅ After 2 steps: "Continue Your Environment Setup" / "29% / 2/7"
+- ✅ After 5 steps: "71% / 5/7"
+- ✅ After completion: Banner hidden (`setupCompleted: true`)
+- ✅ Button text changes: "Start Setup Wizard" → "Continue Setup"
+
+**TypeScript Validation:**
+- ✅ `npm run typecheck` passes with no errors
+- ✅ All type signatures correct
+- ✅ No runtime errors
+
+### Files Modified (3)
+
+1. `frontend/src/pages/getting-started/SetupWizard.tsx`
+   - Removed local state for `currentStep`
+   - Read from `settings.currentSetupStep`
+   - Call `completeSetupStep()` on navigation
+
+2. `frontend/src/components/dashboard/SetupProgressBanner.tsx`
+   - Import `getSetupProgress()`
+   - Calculate dynamic progress
+   - Conditional rendering based on progress state
+
+3. `frontend/src/hooks/useUserSettings.ts`
+   - Return object from `getSetupProgress()`
+   - Include `completedSteps`, `totalSteps`, `percentage`
+
+### Impact
+
+**User Experience Improvements:**
+- ✅ Setup progress now persists across sessions
+- ✅ Users can leave and return without losing progress
+- ✅ Dashboard shows accurate completion percentage
+- ✅ Banner messaging adapts to progress state
+- ✅ Clear "Continue Setup" vs "Start Setup" distinction
+
+**Code Quality:**
+- ✅ Proper separation of concerns (state in useUserSettings, UI reads from settings)
+- ✅ Single source of truth (localStorage via useUserSettings)
+- ✅ Type-safe progress tracking
+- ✅ No local state for persisted data
 
 ---
 
