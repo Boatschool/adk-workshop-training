@@ -50,6 +50,18 @@ class Settings(BaseSettings):
         default=60, alias="JWT_ACCESS_TOKEN_EXPIRE_MINUTES"
     )
 
+    # Account Lockout (Brute Force Protection)
+    max_login_attempts: int = Field(default=5, alias="MAX_LOGIN_ATTEMPTS")
+    lockout_duration_minutes: int = Field(default=15, alias="LOCKOUT_DURATION_MINUTES")
+
+    # Rate Limiting
+    rate_limit_requests_per_minute: int = Field(
+        default=60, alias="RATE_LIMIT_REQUESTS_PER_MINUTE"
+    )
+    rate_limit_auth_requests_per_minute: int = Field(
+        default=10, alias="RATE_LIMIT_AUTH_REQUESTS_PER_MINUTE"
+    )
+
     # Google ADK
     google_api_key: str | None = Field(default=None, alias="GOOGLE_API_KEY")
 

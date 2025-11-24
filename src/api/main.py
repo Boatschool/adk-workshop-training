@@ -41,8 +41,15 @@ app.add_middleware(
 )
 
 # Add middleware
+from src.api.middleware.rate_limit import RateLimitMiddleware
 from src.api.middleware.tenant import TenantMiddleware
 
+# Rate limiting middleware (should be added before tenant middleware)
+app.add_middleware(
+    RateLimitMiddleware, requests_per_minute=settings.rate_limit_requests_per_minute
+)
+
+# Tenant middleware
 app.add_middleware(TenantMiddleware)
 
 # Include routers

@@ -31,6 +31,13 @@ class AuthenticationError(ADKPlatformException):
         super().__init__(message, status_code=401)
 
 
+class AccountLockedError(ADKPlatformException):
+    """Raised when account is locked due to failed login attempts"""
+
+    def __init__(self, message: str = "Account is locked"):
+        super().__init__(message, status_code=403)
+
+
 class AuthorizationError(ADKPlatformException):
     """Raised when authorization fails"""
 

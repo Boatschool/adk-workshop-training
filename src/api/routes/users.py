@@ -8,12 +8,18 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from src.api.dependencies import get_current_user, get_tenant_id, require_admin
 from src.api.schemas.user import (
     UserCreate,
+    UserCreateAdmin,
     UserLogin,
     UserResponse,
     UserUpdate,
     UserWithToken,
 )
-from src.core.exceptions import AuthenticationError, NotFoundError, ValidationError
+from src.core.exceptions import (
+    AccountLockedError,
+    AuthenticationError,
+    NotFoundError,
+    ValidationError,
+)
 from src.core.security import create_access_token
 from src.core.tenancy import TenantContext
 from src.db.models.user import User
@@ -30,7 +36,10 @@ async def register_user(
     tenant_id: Annotated[str, Depends(get_tenant_id)],
 ):
     """
-    Register a new user in the tenant.
+    Register a new user in the tenant (self-registration).
+
+    Always creates users with PARTICIPANT role. For elevated roles,
+    use the POST /users/create endpoint (admin-only).
 
     Args:
         user_data: User registration data
@@ -38,7 +47,7 @@ async def register_user(
         tenant_id: Tenant ID from header
 
     Returns:
-        UserResponse: Created user
+        UserResponse: Created user with PARTICIPANT role
 
     Raises:
         HTTPException: If validation fails or email already exists
@@ -47,6 +56,39 @@ async def register_user(
         TenantContext.set(tenant_id)
         service = UserService(db, tenant_id)
         user = await service.create_user(user_data)
+        return user
+    except ValidationError as e:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e))
+
+
+@router.post("/create", response_model=UserResponse, status_code=status.HTTP_201_CREATED)
+async def create_user_with_role(
+    user_data: UserCreateAdmin,
+    db: Annotated[AsyncSession, Depends(get_db)],
+    current_user: Annotated[User, Depends(require_admin)],
+    tenant_id: Annotated[str, Depends(get_tenant_id)],
+):
+    """
+    Create a new user with specified role (admin-only endpoint).
+
+    Requires admin privileges (SUPER_ADMIN or TENANT_ADMIN).
+
+    Args:
+        user_data: User creation data with role
+        db: Database session
+        current_user: Current authenticated admin user
+        tenant_id: Tenant ID from header
+
+    Returns:
+        UserResponse: Created user with specified role
+
+    Raises:
+        HTTPException: If validation fails or email already exists
+    """
+    try:
+        TenantContext.set(tenant_id)
+        service = UserService(db, tenant_id)
+        user = await service.create_user_admin(user_data)
         return user
     except ValidationError as e:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e))
@@ -89,6 +131,11 @@ async def login_user(
             **user.__dict__,
             access_token=access_token,
             token_type="bearer",
+        )
+    except AccountLockedError as e:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail=str(e),
         )
     except AuthenticationError as e:
         raise HTTPException(

@@ -16,7 +16,14 @@ class UserBase(BaseModel):
 
 
 class UserCreate(UserBase):
-    """Schema for creating a new user."""
+    """Schema for creating a new user via self-registration."""
+
+    password: str = Field(..., min_length=8, description="User password (min 8 chars)")
+    # Note: role field removed - self-registration always creates PARTICIPANT
+
+
+class UserCreateAdmin(UserBase):
+    """Schema for admin-created users with role assignment."""
 
     password: str = Field(..., min_length=8, description="User password (min 8 chars)")
     role: UserRole = Field(default=UserRole.PARTICIPANT, description="User role")
