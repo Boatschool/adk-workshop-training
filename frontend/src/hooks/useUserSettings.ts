@@ -88,21 +88,25 @@ export function useUserSettings() {
     return settings.localBuilderUrl.replace(/\/$/, '')
   }, [settings.localBuilderUrl])
 
-  // Mark a setup step as completed
-  const completeSetupStep = useCallback((step: SetupStep) => {
+  // Navigate to a setup step (updates currentSetupStep, marks as completed if new)
+  const navigateToSetupStep = useCallback((step: SetupStep) => {
     setSettingsState(prev => {
-      if (prev.setupStepsCompleted.includes(step)) {
-        return prev // Already completed
-      }
+      const alreadyCompleted = prev.setupStepsCompleted.includes(step)
       const updated = {
         ...prev,
-        setupStepsCompleted: [...prev.setupStepsCompleted, step],
         currentSetupStep: step,
+        // Add to completed list if not already there
+        setupStepsCompleted: alreadyCompleted
+          ? prev.setupStepsCompleted
+          : [...prev.setupStepsCompleted, step],
       }
       saveSettings(updated)
       return updated
     })
   }, [])
+
+  // Mark a setup step as completed (deprecated - use navigateToSetupStep)
+  const completeSetupStep = navigateToSetupStep
 
   // Earn a badge
   const earnBadge = useCallback((badgeId: BadgeType) => {
@@ -152,7 +156,8 @@ export function useUserSettings() {
     resetSettings,
     getBuilderUrl,
     getHealthUrl,
-    completeSetupStep,
+    navigateToSetupStep,
+    completeSetupStep, // Alias for navigateToSetupStep (backward compatibility)
     earnBadge,
     getSetupProgress,
     getEarnedBadges,

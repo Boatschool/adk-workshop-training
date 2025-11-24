@@ -977,6 +977,121 @@ const getSetupProgress = useCallback(() => {
 
 ---
 
+## Code Review Fix #2: Backward Navigation (2025-11-24)
+
+### Issue Identified
+
+**Issue 3: Backward navigation broken after forward progress**
+- `completeSetupStep()` returned early if step was already completed
+- `currentSetupStep` not updated when navigating to previously completed steps
+- Clicking "Previous" or jumping to earlier steps didn't work
+- Users stuck at furthest step reached
+
+**Root Cause:**
+```typescript
+const completeSetupStep = useCallback((step: SetupStep) => {
+  if (prev.setupStepsCompleted.includes(step)) {
+    return prev  // ❌ Early return prevents updating currentSetupStep
+  }
+  // Update currentSetupStep and add to completed list
+})
+```
+
+**Scenario:**
+1. User advances to step 4 (install-adk)
+2. `setupStepsCompleted: ['welcome', 'prerequisites', 'venv', 'install-adk']`
+3. User clicks "Previous" to go back to step 3 (venv)
+4. `completeSetupStep('venv')` called
+5. ❌ Early return because 'venv' already in completed list
+6. `currentSetupStep` stays at 'install-adk'
+7. UI doesn't update - user stuck on step 4
+
+### Fix Applied
+
+**Renamed and refactored function to `navigateToSetupStep`:**
+
+```typescript
+// New function: Always updates currentSetupStep, conditionally adds to completed
+const navigateToSetupStep = useCallback((step: SetupStep) => {
+  setSettingsState(prev => {
+    const alreadyCompleted = prev.setupStepsCompleted.includes(step)
+    const updated = {
+      ...prev,
+      currentSetupStep: step,  // ✅ Always update (enables navigation)
+      setupStepsCompleted: alreadyCompleted
+        ? prev.setupStepsCompleted  // Don't duplicate
+        : [...prev.setupStepsCompleted, step],  // Add if new
+    }
+    saveSettings(updated)
+    return updated
+  })
+}, [])
+
+// Backward compatibility alias
+const completeSetupStep = navigateToSetupStep
+```
+
+**Key Changes:**
+1. **Always update `currentSetupStep`** - Enables forward/backward navigation
+2. **Conditionally update `setupStepsCompleted`** - Track unique completed steps
+3. **No early return** - Function always saves state
+4. **Backward compatibility** - Keep `completeSetupStep` as alias
+
+### Testing Results
+
+**Forward Navigation (New Steps):**
+- ✅ Start at 'welcome' → click "Next" → navigates to 'prerequisites'
+- ✅ 'prerequisites' added to `setupStepsCompleted`
+- ✅ `currentSetupStep` updated to 'prerequisites'
+
+**Backward Navigation (Completed Steps):**
+- ✅ At step 4 → click "Previous" → navigates to step 3
+- ✅ Step 3 already in `setupStepsCompleted`, not duplicated
+- ✅ `currentSetupStep` updated to step 3
+- ✅ UI shows step 3 content
+
+**Jump Navigation (Click Progress Indicator):**
+- ✅ At step 5 → click step 2 in progress bar → navigates to step 2
+- ✅ No duplicate entries in `setupStepsCompleted`
+- ✅ `currentSetupStep` updated correctly
+- ✅ Progress percentage stays at 71% (5/7 steps completed)
+
+**Edge Cases:**
+- ✅ Navigate backward then forward again → works correctly
+- ✅ Jump to step 1 from step 7 → works
+- ✅ Complete setup then return to wizard → can review all steps
+- ✅ `setupStepsCompleted` never has duplicates
+
+### Files Modified (1)
+
+1. `frontend/src/hooks/useUserSettings.ts`
+   - Added `navigateToSetupStep()` function
+   - Always updates `currentSetupStep`
+   - Conditionally updates `setupStepsCompleted` (no duplicates)
+   - Aliased `completeSetupStep` for backward compatibility
+
+### Impact
+
+**User Experience:**
+- ✅ Backward navigation now works (Previous button, clicking earlier steps)
+- ✅ Can review completed steps freely
+- ✅ Progress tracking still accurate (no duplicate counts)
+- ✅ Natural wizard navigation (forward/backward/jump)
+
+**Code Quality:**
+- ✅ Single function handles all navigation
+- ✅ Clear separation: navigation (always) vs completion tracking (once)
+- ✅ No breaking changes (backward compatible alias)
+- ✅ Type-safe navigation
+
+**Validation:**
+- ✅ TypeScript compilation passes
+- ✅ All navigation scenarios tested
+- ✅ No duplicate step tracking
+- ✅ State persists correctly across navigation
+
+---
+
 ## Summary: All Phases Implementation
 
 ### Files Created (Total: 16)
