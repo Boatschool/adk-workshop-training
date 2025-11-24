@@ -123,7 +123,7 @@ async def login_user(
         token_data = {
             "user_id": str(user.id),
             "tenant_id": tenant_id,
-            "role": user.role.value,
+            "role": user.role,  # user.role is already a string in the database
         }
         access_token = create_access_token(token_data)
 
