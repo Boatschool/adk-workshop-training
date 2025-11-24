@@ -35,15 +35,13 @@ const DOMPURIFY_CONFIG = {
     'colspan', 'rowspan', 'scope',
     'aria-label', 'aria-describedby', 'role',
   ],
-  // Only allow safe URI schemes - anchored regex prevents javascript/data scheme attacks
-  // Matches:
-  // - Absolute URLs: https://, http://, mailto:, tel:
-  // - Anchor links: #section
-  // - Paths starting with / or . (absolute and relative paths)
-  // - Relative paths with colons in filenames/queries: images/icon:small.png, ./asset?v=12:30
-  // Blocks: javascript:, data:, vbscript: (scheme followed by non-path content)
-  // Strategy: Allow if no colon, or if colon appears after a slash (not a scheme separator)
-  ALLOWED_URI_REGEXP: /^(?:https?|mailto|tel):|^[#/.]|^[^/:]*\/|^[^:]*$/i,
+  // Block dangerous URI schemes using negative lookahead (blocklist approach)
+  // This is more robust than allowlisting because:
+  // - Dangerous schemes (javascript:, data:, etc.) are a known finite set
+  // - Legitimate paths can have colons anywhere: lesson:overview.md, page?v=12:30
+  // Blocks: javascript:, data:, vbscript:, about:, blob: and any URI with leading whitespace
+  // Allows: All other URIs including relative paths with colons in filenames/queries
+  ALLOWED_URI_REGEXP: /^(?!(javascript|data|vbscript|about|blob):)(?!\s).*/i,
   // Prevent DOM clobbering attacks
   SANITIZE_DOM: true,
   // Remove dangerous content
