@@ -9,6 +9,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.core.config import get_settings
 from src.core.exceptions import AuthenticationError
+from src.core.security import hash_token, verify_token_hash
 from src.db.models.refresh_token import RefreshToken
 from src.db.models.user import User
 
@@ -33,22 +34,29 @@ class RefreshTokenService:
         """
         Create a new refresh token for a user.
 
+        The plain token is returned to the client, but only the hash is stored
+        in the database. This prevents token theft if the database is compromised.
+
         Args:
             user_id: User UUID
 
         Returns:
-            RefreshToken: Created refresh token
+            RefreshToken: Created refresh token with plain token value
+                          (the token attribute contains the plain value for client response)
 
         """
         # Generate secure random token
-        token_value = secrets.token_urlsafe(32)
+        plain_token = secrets.token_urlsafe(32)
+
+        # Hash the token for storage (never store plain tokens)
+        token_hash = hash_token(plain_token)
 
         # Calculate expiration
         expires_at = datetime.now(timezone.utc) + timedelta(days=settings.refresh_token_expire_days)
 
-        # Create token
+        # Create token with hashed value in database
         refresh_token = RefreshToken(
-            token=token_value,
+            token=token_hash,
             user_id=user_id,
             expires_at=expires_at,
         )
@@ -57,19 +65,27 @@ class RefreshTokenService:
         await self.db.commit()
         await self.db.refresh(refresh_token)
 
+        # Return plain token to client (override the hash temporarily for response)
+        # The caller will use refresh_token.token which now contains plain value
+        refresh_token.token = plain_token
+
         return refresh_token
 
     async def get_by_token(self, token: str) -> RefreshToken | None:
         """
         Get refresh token by token value.
 
+        The provided plain token is hashed and compared against stored hashes.
+
         Args:
-            token: Token string
+            token: Plain token string from client
 
         Returns:
             RefreshToken or None if not found
         """
-        result = await self.db.execute(select(RefreshToken).where(RefreshToken.token == token))
+        # Hash the provided token to match against stored hash
+        token_hash = hash_token(token)
+        result = await self.db.execute(select(RefreshToken).where(RefreshToken.token == token_hash))
         return result.scalar_one_or_none()
 
     async def validate_and_get_user(self, token: str) -> User:

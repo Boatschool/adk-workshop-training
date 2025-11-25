@@ -1,6 +1,6 @@
 """RefreshToken model - stored in tenant-specific schema"""
 
-from datetime import datetime
+from datetime import datetime, timezone
 from uuid import UUID, uuid4
 
 from sqlalchemy import DateTime, ForeignKey, String
@@ -33,6 +33,6 @@ class RefreshToken(BaseModel):
         """Check if token is valid (not revoked and not expired)."""
         if self.revoked_at is not None:
             return False
-        if self.expires_at < datetime.now(datetime.now().astimezone().tzinfo):
+        if self.expires_at < datetime.now(timezone.utc):
             return False
         return True

@@ -1,5 +1,8 @@
 """Security utilities for authentication and authorization."""
 
+import hashlib
+import hmac
+import secrets
 from datetime import datetime, timedelta, timezone
 
 import bcrypt
@@ -9,6 +12,41 @@ from src.core.config import get_settings
 from src.core.exceptions import AuthenticationError
 
 settings = get_settings()
+
+
+def hash_token(token: str) -> str:
+    """
+    Hash a token using HMAC-SHA256 with the application secret key.
+
+    This is used for refresh tokens to prevent credential replay if the
+    database is compromised. The original token is never stored.
+
+    Args:
+        token: Plain text token (e.g., refresh token)
+
+    Returns:
+        str: Hashed token (hex encoded)
+    """
+    return hmac.new(
+        settings.secret_key.encode("utf-8"),
+        token.encode("utf-8"),
+        hashlib.sha256,
+    ).hexdigest()
+
+
+def verify_token_hash(token: str, hashed_token: str) -> bool:
+    """
+    Verify a token against its hash using constant-time comparison.
+
+    Args:
+        token: Plain text token to verify
+        hashed_token: Previously hashed token from database
+
+    Returns:
+        bool: True if token matches the hash
+    """
+    computed_hash = hash_token(token)
+    return hmac.compare_digest(computed_hash, hashed_token)
 
 
 def hash_password(password: str) -> str:
