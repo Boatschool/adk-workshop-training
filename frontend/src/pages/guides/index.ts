@@ -2,4 +2,4 @@
  * Guide page exports
  */
 
-export { GuidePage } from './GuidePage'
+export { GuidePage, GuidesListPage } from './GuidePage'

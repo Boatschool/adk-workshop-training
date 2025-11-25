@@ -69,24 +69,50 @@ async def set_tenant_schema(session: AsyncSession, schema_name: str) -> None:
 
 
 async def get_db() -> AsyncGenerator[AsyncSession, None]:
-    """Dependency for getting database sessions"""
+    """Dependency for getting database sessions without tenant schema set.
+
+    Note: This provides a raw session. For tenant-scoped operations,
+    use get_tenant_db which ensures proper schema isolation.
+    """
     session_factory = get_session_factory()
     async with session_factory() as session:
         try:
-            # Set tenant schema if tenant context is available
-            tenant_id = TenantContext.get_optional()
-            if tenant_id:
-                # Get tenant record to find the actual schema name
-                from sqlalchemy import select, text
-                from src.db.models.tenant import Tenant
+            yield session
+            await session.commit()
+        except Exception:
+            await session.rollback()
+            raise
+        finally:
+            await session.close()
 
-                result = await session.execute(
-                    select(Tenant.database_schema).where(Tenant.id == tenant_id)
-                )
-                schema_name = result.scalar_one_or_none()
 
-                if schema_name:
-                    await set_tenant_schema(session, schema_name)
+async def get_tenant_db(tenant_id: str) -> AsyncGenerator[AsyncSession, None]:
+    """
+    Get a database session with tenant schema properly set.
+
+    This is a generator function that should be used with dependency injection
+    that provides the tenant_id. Use get_tenant_db_dependency() for FastAPI.
+
+    Args:
+        tenant_id: The tenant ID to scope the session to
+    """
+    session_factory = get_session_factory()
+    async with session_factory() as session:
+        try:
+            # Set tenant context
+            TenantContext.set(tenant_id)
+
+            # Get tenant record to find the actual schema name
+            from sqlalchemy import select
+            from src.db.models.tenant import Tenant
+
+            result = await session.execute(
+                select(Tenant.database_schema).where(Tenant.id == tenant_id)
+            )
+            schema_name = result.scalar_one_or_none()
+
+            if schema_name:
+                await set_tenant_schema(session, schema_name)
 
             yield session
             await session.commit()

@@ -6,14 +6,12 @@ from fastapi import APIRouter, Body, Depends, HTTPException, status
 from pydantic import BaseModel, EmailStr, Field
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from src.api.dependencies import get_current_user, get_tenant_id
+from src.api.dependencies import get_current_user, get_tenant_id, get_tenant_db_dependency
 from src.api.schemas.user import TokenResponse
 from src.db.models.user import User
 from src.core.config import get_settings
 from src.core.exceptions import AuthenticationError, ValidationError
 from src.core.security import create_access_token, hash_password, verify_password
-from src.core.tenancy import TenantContext
-from src.db.session import get_db
 from src.services.password_reset_service import PasswordResetService
 from src.services.refresh_token_service import RefreshTokenService
 
@@ -51,7 +49,7 @@ class MessageResponse(BaseModel):
 @router.post("/refresh", response_model=TokenResponse)
 async def refresh_access_token(
     refresh_token: Annotated[str, Body(..., embed=True)],
-    db: Annotated[AsyncSession, Depends(get_db)],
+    db: Annotated[AsyncSession, Depends(get_tenant_db_dependency)],
     tenant_id: Annotated[str, Depends(get_tenant_id)],
 ):
     """
@@ -62,7 +60,7 @@ async def refresh_access_token(
 
     Args:
         refresh_token: The refresh token to use
-        db: Database session
+        db: Database session (with tenant schema already set)
         tenant_id: Tenant ID from header
 
     Returns:
@@ -72,7 +70,6 @@ async def refresh_access_token(
         HTTPException: If refresh token is invalid, expired, or revoked
     """
     try:
-        TenantContext.set(tenant_id)
         refresh_service = RefreshTokenService(db, tenant_id)
 
         # Validate refresh token and get user
@@ -112,7 +109,7 @@ async def refresh_access_token(
 @router.post("/forgot-password", response_model=MessageResponse)
 async def forgot_password(
     request: ForgotPasswordRequest,
-    db: Annotated[AsyncSession, Depends(get_db)],
+    db: Annotated[AsyncSession, Depends(get_tenant_db_dependency)],
     tenant_id: Annotated[str, Depends(get_tenant_id)],
 ):
     """
@@ -123,13 +120,12 @@ async def forgot_password(
 
     Args:
         request: Email address to send reset link to
-        db: Database session
+        db: Database session (with tenant schema already set)
         tenant_id: Tenant ID from header
 
     Returns:
         MessageResponse: Success message
     """
-    TenantContext.set(tenant_id)
     service = PasswordResetService(db, tenant_id)
     await service.request_password_reset(request.email)
 
@@ -141,7 +137,7 @@ async def forgot_password(
 @router.post("/reset-password", response_model=MessageResponse)
 async def reset_password(
     request: ResetPasswordRequest,
-    db: Annotated[AsyncSession, Depends(get_db)],
+    db: Annotated[AsyncSession, Depends(get_tenant_db_dependency)],
     tenant_id: Annotated[str, Depends(get_tenant_id)],
 ):
     """
@@ -152,7 +148,7 @@ async def reset_password(
 
     Args:
         request: Reset token and new password
-        db: Database session
+        db: Database session (with tenant schema already set)
         tenant_id: Tenant ID from header
 
     Returns:
@@ -162,7 +158,6 @@ async def reset_password(
         HTTPException: If token is invalid, expired, or already used
     """
     try:
-        TenantContext.set(tenant_id)
         service = PasswordResetService(db, tenant_id)
         await service.reset_password(request.token, request.new_password)
 
@@ -182,7 +177,7 @@ async def reset_password(
 @router.post("/change-password", response_model=MessageResponse)
 async def change_password(
     request: ChangePasswordRequest,
-    db: Annotated[AsyncSession, Depends(get_db)],
+    db: Annotated[AsyncSession, Depends(get_tenant_db_dependency)],
     current_user: Annotated[User, Depends(get_current_user)],
     tenant_id: Annotated[str, Depends(get_tenant_id)],
 ):
@@ -194,7 +189,7 @@ async def change_password(
 
     Args:
         request: Current password and new password
-        db: Database session
+        db: Database session (with tenant schema already set)
         current_user: Currently authenticated user
         tenant_id: Tenant ID from header
 
@@ -204,9 +199,6 @@ async def change_password(
     Raises:
         HTTPException: If current password is incorrect
     """
-    # Set tenant context for DB operations
-    TenantContext.set(tenant_id)
-
     # Verify current password
     if not verify_password(request.current_password, current_user.hashed_password):
         raise HTTPException(
@@ -238,7 +230,7 @@ async def change_password(
 
 @router.post("/logout", response_model=MessageResponse)
 async def logout(
-    db: Annotated[AsyncSession, Depends(get_db)],
+    db: Annotated[AsyncSession, Depends(get_tenant_db_dependency)],
     current_user: Annotated[User, Depends(get_current_user)],
     tenant_id: Annotated[str, Depends(get_tenant_id)],
 ):
@@ -249,14 +241,13 @@ async def logout(
     The current access token remains valid until it expires.
 
     Args:
-        db: Database session
+        db: Database session (with tenant schema already set)
         current_user: Currently authenticated user
         tenant_id: Tenant ID from header
 
     Returns:
         MessageResponse: Success message with count of revoked sessions
     """
-    TenantContext.set(tenant_id)
     refresh_service = RefreshTokenService(db, tenant_id)
 
     # Revoke all refresh tokens for this user

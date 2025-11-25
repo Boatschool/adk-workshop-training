@@ -48,6 +48,8 @@ async def create_tenant_schema_and_tables(
             hashed_password VARCHAR(255) NOT NULL,
             role VARCHAR(50) NOT NULL,
             is_active BOOLEAN NOT NULL DEFAULT TRUE,
+            failed_login_attempts INTEGER NOT NULL DEFAULT 0,
+            locked_until TIMESTAMPTZ,
             created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
             updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
         )
@@ -57,6 +59,42 @@ async def create_tenant_schema_and_tables(
     # Create unique index on email
     await db.execute(
         text(f"CREATE UNIQUE INDEX ix_{schema_name}_users_email ON {schema_name}.users(email)")
+    )
+
+    # Create refresh_tokens table
+    await db.execute(
+        text(f"""
+        CREATE TABLE {schema_name}.refresh_tokens (
+            id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+            token VARCHAR(255) NOT NULL,
+            user_id UUID NOT NULL REFERENCES {schema_name}.users(id) ON DELETE CASCADE,
+            expires_at TIMESTAMPTZ NOT NULL,
+            revoked_at TIMESTAMPTZ,
+            created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+            updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+        )
+        """)
+    )
+    await db.execute(
+        text(f"CREATE UNIQUE INDEX ix_{schema_name}_refresh_tokens_token ON {schema_name}.refresh_tokens(token)")
+    )
+
+    # Create password_reset_tokens table
+    await db.execute(
+        text(f"""
+        CREATE TABLE {schema_name}.password_reset_tokens (
+            id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+            token VARCHAR(255) NOT NULL,
+            user_id UUID NOT NULL REFERENCES {schema_name}.users(id) ON DELETE CASCADE,
+            expires_at TIMESTAMPTZ NOT NULL,
+            used_at TIMESTAMPTZ,
+            created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+            updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+        )
+        """)
+    )
+    await db.execute(
+        text(f"CREATE UNIQUE INDEX ix_{schema_name}_password_reset_tokens_token ON {schema_name}.password_reset_tokens(token)")
     )
 
     # Create workshops table
@@ -140,7 +178,7 @@ async def create_tenant_schema_and_tables(
     )
 
     # Add triggers for updated_at on all tables
-    for table in ["users", "workshops", "exercises", "progress", "agents"]:
+    for table in ["users", "refresh_tokens", "password_reset_tokens", "workshops", "exercises", "progress", "agents"]:
         await db.execute(
             text(f"""
             CREATE TRIGGER update_{schema_name}_{table}_updated_at

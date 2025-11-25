@@ -7,6 +7,10 @@ const REFRESH_TOKEN_KEY = 'adk_refresh_token'
 const TENANT_KEY = 'adk_tenant_id'
 const THEME_KEY = 'adk_theme'
 
+// Default tenant ID for the application
+// This is the "Default Tenant" created during setup
+const DEFAULT_TENANT_ID = 'bb869643-8cdd-441a-b991-fb1fcd089aa0'
+
 /**
  * Get the stored access token
  */
@@ -50,10 +54,17 @@ export function removeStoredRefreshToken(): void {
 }
 
 /**
- * Get the stored tenant ID
+ * Get the stored tenant ID, or return the default tenant ID if none is stored
  */
-export function getStoredTenantId(): string | null {
-  return localStorage.getItem(TENANT_KEY)
+export function getStoredTenantId(): string {
+  const storedTenantId = localStorage.getItem(TENANT_KEY)
+  if (storedTenantId) {
+    return storedTenantId
+  }
+
+  // Auto-initialize with default tenant on first use
+  setStoredTenantId(DEFAULT_TENANT_ID)
+  return DEFAULT_TENANT_ID
 }
 
 /**

@@ -5,7 +5,7 @@ from typing import Annotated
 from fastapi import APIRouter, Depends, HTTPException, Query, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from src.api.dependencies import get_current_user, get_tenant_id, require_admin
+from src.api.dependencies import get_current_user, get_tenant_id, get_tenant_db_dependency, require_admin
 from src.api.schemas.user import (
     UserCreate,
     UserCreateAdmin,
@@ -22,9 +22,7 @@ from src.core.exceptions import (
     ValidationError,
 )
 from src.core.security import create_access_token
-from src.core.tenancy import TenantContext
 from src.db.models.user import User
-from src.db.session import get_db
 from src.services.refresh_token_service import RefreshTokenService
 from src.services.user_service import UserService
 
@@ -36,7 +34,7 @@ router = APIRouter()
 @router.post("/register", response_model=UserResponse, status_code=status.HTTP_201_CREATED)
 async def register_user(
     user_data: UserCreate,
-    db: Annotated[AsyncSession, Depends(get_db)],
+    db: Annotated[AsyncSession, Depends(get_tenant_db_dependency)],
     tenant_id: Annotated[str, Depends(get_tenant_id)],
 ):
     """
@@ -47,7 +45,7 @@ async def register_user(
 
     Args:
         user_data: User registration data
-        db: Database session
+        db: Database session (with tenant schema already set)
         tenant_id: Tenant ID from header
 
     Returns:
@@ -57,7 +55,6 @@ async def register_user(
         HTTPException: If validation fails or email already exists
     """
     try:
-        TenantContext.set(tenant_id)
         service = UserService(db, tenant_id)
         user = await service.create_user(user_data)
         return user
@@ -68,7 +65,7 @@ async def register_user(
 @router.post("/create", response_model=UserResponse, status_code=status.HTTP_201_CREATED)
 async def create_user_with_role(
     user_data: UserCreateAdmin,
-    db: Annotated[AsyncSession, Depends(get_db)],
+    db: Annotated[AsyncSession, Depends(get_tenant_db_dependency)],
     current_user: Annotated[User, Depends(require_admin)],
     tenant_id: Annotated[str, Depends(get_tenant_id)],
 ):
@@ -79,7 +76,7 @@ async def create_user_with_role(
 
     Args:
         user_data: User creation data with role
-        db: Database session
+        db: Database session (with tenant schema already set)
         current_user: Current authenticated admin user
         tenant_id: Tenant ID from header
 
@@ -90,7 +87,6 @@ async def create_user_with_role(
         HTTPException: If validation fails or email already exists
     """
     try:
-        TenantContext.set(tenant_id)
         service = UserService(db, tenant_id)
         user = await service.create_user_admin(user_data)
         return user
@@ -101,7 +97,7 @@ async def create_user_with_role(
 @router.post("/login", response_model=UserWithToken)
 async def login_user(
     credentials: UserLogin,
-    db: Annotated[AsyncSession, Depends(get_db)],
+    db: Annotated[AsyncSession, Depends(get_tenant_db_dependency)],
     tenant_id: Annotated[str, Depends(get_tenant_id)],
 ):
     """
@@ -109,7 +105,7 @@ async def login_user(
 
     Args:
         credentials: User login credentials
-        db: Database session
+        db: Database session (with tenant schema already set)
         tenant_id: Tenant ID from header
 
     Returns:
@@ -119,7 +115,6 @@ async def login_user(
         HTTPException: If authentication fails
     """
     try:
-        TenantContext.set(tenant_id)
         service = UserService(db, tenant_id)
         user = await service.authenticate_user(credentials.email, credentials.password)
 
@@ -177,7 +172,7 @@ async def get_current_user_info(
 @router.get("/{user_id}", response_model=UserResponse)
 async def get_user(
     user_id: str,
-    db: Annotated[AsyncSession, Depends(get_db)],
+    db: Annotated[AsyncSession, Depends(get_tenant_db_dependency)],
     current_user: Annotated[User, Depends(get_current_user)],
     tenant_id: Annotated[str, Depends(get_tenant_id)],
 ):
@@ -186,7 +181,7 @@ async def get_user(
 
     Args:
         user_id: User UUID
-        db: Database session
+        db: Database session (with tenant schema already set)
         current_user: Current authenticated user
         tenant_id: Tenant ID from header
 
@@ -196,7 +191,6 @@ async def get_user(
     Raises:
         HTTPException: If user not found
     """
-    TenantContext.set(tenant_id)
     service = UserService(db, tenant_id)
     user = await service.get_user_by_id(user_id)
     if not user:
@@ -211,7 +205,7 @@ async def get_user(
 async def update_user(
     user_id: str,
     user_data: UserUpdate,
-    db: Annotated[AsyncSession, Depends(get_db)],
+    db: Annotated[AsyncSession, Depends(get_tenant_db_dependency)],
     current_user: Annotated[User, Depends(require_admin)],
     tenant_id: Annotated[str, Depends(get_tenant_id)],
 ):
@@ -223,7 +217,7 @@ async def update_user(
     Args:
         user_id: User UUID
         user_data: User update data
-        db: Database session
+        db: Database session (with tenant schema already set)
         current_user: Current authenticated admin user
         tenant_id: Tenant ID from header
 
@@ -234,7 +228,6 @@ async def update_user(
         HTTPException: If user not found
     """
     try:
-        TenantContext.set(tenant_id)
         service = UserService(db, tenant_id)
         user = await service.update_user(user_id, user_data)
         return user
@@ -244,7 +237,7 @@ async def update_user(
 
 @router.get("/", response_model=list[UserResponse])
 async def list_users(
-    db: Annotated[AsyncSession, Depends(get_db)],
+    db: Annotated[AsyncSession, Depends(get_tenant_db_dependency)],
     current_user: Annotated[User, Depends(get_current_user)],
     tenant_id: Annotated[str, Depends(get_tenant_id)],
     skip: Annotated[int, Query(ge=0)] = 0,
@@ -255,7 +248,7 @@ async def list_users(
     List users with pagination and optional filtering.
 
     Args:
-        db: Database session
+        db: Database session (with tenant schema already set)
         current_user: Current authenticated user
         tenant_id: Tenant ID from header
         skip: Number of records to skip
@@ -265,7 +258,6 @@ async def list_users(
     Returns:
         list[UserResponse]: List of users
     """
-    TenantContext.set(tenant_id)
     service = UserService(db, tenant_id)
     users = await service.list_users(skip=skip, limit=limit, is_active=is_active)
     return users

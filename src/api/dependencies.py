@@ -1,5 +1,6 @@
 """FastAPI dependencies for dependency injection."""
 
+from collections.abc import AsyncGenerator
 from typing import Annotated
 
 from fastapi import Depends, Header, HTTPException, status
@@ -11,7 +12,7 @@ from src.core.exceptions import AuthenticationError
 from src.core.security import decode_access_token
 from src.core.tenancy import TenantContext
 from src.db.models.user import User
-from src.db.session import get_db
+from src.db.session import get_db, get_tenant_db
 from src.services.user_service import UserService
 
 security = HTTPBearer()
@@ -40,9 +41,28 @@ async def get_tenant_id(
     return x_tenant_id
 
 
+async def get_tenant_db_dependency(
+    tenant_id: Annotated[str, Depends(get_tenant_id)],
+) -> AsyncGenerator[AsyncSession, None]:
+    """
+    Get database session with tenant schema properly set.
+
+    This dependency ensures the tenant_id is resolved FIRST,
+    then creates a database session with the correct schema search_path.
+
+    Args:
+        tenant_id: Tenant ID from header (resolved first)
+
+    Yields:
+        AsyncSession: Database session scoped to tenant schema
+    """
+    async for session in get_tenant_db(tenant_id):
+        yield session
+
+
 async def get_current_user(
     credentials: Annotated[HTTPAuthorizationCredentials, Depends(security)],
-    db: Annotated[AsyncSession, Depends(get_db)],
+    db: Annotated[AsyncSession, Depends(get_tenant_db_dependency)],
     tenant_id: Annotated[str, Depends(get_tenant_id)],
 ) -> User:
     """
@@ -50,7 +70,7 @@ async def get_current_user(
 
     Args:
         credentials: HTTP Bearer token
-        db: Database session
+        db: Database session (with tenant schema already set)
         tenant_id: Tenant ID from header
 
     Returns:
@@ -72,10 +92,7 @@ async def get_current_user(
         if token_tenant_id != tenant_id:
             raise AuthenticationError("Tenant mismatch")
 
-        # Set tenant context for database queries
-        TenantContext.set(tenant_id)
-
-        # Get user from database
+        # Get user from database (tenant schema already set by get_tenant_db_dependency)
         user_service = UserService(db, tenant_id)
         user = await user_service.get_user_by_id(user_id)
 

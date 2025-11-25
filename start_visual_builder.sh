@@ -30,8 +30,8 @@ if [ -f "$PID_FILE" ]; then
     fi
 fi
 
-# Check if port 8000 is already in use by another process
-if lsof -i :$ADK_PORT > /dev/null 2>&1; then
+# Check if port 8000 is already in use by a LISTENING process
+if lsof -i :$ADK_PORT -sTCP:LISTEN > /dev/null 2>&1; then
     echo "❌ Port $ADK_PORT is already in use!"
     echo ""
     echo "   Another process is using this port. Check with:"
@@ -100,7 +100,9 @@ echo "=============================================="
 echo ""
 
 # Start in background and save PID
-nohup adk web --port $ADK_PORT > "$SCRIPT_DIR/adk-builder.log" 2>&1 &
+# Point to the agents directory for agent definitions
+AGENTS_DIR="$SCRIPT_DIR/agents"
+nohup adk web --port $ADK_PORT "$AGENTS_DIR" > "$SCRIPT_DIR/adk-builder.log" 2>&1 &
 PID=$!
 echo $PID > "$PID_FILE"
 
@@ -117,7 +119,32 @@ if ps -p $PID > /dev/null 2>&1; then
     MAX_RETRIES=10
     while [ $RETRY -lt $MAX_RETRIES ]; do
         if curl -s "http://localhost:$ADK_PORT" > /dev/null 2>&1; then
-            echo "✅ Server is responding at http://localhost:$ADK_PORT/dev-ui"
+            echo ""
+            echo "=============================================="
+            echo "  ✅ VISUAL BUILDER READY"
+            echo "=============================================="
+            echo ""
+            echo "  🌐 Open in browser: http://localhost:$ADK_PORT/dev-ui"
+            echo ""
+            echo "  📋 QUICK START:"
+            echo "     • Click '+' to create a new agent"
+            echo "     • Click pencil icon to edit YAML agents"
+            echo "     • Use the AI Assistant (right panel) for help"
+            echo ""
+            echo "  ⚠️  BROWSER CACHE:"
+            echo "     If features are missing, hard refresh:"
+            echo "     Mac: Cmd+Shift+R  |  Windows: Ctrl+Shift+R"
+            echo ""
+            echo "  📂 AVAILABLE AGENTS:"
+            echo "     • starter_agent - Basic template for learning"
+            echo "     • faq_agent - HR FAQ assistant"
+            echo "     • scheduler_agent - Meeting room booking"
+            echo "     • router_agent - Multi-agent facilities system"
+            echo "     • hello_agent - Python example (read-only)"
+            echo ""
+            echo "  📖 Training Guide: docs/VISUAL_BUILDER_GUIDE.md"
+            echo ""
+            echo "=============================================="
             exit 0
         fi
         sleep 1

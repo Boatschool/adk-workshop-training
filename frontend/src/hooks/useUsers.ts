@@ -44,7 +44,7 @@ export function useUsers(filters: UserFilters = {}) {
   return useQuery({
     queryKey: userKeys.list(filters),
     queryFn: () =>
-      apiGet<User[]>('/users', {
+      apiGet<User[]>('/users/', {
         skip: filters.skip ?? 0,
         limit: filters.limit ?? 100,
         is_active: filters.is_active,

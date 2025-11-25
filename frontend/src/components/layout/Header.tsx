@@ -54,6 +54,12 @@ function ExternalLinkIcon({ className }: { className?: string }) {
   )
 }
 
+// Format user role for display (e.g., "tenant_admin" -> "Tenant Admin")
+function formatRole(role?: string): string {
+  if (!role) return ''
+  return role.replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase())
+}
+
 const iconMap = {
   graduation: GraduationIcon,
   blocks: BlocksIcon,
@@ -106,13 +112,15 @@ export function Header() {
         <div className="flex h-16 items-center justify-between">
           {/* Logo */}
           <div className="flex items-center">
-            <Link to="/" className="flex items-center space-x-2">
-              <div className="w-8 h-8 bg-primary-500 rounded-lg flex items-center justify-center">
-                <span className="text-white font-bold text-lg">A</span>
+            <Link to="/" className="flex items-center">
+              <div className="flex flex-col">
+                <span className="text-lg font-bold text-gray-900 dark:text-white leading-tight">
+                  GraymatterLab
+                </span>
+                <span className="text-xs text-gray-500 dark:text-gray-400">
+                  Agent Development Workshop
+                </span>
               </div>
-              <span className="text-xl font-bold text-gray-900 dark:text-white">
-                ADK Platform
-              </span>
             </Link>
           </div>
 
@@ -123,10 +131,10 @@ export function Header() {
                 key={link.path}
                 to={link.path}
                 className={cn(
-                  'px-3 py-2 rounded-md text-sm font-medium transition-colors-fast',
+                  'px-3 py-2 text-sm font-medium transition-colors relative',
                   location.pathname === link.path
-                    ? 'bg-primary-100 dark:bg-primary-900/30 text-primary-700 dark:text-primary-300'
-                    : 'text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800'
+                    ? 'text-gray-900 dark:text-white after:absolute after:bottom-0 after:left-3 after:right-3 after:h-0.5 after:bg-primary-500'
+                    : 'text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white'
                 )}
               >
                 {link.name}
@@ -139,10 +147,10 @@ export function Header() {
                 onClick={() => setEcosystemOpen(!ecosystemOpen)}
                 onBlur={() => setTimeout(() => setEcosystemOpen(false), 150)}
                 className={cn(
-                  'px-3 py-2 rounded-md text-sm font-medium transition-colors-fast inline-flex items-center gap-1',
+                  'px-3 py-2 text-sm font-medium transition-colors inline-flex items-center gap-1 relative',
                   ecosystemOpen
-                    ? 'bg-primary-100 dark:bg-primary-900/30 text-primary-700 dark:text-primary-300'
-                    : 'text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800'
+                    ? 'text-gray-900 dark:text-white after:absolute after:bottom-0 after:left-3 after:right-3 after:h-0.5 after:bg-primary-500'
+                    : 'text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white'
                 )}
               >
                 Products
@@ -243,18 +251,25 @@ export function Header() {
                 <button
                   onClick={() => setUserMenuOpen(!userMenuOpen)}
                   onBlur={() => setTimeout(() => setUserMenuOpen(false), 150)}
-                  className="flex items-center space-x-2 px-3 py-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors-fast"
+                  className="flex items-center gap-3 px-2 py-1.5 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors-fast"
                 >
-                  <div className="w-8 h-8 bg-gray-200 dark:bg-gray-700 rounded-full flex items-center justify-center">
-                    <span className="text-sm font-medium text-gray-600 dark:text-gray-300">
+                  <div className="w-8 h-8 bg-primary-500 rounded-full flex items-center justify-center shadow-sm">
+                    <span className="text-sm font-medium text-white">
                       {user?.full_name?.[0] || user?.email?.[0]?.toUpperCase() || 'U'}
                     </span>
                   </div>
-                  <span className="hidden sm:block text-sm text-gray-700 dark:text-gray-300">
-                    {user?.full_name || user?.email}
-                  </span>
+                  <div className="hidden sm:flex flex-col items-start">
+                    <span className="text-sm font-semibold text-gray-900 dark:text-white leading-tight">
+                      {user?.full_name?.split(' ')[0] || user?.email?.split('@')[0]}
+                    </span>
+                    {user?.role && (
+                      <span className="text-[10px] font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wide">
+                        {formatRole(user.role)}
+                      </span>
+                    )}
+                  </div>
                   <svg
-                    className={cn('w-4 h-4 text-gray-400 transition-transform', userMenuOpen && 'rotate-180')}
+                    className={cn('hidden sm:block w-4 h-4 text-gray-400 transition-transform duration-200', userMenuOpen && 'rotate-180')}
                     fill="none"
                     viewBox="0 0 24 24"
                     stroke="currentColor"
@@ -265,30 +280,57 @@ export function Header() {
 
                 {/* User Dropdown Menu */}
                 {userMenuOpen && (
-                  <div className="absolute right-0 mt-2 w-48 rounded-xl bg-white dark:bg-gray-800 shadow-lg ring-1 ring-black/5 dark:ring-white/10 py-1 z-50">
-                    <Link
-                      to="/profile/settings"
-                      className="flex items-center gap-2 px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700"
-                      onClick={() => setUserMenuOpen(false)}
-                    >
-                      <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                      </svg>
-                      Settings
-                    </Link>
+                  <div className="absolute right-0 mt-2 w-64 rounded-xl bg-white dark:bg-gray-800 shadow-xl ring-1 ring-black/5 dark:ring-white/10 py-2 z-50 transform origin-top-right transition-all">
+                    {/* User Info Header */}
+                    <div className="px-4 py-3 border-b border-gray-100 dark:border-gray-700">
+                      <p className="text-sm font-semibold text-gray-900 dark:text-white truncate">
+                        {user?.full_name || user?.email?.split('@')[0]}
+                      </p>
+                      <p className="text-xs text-gray-500 dark:text-gray-400 truncate mt-0.5">
+                        {user?.email}
+                      </p>
+                    </div>
+
+                    <div className="py-1">
+                      <Link
+                        to="/profile/settings"
+                        className="flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors"
+                        onClick={() => setUserMenuOpen(false)}
+                      >
+                        <svg className="w-4 h-4 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                        </svg>
+                        Profile Settings
+                      </Link>
+
+                      {['tenant_admin', 'super_admin'].includes(user?.role || '') && (
+                        <Link
+                          to="/admin/users"
+                          className="flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors"
+                          onClick={() => setUserMenuOpen(false)}
+                        >
+                          <svg className="w-4 h-4 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+                          </svg>
+                          Admin Dashboard
+                        </Link>
+                      )}
+                    </div>
+
                     <div className="border-t border-gray-100 dark:border-gray-700 my-1" />
+
                     <button
                       onClick={() => {
                         setUserMenuOpen(false)
                         logout()
                       }}
-                      className="flex items-center gap-2 w-full px-4 py-2 text-sm text-red-600 dark:text-red-400 hover:bg-gray-100 dark:hover:bg-gray-700"
+                      className="flex items-center gap-3 w-full px-4 py-2.5 text-sm text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors"
                     >
                       <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
                       </svg>
-                      Sign out
+                      Sign Out
                     </button>
                   </div>
                 )}
@@ -332,17 +374,17 @@ export function Header() {
         {/* Mobile Navigation */}
         {mobileMenuOpen && (
           <div className="md:hidden border-t border-gray-200 dark:border-gray-700 py-4">
-            <nav className="flex flex-col space-y-2">
+            <nav className="flex flex-col space-y-1">
               {navLinks.map((link) => (
                 <Link
                   key={link.path}
                   to={link.path}
                   onClick={toggleMobileMenu}
                   className={cn(
-                    'px-3 py-2 rounded-md text-base font-medium',
+                    'px-3 py-2 text-base font-medium border-l-2 transition-colors',
                     location.pathname === link.path
-                      ? 'bg-primary-100 dark:bg-primary-900/30 text-primary-700 dark:text-primary-300'
-                      : 'text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800'
+                      ? 'border-primary-500 text-gray-900 dark:text-white bg-primary-50 dark:bg-primary-900/20'
+                      : 'border-transparent text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white hover:bg-gray-50 dark:hover:bg-gray-800'
                   )}
                 >
                   {link.name}

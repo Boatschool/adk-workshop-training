@@ -28,7 +28,14 @@ class TaskType(str, Enum):
     GENERATE_REPORT = "generate_report"
 
 
-@_queue.register(TaskType.AGENT_EXECUTION.value)
+# NOTE: Agent execution task disabled - the custom src/agents framework was not
+# compliant with Google ADK v1.18.0 and has been archived.
+# See: _archive/deprecated-non-adk-compliant/ for the original implementation.
+# To re-enable, implement an ADK v1.18.0 compliant runner using InMemoryRunner.
+#
+# @_queue.register(TaskType.AGENT_EXECUTION.value)
+# async def execute_agent_task(...): ...
+
 async def execute_agent_task(
     tenant_id: str,
     user_id: str,
@@ -39,6 +46,11 @@ async def execute_agent_task(
 ) -> dict[str, Any]:
     """Execute an agent in the background.
 
+    NOTE: This task is currently disabled. The custom agent framework was not
+    compliant with Google ADK v1.18.0.
+
+    For agent execution, use the Visual Builder at http://localhost:8000/dev-ui
+
     Args:
         tenant_id: Tenant identifier
         user_id: User performing the request
@@ -48,30 +60,16 @@ async def execute_agent_task(
         config_override: Optional config overrides
 
     Returns:
-        Agent response data
+        Error response indicating the feature is disabled
     """
-    from src.agents import AgentRunner, AgentConfig
-    from src.core.config import get_settings
-
-    settings = get_settings()
-
-    runner = AgentRunner(
-        tenant_id=tenant_id,
-        api_key=settings.google_api_key,
-        user_id=user_id,
-    )
-
-    config = None
-    if config_override:
-        config = AgentConfig(**config_override)
-
-    response = await runner.execute(
-        agent_type=agent_type,
-        user_message=message,
-        config=config,
-    )
-
-    return response.to_dict()
+    return {
+        "success": False,
+        "error": "Agent execution via background tasks is currently disabled. "
+                 "The custom agent framework was not ADK v1.18.0 compliant. "
+                 "Use the Visual Builder at http://localhost:8000/dev-ui instead.",
+        "tenant_id": tenant_id,
+        "agent_type": agent_type,
+    }
 
 
 @_queue.register(TaskType.SEND_EMAIL.value)

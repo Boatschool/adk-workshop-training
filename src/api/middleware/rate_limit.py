@@ -1,10 +1,11 @@
 """Rate limiting middleware for API endpoints."""
 
+import json
 import time
 from collections import defaultdict
 from typing import Callable
 
-from fastapi import HTTPException, Request, Response, status
+from fastapi import Request, Response, status
 from starlette.middleware.base import BaseHTTPMiddleware
 
 from src.core.config import get_settings
@@ -34,9 +35,6 @@ class RateLimitMiddleware(BaseHTTPMiddleware):
 
         Returns:
             Response from the next handler
-
-        Raises:
-            HTTPException: 429 if rate limit exceeded
         """
         # Get client identifier (IP address)
         client_ip = request.client.host if request.client else "unknown"
@@ -57,11 +55,14 @@ class RateLimitMiddleware(BaseHTTPMiddleware):
             req_time for req_time in self.requests[client_ip] if now - req_time < 60
         ]
 
-        # Check if rate limit exceeded
+        # Check if rate limit exceeded - return a proper Response instead of raising
         if len(self.requests[client_ip]) >= rate_limit:
-            raise HTTPException(
+            return Response(
+                content=json.dumps(
+                    {"detail": f"Rate limit exceeded. Maximum {rate_limit} requests per minute allowed."}
+                ),
                 status_code=status.HTTP_429_TOO_MANY_REQUESTS,
-                detail=f"Rate limit exceeded. Maximum {rate_limit} requests per minute allowed.",
+                media_type="application/json",
                 headers={"Retry-After": "60"},
             )
 

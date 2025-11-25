@@ -201,6 +201,8 @@ class TestUserServiceAuthenticate:
         """Test authentication fails for inactive user."""
         mock_user = MagicMock()
         mock_user.is_active = False
+        mock_user.locked_until = None  # Account lockout field
+        mock_user.failed_login_attempts = 0  # Brute force protection field
 
         mock_result = MagicMock()
         mock_result.scalar_one_or_none.return_value = mock_user
@@ -221,6 +223,8 @@ class TestUserServiceAuthenticate:
         mock_user = MagicMock()
         mock_user.is_active = True
         mock_user.hashed_password = hash_password("correct_password")
+        mock_user.locked_until = None  # Account lockout field
+        mock_user.failed_login_attempts = 0  # Brute force protection field
 
         mock_result = MagicMock()
         mock_result.scalar_one_or_none.return_value = mock_user
@@ -242,6 +246,8 @@ class TestUserServiceAuthenticate:
         mock_user = MagicMock()
         mock_user.is_active = True
         mock_user.hashed_password = hash_password(password)
+        mock_user.locked_until = None  # Account lockout field
+        mock_user.failed_login_attempts = 0  # Brute force protection field
 
         mock_result = MagicMock()
         mock_result.scalar_one_or_none.return_value = mock_user

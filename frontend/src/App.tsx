@@ -17,7 +17,7 @@ import { RootLayout } from '@components/layout'
 import { DashboardPage } from '@pages/dashboard'
 import { WorkshopsPage, WorkshopDetailPage } from '@pages/workshops'
 import { ExercisePage } from '@pages/exercises'
-import { GuidePage } from '@pages/guides'
+import { GuidePage, GuidesListPage } from '@pages/guides'
 import { ExamplePage } from '@pages/examples'
 import { AdminUsersPage, AdminTenantsPage } from '@pages/admin'
 import { SettingsPage } from '@pages/profile'
@@ -27,6 +27,7 @@ import {
   RegisterPage,
   ForgotPasswordPage,
   ResetPasswordPage,
+  WelcomePage,
 } from '@pages/auth'
 
 // Placeholder pages - will be replaced with actual page components
@@ -69,6 +70,7 @@ function App() {
                 <Route path="/register" element={<RegisterPage />} />
                 <Route path="/forgot-password" element={<ForgotPasswordPage />} />
                 <Route path="/reset-password" element={<ResetPasswordPage />} />
+                <Route path="/welcome" element={<WelcomePage />} />
 
                 {/* Dashboard */}
                 <Route
@@ -109,6 +111,14 @@ function App() {
                 />
 
                 {/* Guides */}
+                <Route
+                  path="/guides"
+                  element={
+                    <RootLayout>
+                      <GuidesListPage />
+                    </RootLayout>
+                  }
+                />
                 <Route
                   path="/guides/:slug"
                   element={
