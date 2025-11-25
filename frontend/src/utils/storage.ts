@@ -3,6 +3,7 @@
  */
 
 const TOKEN_KEY = 'adk_access_token'
+const REFRESH_TOKEN_KEY = 'adk_refresh_token'
 const TENANT_KEY = 'adk_tenant_id'
 const THEME_KEY = 'adk_theme'
 
@@ -25,6 +26,27 @@ export function setStoredToken(token: string): void {
  */
 export function removeStoredToken(): void {
   localStorage.removeItem(TOKEN_KEY)
+}
+
+/**
+ * Get the stored refresh token
+ */
+export function getStoredRefreshToken(): string | null {
+  return localStorage.getItem(REFRESH_TOKEN_KEY)
+}
+
+/**
+ * Store the refresh token
+ */
+export function setStoredRefreshToken(token: string): void {
+  localStorage.setItem(REFRESH_TOKEN_KEY, token)
+}
+
+/**
+ * Remove the stored refresh token
+ */
+export function removeStoredRefreshToken(): void {
+  localStorage.removeItem(REFRESH_TOKEN_KEY)
 }
 
 /**
@@ -69,5 +91,6 @@ export function setStoredTheme(theme: 'light' | 'dark'): void {
  */
 export function clearAuthStorage(): void {
   removeStoredToken()
+  removeStoredRefreshToken()
   removeStoredTenantId()
 }

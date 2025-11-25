@@ -22,6 +22,12 @@ import { ExamplePage } from '@pages/examples'
 import { AdminUsersPage, AdminTenantsPage } from '@pages/admin'
 import { SettingsPage } from '@pages/profile'
 import { SetupWizard } from '@pages/getting-started'
+import {
+  LoginPage,
+  RegisterPage,
+  ForgotPasswordPage,
+  ResetPasswordPage,
+} from '@pages/auth'
 
 // Placeholder pages - will be replaced with actual page components
 function AgentsPage() {
@@ -33,29 +39,6 @@ function AgentsPage() {
       <p className="text-gray-600 dark:text-gray-300">
         Agent management coming soon...
       </p>
-    </div>
-  )
-}
-
-function LoginPage() {
-  return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-900">
-      <div className="max-w-md w-full bg-white dark:bg-gray-800 rounded-lg shadow-lg p-8">
-        <div className="text-center mb-8">
-          <div className="w-16 h-16 bg-primary-500 rounded-xl mx-auto mb-4 flex items-center justify-center">
-            <span className="text-white font-bold text-2xl">A</span>
-          </div>
-          <h1 className="text-2xl font-bold text-gray-900 dark:text-white">
-            Sign In
-          </h1>
-          <p className="text-gray-500 dark:text-gray-400 mt-2">
-            Welcome back to ADK Platform
-          </p>
-        </div>
-        <p className="text-center text-gray-500">
-          Login form coming soon...
-        </p>
-      </div>
     </div>
   )
 }
@@ -81,8 +64,11 @@ function App() {
           <TenantProvider>
             <BrowserRouter>
               <Routes>
-                {/* Public routes (no layout) */}
+                {/* Public auth routes (no layout) */}
                 <Route path="/login" element={<LoginPage />} />
+                <Route path="/register" element={<RegisterPage />} />
+                <Route path="/forgot-password" element={<ForgotPasswordPage />} />
+                <Route path="/reset-password" element={<ResetPasswordPage />} />
 
                 {/* Dashboard */}
                 <Route
