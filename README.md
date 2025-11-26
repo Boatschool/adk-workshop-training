@@ -1,439 +1,426 @@
-# Google ADK Workshop Training
-## Building AI Agents for Healthcare Non-Clinical Use Cases
+# ADK Platform v2.0
 
-Welcome to the Google Agent Development Kit (ADK) workshop! This comprehensive training program is designed for healthcare professionals who want to build AI agents for **non-clinical use cases** using Google's Visual Agent Builder.
+**Multi-Tenant AI Agent Development Platform**
 
-**Important:** This workshop focuses exclusively on administrative, operational, and support use cases. We will **NOT** process any PHI (Protected Health Information) or PII (Personally Identifiable Information).
+A production-ready, scalable platform for building and deploying AI agents using Google's Agent Development Kit (ADK). Designed for healthcare organizations to create non-clinical AI automation workflows.
 
-## Who This Is For
+[![Python 3.11+](https://img.shields.io/badge/python-3.11+-blue.svg)](https://www.python.org/downloads/)
+[![FastAPI](https://img.shields.io/badge/FastAPI-0.109+-green.svg)](https://fastapi.tiangolo.com/)
+[![License](https://img.shields.io/badge/license-Apache%202.0-blue.svg)](LICENSE)
 
-- **Healthcare administrators** looking to automate routine tasks
-- **IT and operations staff** managing facilities and resources
-- **HR and training professionals** streamlining employee processes
-- **Communications teams** creating content and managing announcements
-- **Anyone interested in AI agents** with novice to intermediate technical skills
+## 🚀 Features
 
-No extensive coding experience required - we'll use the Visual Agent Builder!
+### Training Platform
+- **Interactive Workshops**: Hands-on courses with step-by-step exercises for learning AI agent development
+- **Setup Wizard**: Guided installation for local ADK Visual Builder with platform-specific instructions
+- **Progress Tracking**: Badge/achievement system to track learning milestones
+- **Visual Builder Integration**: Seamless connection to Google's ADK Visual Builder for hands-on practice
+- **User Settings**: Configurable development environment and preferences
+- **Ecosystem Navigation**: Clear path from learning to production with GraymatterLab ecosystem
 
-## What You'll Learn
+### Platform Infrastructure
+- **Multi-Tenant Architecture**: Schema-per-tenant isolation for enterprise security
+- **Modern Python Stack**: FastAPI, SQLAlchemy 2.0, Pydantic v2, async/await
+- **Google ADK Integration**: Build and deploy AI agents with Google's Agent Development Kit
+- **Developer Experience**: Poetry, Ruff, Black, MyPy, pre-commit hooks
+- **Production Ready**: Docker, PostgreSQL, comprehensive testing, structured logging
 
-By the end of this workshop, you will be able to:
-- ✅ Understand what AI agents are and when to use them
-- ✅ Build agents using Google's Visual Agent Builder (no-code/low-code)
-- ✅ Create custom tools to extend agent capabilities
-- ✅ Design multi-agent systems for complex workflows
-- ✅ Test, debug, and deploy agents to production
-- ✅ Identify automation opportunities in your department
+## 🎓 Training Platform
 
-## Workshop Structure
+The ADK Training Platform provides a complete learning environment for mastering AI agent development:
+
+### Getting Started
+1. **Visit the Setup Wizard**: Navigate to `/getting-started` on the frontend (http://localhost:4000/getting-started)
+2. **Follow Platform-Specific Instructions**: Automatically detects your OS (macOS, Windows, Linux)
+3. **Install ADK Locally**: Copy-to-clipboard commands for easy setup
+4. **Launch Visual Builder**: Connect to Google's ADK Visual Builder for hands-on practice
+5. **Earn Achievements**: Complete setup to earn your first badge
+
+### Learning Journey
+- **Setup Wizard** - 7-step guided installation (30 minutes)
+  - Prerequisites check (Python 3.11+)
+  - Virtual environment setup
+  - ADK installation
+  - Google API key configuration
+  - Visual Builder launch and verification
+
+- **Workshops** - Interactive courses with exercises (coming soon)
+  - Introduction to AI Agents
+  - Building Your First Agent
+  - Advanced Agent Patterns
+  - Multi-Agent Systems
+
+- **Progress Tracking** - Badge system with 4 achievements:
+  - 🚀 Environment Setup - Complete the setup wizard
+  - 🎓 Workshop Graduate - Finish your first workshop
+  - ✅ First Steps - Complete your first exercise
+  - 🛠️ Visual Builder Master - Build an agent with Visual Builder
+
+### Ecosystem Integration
+The platform connects three products in the GraymatterLab ecosystem:
+1. **ADK Training Portal** (this app) - Learn agent fundamentals
+2. **ADK Visual Builder** (Google) - Practice building agents locally
+3. **GraymatterStudio** (production) - Deploy enterprise agents
+
+See [docs/ecosystem.md](./docs/ecosystem.md) for the complete learning-to-production pipeline.
+
+## 📁 Project Structure
 
 ```
-adk-workshop-training/
-├── README.md                    # You are here!
-├── WORKSHOP_AGENDA.md          # Detailed workshop schedules
-├── verify_setup.py             # Setup verification script
-├── examples/                   # Sample agents
-│   ├── 01-simple-faq-agent.py
-│   ├── 02-meeting-room-scheduler.py
-│   └── 03-facilities-ticket-router.py
-├── exercises/                  # Hands-on exercises
-│   ├── exercise-1-basic-agent.md
-│   ├── exercise-2-agents-with-tools.md
-│   └── exercise-3-multi-agent-systems.md
-├── solutions/                  # Exercise solutions (coming)
-├── resources/                  # Guides and references
-│   ├── quickstart-guide.md
-│   ├── visual-agent-builder-guide.md
-│   ├── troubleshooting-guide.md
-│   └── cheat-sheet.md
-└── frontend/                   # Web UI setup (optional)
+adk-platform/
+├── src/                          # Application source code
+│   ├── api/                      # FastAPI application
+│   │   ├── routes/               # API endpoints
+│   │   ├── schemas/              # Pydantic models
+│   │   ├── middleware/           # Request middleware
+│   │   └── main.py               # FastAPI app entry
+│   ├── core/                     # Business logic
+│   │   ├── config.py             # Settings management
+│   │   ├── tenancy.py            # Multi-tenant context
+│   │   ├── constants.py          # Enums and constants
+│   │   └── exceptions.py         # Custom exceptions
+│   ├── db/                       # Database layer
+│   │   ├── models/               # SQLAlchemy models
+│   │   ├── migrations/           # Alembic migrations
+│   │   ├── base.py               # Database base
+│   │   └── session.py            # Session management
+│   ├── services/                 # Service layer
+│   ├── agents/                   # ADK agent templates
+│   └── utils/                    # Utilities
+│
+├── tests/                        # Test suite
+│   ├── unit/                     # Unit tests
+│   ├── integration/              # Integration tests
+│   └── fixtures/                 # Test fixtures
+│
+├── content/                      # Workshop materials
+│   ├── exercises/                # Training exercises
+│   ├── guides/                   # Documentation
+│   └── examples/                 # Agent examples
+│
+├── docs/                         # Documentation
+│   ├── architecture/             # Architecture docs
+│   ├── api/                      # API documentation
+│   └── development/              # Dev guides
+│
+├── config/                       # Configuration files
+├── scripts/                      # Utility scripts
+├── pyproject.toml                # Poetry configuration
+├── docker-compose.yml            # Local development
+└── Dockerfile                    # Container image
+
 ```
 
-## Quick Start (Pre-Workshop)
+## 🛠️ Quick Start
 
-**Before the workshop, please complete these steps:**
+### Prerequisites
 
-### 1. Setup Google API Key
+- Python 3.11+
+- Poetry 1.7+
+- Docker & Docker Compose (for local database)
+- Google API Key ([setup guide](./google_api_setup_guide.md))
 
-Create a `.env` file in the workshop directory:
+### Installation
+
+1. **Clone the repository**
 
 ```bash
-# Navigate to workshop directory
-cd ~/adk-workshop-training
-
-# Create .env file with your Google API key
-echo "GOOGLE_API_KEY=your-api-key-here" > .env
+cd /Users/ronwince/Desktop/adk-workshop-training
 ```
 
-See **google_api_setup_guide.md** for detailed instructions on obtaining your API key.
-
-### 2. Install Dependencies
+2. **Install Poetry (if not already installed)**
 
 ```bash
-# Create and activate virtual environment (if not already created)
-python3 -m venv ~/adk-workshop
-source ~/adk-workshop/bin/activate
-
-# Install required packages
-pip install google-adk flask markdown python-dotenv
+curl -sSL https://install.python-poetry.org | python3 -
 ```
 
-### 3. Launch the Training Portal
+3. **Install dependencies**
 
 ```bash
-# Launch the training portal (it will auto-load your .env file)
-python training_portal.py
+poetry install
 ```
 
-**The portal will automatically open at http://localhost:5001**
-
-Features:
-- 🚀 **One-click Visual Builder launch** (with stop/restart functionality!)
-- 🔑 **Automatic API key loading from .env**
-- 📚 **Browse all materials in clean HTML**
-- ✅ **Track your progress**
-- 🎨 **Customizable branding**
-- ⌨️ **Keyboard shortcuts**
-
-See **PORTAL_README.md** for customization and branding options.
-
-### 4. Alternative: Use Shell Scripts
-
-If you prefer command-line tools, we've included helper scripts:
+4. **Set up environment variables**
 
 ```bash
-# Start Visual Builder manually
+cp .env.example .env
+# Edit .env and add your configuration
+```
+
+Required environment variables:
+- `SECRET_KEY`: Random secret key for JWT signing
+- `GOOGLE_API_KEY`: Your Google API key
+- `DATABASE_URL`: PostgreSQL connection string
+
+5. **Start local database**
+
+```bash
+docker-compose up -d postgres
+```
+
+6. **Run database migrations**
+
+```bash
+poetry run alembic upgrade head
+```
+
+7. **Start the API server**
+
+```bash
+poetry run uvicorn src.api.main:app --reload --port 8080
+```
+
+The API will be available at http://localhost:8080
+
+API Documentation: http://localhost:8080/docs
+
+8. **Start the Frontend** (React application)
+
+```bash
+cd frontend
+npm install
+npm run dev
+```
+
+The frontend will be available at http://localhost:4000
+
+9. **Start the ADK Visual Builder** (optional, for agent development)
+
+```bash
+./start_visual_builder.sh
+```
+
+The Visual Builder will be available at http://localhost:8000/dev-ui
+
+> **Note**:
+> - React frontend runs on port 4000
+> - FastAPI backend runs on port 8080
+> - ADK Visual Builder runs on port 8000
+> - PostgreSQL runs on port 5433
+
+### All Services Running
+
+| Service | Port | URL |
+|---------|------|-----|
+| React Frontend | 4000 | http://localhost:4000 |
+| FastAPI Backend | 8080 | http://localhost:8080 |
+| API Docs | 8080 | http://localhost:8080/docs |
+| Visual Builder | 8000 | http://localhost:8000/dev-ui |
+| PostgreSQL | 5433 | localhost:5433 |
+
+### Development Commands
+
+```bash
+# Install dependencies
+poetry install
+
+# Run API server (port 8080)
+poetry run uvicorn src.api.main:app --reload --port 8080
+
+# Run ADK Visual Builder (port 8000)
 ./start_visual_builder.sh
 
-# Stop Visual Builder
-./stop_visual_builder.sh
+# Run tests
+poetry run pytest
 
-# Restart Visual Builder
-./restart_visual_builder.sh
+# Run tests with coverage
+poetry run pytest --cov=src --cov-report=html
+
+# Lint code
+poetry run ruff check .
+
+# Format code
+poetry run black .
+
+# Type checking
+poetry run mypy src/
+
+# Install pre-commit hooks
+poetry run pre-commit install
+
+# Run pre-commit on all files
+poetry run pre-commit run --all-files
 ```
 
-### 5. Verify Your Setup
+## 🗄️ Database Setup
+
+### Local Development (Docker)
 
 ```bash
-# Run verification script
-python verify_setup.py
+# Start PostgreSQL
+docker-compose up -d postgres
+
+# Create database
+docker-compose exec postgres createdb -U adk_user adk_platform
+
+# Run migrations
+poetry run alembic upgrade head
 ```
 
-This will check:
-- ✅ Python version (3.10+ required)
-- ✅ Virtual environment
-- ✅ Google ADK installation
-- ✅ Google API key configuration
-- ✅ Workshop materials
+### Database Migrations
+
+```bash
+# Create a new migration
+poetry run alembic revision --autogenerate -m "Description of changes"
+
+# Apply migrations
+poetry run alembic upgrade head
+
+# Rollback one migration
+poetry run alembic downgrade -1
+
+# View migration history
+poetry run alembic history
+```
+
+## 🏗️ Architecture
+
+### Multi-Tenant Design
+
+The platform uses a **schema-per-tenant** approach:
+
+- **Shared schema** (`adk_platform_shared`): Tenant metadata, subscriptions
+- **Tenant schemas** (`adk_tenant_<id>`): User data, workshops, progress, agents
+
+This provides strong isolation and security guarantees for healthcare data.
+
+### Technology Stack
+
+**Backend:**
+- FastAPI (web framework)
+- SQLAlchemy 2.0 (ORM with async support)
+- Alembic (database migrations)
+- Pydantic v2 (data validation)
+- Google ADK (agent framework)
+
+**Database:**
+- PostgreSQL 15+ (with async support)
+
+**Development:**
+- Poetry (dependency management)
+- Ruff (linting)
+- Black (code formatting)
+- MyPy (type checking)
+- Pytest (testing)
+
+## 🧪 Testing
+
+```bash
+# Run all tests
+poetry run pytest
+
+# Run specific test file
+poetry run pytest tests/unit/test_tenancy.py
+
+# Run with coverage
+poetry run pytest --cov=src --cov-report=term-missing
+
+# Run only unit tests
+poetry run pytest tests/unit/
+
+# Run only integration tests
+poetry run pytest tests/integration/
+```
+
+## 📚 API Documentation
+
+Once the API server is running (port 8080), visit:
+
+- **Swagger UI**: http://localhost:8080/docs
+- **ReDoc**: http://localhost:8080/redoc
+- **OpenAPI JSON**: http://localhost:8080/openapi.json
+
+## 🔐 Security
+
+- **Multi-tenant isolation**: Schema-per-tenant database architecture
+- **No PHI/PII**: Designed for non-clinical healthcare use cases
+- **Environment variables**: Secrets managed via `.env` files (production: Cloud Secret Manager)
+- **Input validation**: Pydantic models validate all API inputs
+- **SQL injection prevention**: Parameterized queries via SQLAlchemy
+
+## 🚢 Deployment
+
+### Docker Build
+
+```bash
+# Build image
+docker build -t adk-platform:latest .
+
+# Run container (API on port 8080)
+docker run -p 8080:8080 \
+  -e DATABASE_URL=postgresql://... \
+  -e SECRET_KEY=... \
+  -e GOOGLE_API_KEY=... \
+  adk-platform:latest
+```
+
+### Production Checklist
+
+- [ ] Set `APP_ENV=production` and `APP_DEBUG=false`
+- [ ] Use strong random `SECRET_KEY`
+- [ ] Configure production database with SSL
+- [ ] Set up proper CORS origins
+- [ ] Enable database backups
+- [ ] Configure structured logging
+- [ ] Set up monitoring and alerting
+- [ ] Review security settings
+
+## 📖 Documentation
+
+### Training Resources
+- [Setup Wizard](http://localhost:4000/getting-started) - Interactive setup guide for new users
+- [GraymatterLab Ecosystem](./docs/ecosystem.md) - Complete guide to learning-to-production pipeline
+- [Workshop Materials](./README_WORKSHOP.md) - Original workshop guide
+
+### Developer Documentation
+- [Architecture Overview](./docs/architecture/system-design.md) - Coming soon
+- [API Reference](./docs/api/openapi.yaml) - Coming soon
+- [Development Guide](./docs/development/setup.md) - Coming soon
+- [Deployment Guide](./docs/deployment/runbook.md) - Coming soon
+
+## 🤝 Contributing
+
+1. Create a feature branch: `git checkout -b feature/my-feature`
+2. Make your changes
+3. Run tests: `poetry run pytest`
+4. Run linting: `poetry run ruff check . && poetry run black .`
+5. Run type checking: `poetry run mypy src/`
+6. Commit changes: `git commit -am 'Add my feature'`
+7. Push branch: `git push origin feature/my-feature`
+8. Create a Pull Request
+
+## 📝 License
+
+This project is licensed under the Apache License 2.0 - see the [LICENSE](LICENSE) file for details.
+
+Built with [Google Agent Development Kit (ADK)](https://github.com/google/adk-python)
+
+Copyright © 2025 GraymatterLab
+
+## 🆘 Support
+
+- **Issues**: [GitHub Issues](https://github.com/your-org/adk-platform/issues)
+- **Email**: support@graymatterlab.com
+- **Documentation**: [Workshop Guide](./README_WORKSHOP.md)
 
 ---
 
-## Detailed Setup Instructions
+## Migration Notes
 
-### 1. Create Virtual Environment
+This is v2.0 - a complete architectural refactor of the original workshop codebase.
 
-```bash
-cd /Users/ronwince
-python3 -m venv adk-workshop
-source adk-workshop/bin/activate
-```
+**Changes from v1.0:**
+- ✅ Modern project structure (src/, tests/, docs/ separation)
+- ✅ Flask → FastAPI migration
+- ✅ Multi-tenant database architecture
+- ✅ Async/await support throughout
+- ✅ Comprehensive test coverage
+- ✅ Production-ready configuration
+- ✅ Docker containerization
+- ✅ Developer tooling (Poetry, Ruff, Black, MyPy)
 
-### 2. Install Google ADK
+**For workshop participants**: See [README_WORKSHOP.md](./README_WORKSHOP.md) for the original workshop guide.
 
-```bash
-pip install google-adk
-```
+**For developers**: Continue reading this document for development setup and architecture details.
 
-Verify installation:
-```bash
-python -c "import google.adk; print(f'Google ADK version: {google.adk.__version__}')"
-```
-
-### 3. Set Up Web UI (Optional but Recommended)
-
-The ADK includes a built-in web interface for visual debugging and testing.
-
-**Option A: Simple Command (if available)**
-```bash
-adk web
-```
-
-**Option B: Full Setup**
-```bash
-# Install adk-web dependencies
-cd adk-workshop-training/frontend
-# Clone adk-web if needed
-git clone https://github.com/google/adk-web.git .
-sudo npm install
-
-# Terminal 1: Start the web interface
-npm run serve --backend=http://localhost:8000
-
-# Terminal 2: Start the API server
-adk api_server --allow_origins=http://localhost:4200 --host=0.0.0.0
-
-# Access at: http://localhost:4200
-```
-
-### 4. Configure Google Cloud Authentication
-
-```bash
-# Set your project ID
-export GOOGLE_CLOUD_PROJECT="your-project-id"
-
-# Authenticate
-gcloud auth application-default login
-```
-
-## Healthcare Use Case Examples (Non-Clinical Only)
-
-### ✅ Safe for Workshop
-These use cases do NOT involve PHI/PII:
-
-**Administrative & HR:**
-- Employee onboarding assistant (no personal data)
-- Benefits FAQ chatbot
-- Meeting room scheduler
-- PTO policy explainer
-- Training course enrollment
-
-**Facilities & Operations:**
-- Maintenance request routing
-- Equipment scheduling
-- Supply ordering assistant
-- Conference room booking
-- Parking pass requests
-
-**Communications:**
-- Internal newsletter generator
-- Announcement writer
-- Event planning assistant
-- FAQ content creator
-
-**IT Support:**
-- Help desk ticket routing
-- Software request handler
-- Account setup workflows (no credentials)
-- Knowledge base search
-
-### ❌ Out of Scope for This Workshop
-These would involve PHI/PII and are NOT covered:
-
-- Patient scheduling or records
-- Clinical documentation
-- Medical histories or diagnoses
-- Prescription management
-- Billing with patient information
-- Employee personal data processing
-
----
-
-## Sample Agents Included
-
-### 1. HR FAQ Agent (`examples/01-simple-faq-agent.py`)
-Answers common employee questions about:
-- Benefits enrollment periods
-- Time off policies
-- Payroll schedules
-- Employee resources
-
-**Perfect for:** Learning basic agent creation
-
-### 2. Meeting Room Scheduler (`examples/02-meeting-room-scheduler.py`)
-Helps staff find and book conference rooms:
-- Search by capacity and features
-- Check availability
-- Book rooms
-- Get directions
-
-**Perfect for:** Learning about tools and functions
-
-### 3. Facilities Ticket Router (`examples/03-facilities-ticket-router.py`)
-Multi-agent system that:
-- Gathers maintenance request details
-- Categorizes and prioritizes issues
-- Routes to appropriate department
-- Provides ticket tracking
-
-**Perfect for:** Learning multi-agent coordination
-
----
-
-## Quick Start: Your First Agent
-
-### Option 1: Visual Agent Builder (Recommended)
-
-```bash
-# Start the Visual Builder
-adk web
-
-# Open browser to: http://localhost:8000/dev-ui
-# Follow the visual guide in resources/visual-agent-builder-guide.md
-```
-
-### Option 2: Python Code
-
-Create a simple agent in Python:
-
-```python
-from google.adk.agents import Agent
-from google.adk.tools import google_search
-
-# Define your agent
-root_agent = Agent(
-    name="search_assistant",
-    model="gemini-2.5-flash",
-    instruction="You are a helpful assistant. Answer user questions using Google Search when needed.",
-    description="An assistant that can search the web.",
-    tools=[google_search]
-)
-
-# Run the agent
-if __name__ == "__main__":
-    root_agent.run()
-```
-
-## Testing Your Agents
-
-ADK provides multiple ways to interact with your agents:
-
-1. **CLI**: `adk run` - Quick command-line testing
-2. **Web UI**: Visual interface with debugging tools
-3. **API Server**: REST API for integration
-4. **Programmatic**: Direct Python API calls
-
-## Workshop Formats
-
-We offer flexible workshop formats to suit your needs:
-
-### Half-Day Workshop (4 hours)
-- Introduction and Visual Builder basics
-- Exercise 1: Build your first agent
-- Exercise 2: Adding tools
-- Multi-agent demo and Q&A
-
-### Full-Day Workshop (6-7 hours)
-- All half-day content PLUS:
-- Exercise 3: Build multi-agent system
-- Production deployment strategies
-- Custom use case development
-- Extended Q&A and office hours
-
-### Self-Paced Learning
-- Work through materials at your own pace
-- All exercises include detailed instructions
-- Join optional weekly office hours
-- Community support via Slack/Discord
-
-See **WORKSHOP_AGENDA.md** for detailed schedules.
-
-## Resources
-
-- **Official Documentation**: https://google.github.io/adk-docs/
-- **GitHub Repository**: https://github.com/google/adk-python
-- **Sample Applications**: https://github.com/google/adk-samples
-- **Community Contributions**: https://github.com/google/adk-python-community
-
-## Getting Help
-
-### Before the Workshop
-- 📧 Email instructor with setup issues
-- 📖 Check `resources/troubleshooting-guide.md`
-- 🔧 Run `python verify_setup.py` to diagnose issues
-
-### During the Workshop
-- 🙋 Raise your hand for instructor assistance
-- 💬 Use workshop chat for questions
-- 👥 Pair programming encouraged
-- 📚 Reference materials in `resources/`
-
-### After the Workshop
-- 📖 Review workshop materials (you keep everything!)
-- 🏢 Office hours: [Schedule TBD]
-- 💬 Community: [Slack/Discord TBD]
-- 📧 Email for follow-up questions
-
-## Key Workshop Materials
-
-| Resource | Description | Best For |
-|----------|-------------|----------|
-| **visual-agent-builder-guide.md** | Complete Visual Builder tutorial | Main workshop guide |
-| **cheat-sheet.md** | Quick reference | Keep handy during exercises |
-| **quickstart-guide.md** | ADK basics and concepts | Understanding fundamentals |
-| **troubleshooting-guide.md** | Common issues and fixes | When things don't work |
-| **WORKSHOP_AGENDA.md** | Detailed schedules | Planning and pacing |
-
-## Next Steps
-
-### Pre-Workshop Checklist
-- [ ] Run `python verify_setup.py`
-- [ ] Fix any issues identified
-- [ ] Review `resources/quickstart-guide.md`
-- [ ] Skim `resources/visual-agent-builder-guide.md`
-- [ ] Think about automation ideas in your work
-
-### Workshop Day
-- [ ] Activate virtual environment
-- [ ] Launch Visual Builder (`adk web`)
-- [ ] Have cheat sheet handy
-- [ ] Bring questions and use case ideas
-
-### Post-Workshop
-- [ ] Complete any unfinished exercises
-- [ ] Build your own custom agent
-- [ ] Share with your team
-- [ ] Identify deployment opportunities
-- [ ] Provide feedback to improve workshop
-
-## Success Stories (Use Case Ideas)
-
-**What could you build after this workshop?**
-
-- **HR Department:** Automated onboarding assistant saved 5 hours/week
-- **Facilities Team:** Maintenance ticket routing reduced response time by 40%
-- **Training Dept:** Course enrollment bot handled 80% of routine requests
-- **Communications:** Newsletter creation time cut from 4 hours to 30 minutes
-- **IT Support:** Help desk agent resolved 60% of Tier 1 tickets automatically
-
-**What will YOU build?**
-
-## Additional Resources
-
-### Official Documentation
-- **ADK Docs:** https://google.github.io/adk-docs/
-- **API Reference:** https://google.github.io/adk-docs/api/
-- **Tool Catalog:** https://google.github.io/adk-docs/components/tools/
-
-### Code & Examples
-- **GitHub:** https://github.com/google/adk-python
-- **Samples:** https://github.com/google/adk-samples
-- **Community:** https://github.com/google/adk-python-community
-
-### Tutorials & Guides
-- **Visual Builder Tutorial:** https://www.datacamp.com/tutorial/google-adk-visual-agent-builder-tutorial-with-demo-project
-- **Google Developers Blog:** https://developers.googleblog.com/en/agent-development-kit-easy-to-build-multi-agent-applications/
-- **Medium Articles:** Search "Google ADK Visual Agent Builder"
-
-## Feedback
-
-We want to hear from you!
-
-- **What worked well?**
-- **What was challenging?**
-- **What topics need more coverage?**
-- **What use cases would you like to see?**
-- **How can we improve the workshop?**
-
-Your feedback helps us create better training for future participants.
-
-## License & Attribution
-
-These workshop materials are provided for educational purposes. Google ADK is open-source and maintained by Google. See the official repository for licensing details.
-
----
-
-**Ready to build AI agents? Let's get started!**
-
-Questions? Contact: [Your workshop instructor email]
-
-Version 1.0 | Last Updated: 2024-11-18
+See [tasks/task_002_refactor_to_production_gcp_architecture.md](./tasks/task_002_refactor_to_production_gcp_architecture.md) for detailed refactoring plan and rationale.

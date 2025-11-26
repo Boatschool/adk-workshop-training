@@ -1,0 +1,52 @@
+version: '3.8'
+
+services:
+  postgres:
+    image: postgres:15-alpine
+    container_name: adk_platform_postgres
+    environment:
+      POSTGRES_USER: adk_user
+      POSTGRES_PASSWORD: adk_password
+      POSTGRES_DB: adk_platform
+    ports:
+      - "5433:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./scripts/db/init.sql:/docker-entrypoint-initdb.d/init.sql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U adk_user -d adk_platform"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: adk_platform_api
+    command: uvicorn src.api.main:app --host 0.0.0.0 --port 8080 --reload
+    ports:
+      - "8080:8080"
+    environment:
+      - APP_ENV=development
+      - APP_DEBUG=true
+      - DATABASE_URL=postgresql+asyncpg://adk_user:adk_password@postgres:5432/adk_platform
+      - SECRET_KEY=${SECRET_KEY:-dev-secret-key-change-in-production}
+      - GOOGLE_API_KEY=${GOOGLE_API_KEY}
+    volumes:
+      - ./src:/app/src
+      - ./tests:/app/tests
+      - ./content:/app/content
+    depends_on:
+      postgres:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+volumes:
+  postgres_data:
+    driver: local

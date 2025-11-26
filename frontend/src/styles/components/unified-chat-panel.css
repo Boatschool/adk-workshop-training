@@ -1,0 +1,755 @@
+/**
+ * Unified Chat Panel Styles
+ *
+ * Styles for consolidated chat interface with 3 modes (Otto, Build, Input)
+ * Task 121: Unified Chat Panel Component
+ * Task 125a Phase 4: Design system integration + micro-animations
+ */
+
+/* Main Container */
+.unified-chat-panel {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  background: var(--gms-bg-primary, var(--color-gray-50, #f9fafb));
+  border: 1px solid var(--gms-border-primary, var(--color-gray-200, #e5e7eb));
+  border-radius: var(--gms-radius-lg, 8px);
+  box-shadow: var(--gms-shadow-sm, 0 2px 8px rgba(0, 0, 0, 0.05));
+  overflow: hidden;
+}
+
+/* Floating Panel (Task 125a Phase 1) */
+/* Panel anchored to bottom of viewport, headerless design with overlay history */
+.unified-chat-panel.floating.headerless {
+  position: fixed; /* Fixed to viewport, not parent container */
+  width: 600px;
+  display: flex;
+  flex-direction: column; /* Normal column - input section at bottom */
+  height: auto; /* Dynamic height based on content */
+  z-index: var(--gms-z-content-overlay, 100);
+  background: var(--gms-bg-primary, white);
+  border: 1px solid var(--gms-border-primary, #e5e7eb);
+  box-shadow: var(--gms-shadow-modal, 0 25px 50px -12px rgba(0, 0, 0, 0.25));
+  border-radius: var(--gms-radius-2xl, 16px);
+  transition: box-shadow var(--gms-transition-fast, 150ms) cubic-bezier(0.4, 0, 0.2, 1),
+              transform var(--gms-transition-fast, 150ms) cubic-bezier(0.4, 0, 0.2, 1);
+  overflow: visible; /* Allow dropdown and overlays to extend beyond panel bounds */
+}
+
+/* Task 125a Phase 4: Drag lift effect micro-animation */
+.unified-chat-panel.floating.dragging {
+  box-shadow: var(--gms-shadow-2xl, 0 25px 50px -12px rgba(0, 0, 0, 0.25)),
+              0 30px 60px rgba(0, 0, 0, 0.15);
+  transform: scale(1.01);
+  transition: none; /* Disable transitions during drag for immediate response */
+}
+
+/* ===== New Headerless Layout Styles ===== */
+
+/* Chat Input Section - Always visible at bottom */
+.chat-panel-input-section {
+  display: flex;
+  flex-direction: column;
+  background: white;
+  border-radius: 0 0 var(--gms-radius-2xl, 16px) var(--gms-radius-2xl, 16px);
+  overflow: visible; /* Allow dropdown to overflow */
+  position: relative;
+  z-index: 20; /* Above overlay (z-index: 10) to allow dropdowns to appear on top */
+}
+
+/* Controls Row Wrapper - Draggable when collapsed */
+.controls-row-wrapper {
+  position: relative;
+}
+
+.controls-row-wrapper.draggable {
+  cursor: move;
+  user-select: none;
+}
+
+.controls-row-wrapper.draggable:hover {
+  background: var(--color-gray-100, #f3f4f6);
+}
+
+.controls-row-wrapper.draggable:active {
+  background: var(--color-gray-200, #e5e7eb);
+}
+
+/* Chat Controls Row - Below input */
+.chat-controls-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 16px;
+  background: var(--color-gray-50, #f9fafb);
+  border-top: 1px solid var(--color-gray-200, #e5e7eb);
+  gap: 12px;
+  position: relative; /* For dropdown positioning */
+  overflow: visible; /* Allow dropdown to overflow */
+}
+
+/* Expand toggle button in controls row */
+.expand-toggle-button {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  background: var(--color-gray-100, #f3f4f6);
+  border: 1px solid var(--color-gray-300, #d1d5db);
+  border-radius: 6px;
+  color: var(--color-gray-700, #374151);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-size: 0.875rem;
+  font-weight: 500;
+}
+
+.expand-toggle-button:hover {
+  background: var(--color-gray-200, #e5e7eb);
+  border-color: var(--color-gray-400, #9ca3af);
+}
+
+.expand-toggle-button:active {
+  transform: scale(0.95);
+}
+
+.expand-toggle-label {
+  font-size: 0.875rem;
+}
+
+/* Task 142 Phase 3.3: New Chat Button */
+.new-chat-button {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  background: var(--color-white, #ffffff);
+  border: 1px solid var(--color-gray-300, #d1d5db);
+  border-radius: 6px;
+  color: var(--color-gray-700, #374151);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-size: 0.875rem;
+  font-weight: 500;
+}
+
+.new-chat-button:hover:not(:disabled) {
+  background: var(--color-gray-50, #f9fafb);
+  border-color: var(--color-blue-500, #3b82f6);
+  color: var(--color-blue-600, #2563eb);
+}
+
+.new-chat-button:active:not(:disabled) {
+  transform: scale(0.95);
+}
+
+.new-chat-button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.new-chat-label {
+  font-size: 0.875rem;
+}
+
+/* Chat Mode Selector */
+.chat-mode-selector {
+  position: relative;
+}
+
+.mode-selector-trigger {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  background: var(--color-gray-100, #f3f4f6);
+  border: 1px solid var(--color-gray-300, #d1d5db);
+  border-radius: 6px;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--color-gray-700, #374151);
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.mode-selector-trigger:hover:not(:disabled) {
+  background: var(--color-gray-200, #e5e7eb);
+  border-color: var(--color-gray-400, #9ca3af);
+}
+
+.mode-selector-trigger:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.mode-selector-trigger .mode-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--color-primary-600, #3b82f6);
+}
+
+.mode-selector-trigger .chevron {
+  transition: transform 0.2s;
+}
+
+.mode-selector-trigger .chevron.open {
+  transform: rotate(180deg);
+}
+
+/* Mode Dropdown - Expands upward to avoid going off-screen at bottom */
+.mode-dropdown {
+  position: absolute;
+  bottom: calc(100% + 4px); /* Changed from top to bottom - expands upward */
+  right: 0;
+  min-width: 280px;
+  background: white;
+  border: 1px solid var(--color-gray-200, #e5e7eb);
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  z-index: 1000; /* High z-index to appear above all panel content */
+  animation: slideUp 0.2s ease-out; /* Changed to slideUp animation */
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(8px); /* Slide up from below */
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.mode-option {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  width: 100%;
+  padding: 12px 16px;
+  background: white;
+  border: none;
+  border-bottom: 1px solid var(--color-gray-100, #f3f4f6);
+  text-align: left;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.mode-option:last-child {
+  border-bottom: none;
+}
+
+.mode-option:hover:not(:disabled) {
+  background: var(--color-blue-50, #eff6ff);
+}
+
+.mode-option.active {
+  background: var(--color-blue-50, #eff6ff);
+}
+
+.mode-option:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.mode-option-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.mode-option .mode-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--color-primary-600, #3b82f6);
+}
+
+.mode-option .mode-label {
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--color-gray-900, #111827);
+  flex: 1;
+}
+
+.mode-option .active-indicator {
+  color: var(--color-primary-600, #3b82f6);
+  font-weight: 600;
+}
+
+.mode-option .mode-description {
+  font-size: 0.75rem;
+  color: var(--color-gray-600, #4b5563);
+  margin: 0;
+  margin-left: 24px;
+}
+
+/* Conversation History Overlay - Positioned above input section */
+.chat-panel-messages-overlay {
+  position: absolute;
+  bottom: 100%; /* Position above the input section */
+  left: 0;
+  right: 0;
+  display: flex;
+  flex-direction: column;
+  max-height: 400px;
+  background: white;
+  border: 1px solid var(--color-gray-200, #e5e7eb);
+  border-bottom: none; /* Connects to input section below */
+  border-radius: var(--gms-radius-2xl, 16px) var(--gms-radius-2xl, 16px) 0 0;
+  box-shadow: 0 -4px 12px rgba(0, 0, 0, 0.1);
+  animation: overlaySlideUp 0.2s ease-out;
+  z-index: 10;
+}
+
+/* Drag handle bar at top of overlay */
+.drag-handle-bar {
+  flex-shrink: 0;
+  padding: 8px 16px;
+  background: var(--color-gray-50, #f9fafb);
+  border-bottom: 1px solid var(--color-gray-200, #e5e7eb);
+  border-radius: var(--gms-radius-2xl, 16px) var(--gms-radius-2xl, 16px) 0 0;
+  cursor: move;
+  user-select: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.2s ease;
+}
+
+.drag-handle-bar:hover {
+  background: var(--color-gray-100, #f3f4f6);
+}
+
+.drag-handle-bar:active {
+  background: var(--color-gray-200, #e5e7eb);
+}
+
+/* Visual drag indicator (three horizontal lines) */
+.drag-handle-indicator {
+  width: 32px;
+  height: 4px;
+  background: var(--color-gray-300, #d1d5db);
+  border-radius: 2px;
+  position: relative;
+}
+
+.drag-handle-indicator::before,
+.drag-handle-indicator::after {
+  content: '';
+  position: absolute;
+  width: 32px;
+  height: 4px;
+  background: var(--color-gray-300, #d1d5db);
+  border-radius: 2px;
+  left: 0;
+}
+
+.drag-handle-indicator::before {
+  top: -8px;
+}
+
+.drag-handle-indicator::after {
+  top: 8px;
+}
+
+/* Overlay content area (scrollable) */
+.overlay-content {
+  flex: 1;
+  overflow-y: auto;
+  min-height: 0;
+}
+
+@keyframes overlaySlideUp {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Collapsed state: hide overlay (display: none when !isCollapsed is false) */
+.unified-chat-panel.floating.headerless.collapsed .chat-panel-messages-overlay {
+  display: none;
+}
+
+/* Reduced motion: disable collapse/expand animations */
+.unified-chat-panel.reduced-motion .chat-panel-messages {
+  transition: none;
+}
+
+/* Chat Input Container - Give it proper space */
+.chat-panel-input {
+  flex-shrink: 0; /* Prevent input from being compressed */
+  border-top: 1px solid var(--color-gray-200, #e5e7eb);
+  background: white;
+  padding: 16px;
+}
+
+/* ===== Chat Input Box Styles (Scoped to UnifiedChatPanel) ===== */
+/* Override workflow-input-chat.css global styles */
+.unified-chat-panel .chat-input-box {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  background: transparent;
+  border: none;
+  padding: 0;
+}
+
+/* Input row with controls */
+.unified-chat-panel .input-row {
+  display: flex;
+  gap: 12px;
+  align-items: flex-end;
+}
+
+/* Attachment menu container */
+.unified-chat-panel .attachment-menu-container {
+  position: relative;
+  flex-shrink: 0;
+}
+
+.unified-chat-panel .attachment-menu-trigger {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 8px;
+  background: var(--color-gray-100, #f3f4f6);
+  border: 1px solid var(--color-gray-300, #d1d5db);
+  color: var(--color-gray-600, #4b5563);
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.unified-chat-panel .attachment-menu-trigger:hover:not(:disabled) {
+  background: var(--color-blue-50, #eff6ff);
+  border-color: var(--color-blue-300, #93c5fd);
+  color: var(--color-blue-700, #1d4ed8);
+}
+
+.unified-chat-panel .attachment-menu-trigger:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Attachment dropdown menu */
+.unified-chat-panel .attachment-menu {
+  position: absolute;
+  bottom: 100%;
+  left: 0;
+  margin-bottom: 8px;
+  background: white;
+  border: 1px solid var(--color-gray-200, #e5e7eb);
+  border-radius: 8px;
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+  padding: 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 180px;
+  z-index: 1000; /* Match mode dropdown z-index to appear above overlay */
+}
+
+.unified-chat-panel .attachment-option {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 8px 12px;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background 0.15s;
+  color: var(--color-gray-900, #111827);
+  font-size: 0.875rem;
+  background: transparent;
+  border: none;
+  width: 100%;
+  text-align: left;
+}
+
+.unified-chat-panel .attachment-option:hover {
+  background: var(--color-gray-100, #f3f4f6);
+}
+
+.unified-chat-panel .hidden-file-input {
+  display: none;
+}
+
+/* Textarea wrapper for branding label */
+.unified-chat-panel .textarea-wrapper {
+  flex: 1;
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+/* Branding label inside input ("Otto") */
+.unified-chat-panel .branding-label {
+  position: absolute;
+  left: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--color-gray-500, #6b7280);
+  pointer-events: none;
+  z-index: 1;
+}
+
+/* Chat textarea - Scoped to override global styles */
+.unified-chat-panel .chat-textarea {
+  flex: 1;
+  border: 1px solid var(--color-gray-300, #d1d5db);
+  border-radius: 8px;
+  padding: 10px 12px;
+  font-size: 0.875rem;
+  line-height: 1.5;
+  color: var(--color-gray-900, #111827);
+  background: white;
+  resize: none;
+  min-height: 40px;
+  max-height: 120px;
+  font-family: inherit;
+  outline: none;
+  transition: border-color 0.15s, box-shadow 0.15s;
+}
+
+/* Add padding when branding label is present */
+.unified-chat-panel .chat-textarea.with-branding {
+  padding-left: 52px; /* Space for "Otto" label */
+}
+
+.unified-chat-panel .chat-textarea:focus {
+  border-color: var(--color-blue-500, #3b82f6);
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+.unified-chat-panel .chat-textarea:disabled {
+  background: var(--color-gray-100, #f3f4f6);
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+.unified-chat-panel .chat-textarea::placeholder {
+  color: var(--color-gray-400, #9ca3af);
+}
+
+/* Send button */
+.unified-chat-panel .chat-send-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  background: var(--color-blue-600, #2563eb);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.15s;
+  flex-shrink: 0;
+}
+
+.unified-chat-panel .chat-send-button:hover:not(:disabled) {
+  background: var(--color-blue-700, #1d4ed8);
+}
+
+.unified-chat-panel .chat-send-button:disabled {
+  background: var(--color-gray-300, #d1d5db);
+  cursor: not-allowed;
+}
+
+/* Unsent attachments container */
+.unified-chat-panel .input-attachments {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+/* Mode Unavailable Notice */
+.mode-unavailable-notice {
+  padding: 12px 16px;
+  background: var(--color-amber-50, #fffbeb);
+  border-top: 1px solid var(--color-amber-200, #fde68a);
+  text-align: center;
+}
+
+.mode-unavailable-notice p {
+  margin: 0;
+  font-size: 0.875rem;
+  color: var(--color-amber-800, #92400e);
+}
+
+/* ===== Task 125a Phase 3: Resize Handle ===== */
+
+/* Resize Handle - Right edge of panel */
+.resize-handle {
+  position: absolute;
+  top: 0;
+  right: -4px; /* Extend 4px outside panel for easier grab */
+  bottom: 0;
+  width: 8px;
+  cursor: ew-resize;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 10;
+  user-select: none;
+}
+
+/* Visual indicator - only visible on hover or during resize */
+.resize-indicator {
+  width: 2px;
+  height: 40px;
+  background: var(--gms-neutral-300, var(--color-gray-300, #d1d5db));
+  border-radius: var(--gms-radius-sm, 2px);
+  opacity: 0;
+  transition: opacity var(--gms-transition-fast, 200ms) ease,
+              background-color var(--gms-transition-fast, 200ms) ease;
+}
+
+/* Task 125a Phase 4: Resize handle pulse animation */
+.resize-handle:hover .resize-indicator {
+  opacity: 1;
+  background: var(--gms-bright-blue, var(--gms-accent, #3b82f6));
+  animation: resize-pulse 1.5s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+.unified-chat-panel.resizing .resize-indicator {
+  opacity: 1;
+  background: var(--gms-bright-blue, var(--gms-accent, #3b82f6));
+  animation: none; /* Stop pulse during active resize */
+}
+
+@keyframes resize-pulse {
+  0%, 100% {
+    opacity: 0.6;
+    transform: scaleY(1);
+  }
+  50% {
+    opacity: 1;
+    transform: scaleY(1.1);
+  }
+}
+
+/* Focus indicator for keyboard navigation */
+.resize-handle:focus {
+  outline: none;
+}
+
+.resize-handle:focus .resize-indicator {
+  opacity: 1;
+  background: var(--gms-accent-600, var(--color-blue-600, #2563eb));
+  box-shadow: 0 0 0 2px var(--gms-accent-200, rgba(59, 130, 246, 0.3));
+}
+
+/* Disable transitions during resize for immediate response */
+.unified-chat-panel.resizing {
+  transition: none;
+}
+
+.unified-chat-panel.resizing * {
+  user-select: none;
+  pointer-events: none;
+}
+
+.unified-chat-panel.resizing .resize-handle {
+  pointer-events: auto;
+}
+
+/* Panel width constraints */
+.unified-chat-panel.floating {
+  min-width: 360px;
+  max-width: 800px;
+}
+
+/* Message content wrapping at all widths */
+.chat-panel-messages {
+  overflow-x: hidden; /* Prevent horizontal scroll */
+}
+
+.question-content,
+.answer-content {
+  max-width: 100%; /* Ensure content wraps within bubble */
+  overflow-wrap: break-word;
+  word-wrap: break-word;
+  hyphens: auto;
+}
+
+/* Screen reader only utility */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border-width: 0;
+}
+
+.sr-only:focus {
+  position: static;
+  width: auto;
+  height: auto;
+  padding: inherit;
+  margin: inherit;
+  overflow: visible;
+  clip: auto;
+  white-space: normal;
+}
+
+/* Task 125a Phase 4: Reduced Motion Support */
+@media (prefers-reduced-motion: reduce) {
+  .unified-chat-panel.floating {
+    transition: none !important;
+  }
+
+  .unified-chat-panel.floating.dragging {
+    transform: none !important; /* Disable scale animation */
+  }
+
+  .resize-indicator {
+    transition: none !important;
+    animation: none !important;
+  }
+
+  .resize-handle:hover .resize-indicator {
+    animation: none !important; /* Disable pulse animation */
+  }
+
+  .qa-answer {
+    transition: opacity var(--gms-transition-fast, 150ms) ease-out !important; /* Keep opacity, remove height animation */
+  }
+}
+
+/* Touch-friendly resize handle for mobile/tablet */
+@media (hover: none) and (pointer: coarse) {
+  .resize-handle {
+    width: 16px; /* Larger touch target */
+    right: -8px;
+  }
+
+  .resize-indicator {
+    width: 4px;
+    opacity: 0.3; /* Always slightly visible on touch devices */
+  }
+}
+
+/* Responsive Adjustments */
+@media (max-width: 768px) {
+  .unified-chat-panel {
+    max-height: 300px;
+  }
+
+  .mode-dropdown {
+    min-width: 240px;
+  }
+}

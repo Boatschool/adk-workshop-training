@@ -1,0 +1,442 @@
+/**
+ * React Flow Healthcare Theme Overrides
+ * 
+ * Clean, maintainable styling for React Flow v12 (@xyflow/react)
+ * Replaces default black selection with healthcare blue theme
+ * 
+ * Structure:
+ * 1. Core CSS Variables - Selection and node styling
+ * 2. Healthcare Node Styles - Unified node card appearance  
+ * 3. Shift Selection Mode - Multi-select UI indicators
+ * 4. A2A Edge Animations - Healthcare data flow visualizations
+ */
+
+/* ============================================
+   1. CORE REACT FLOW CSS VARIABLES
+   ============================================ */
+
+.gms-flow {
+  /* React Flow v12 selection with healthcare blue theme (rgba(0, 170, 231, 0.5)) */
+  --xy-node-boxshadow-selected: 0 0 0 2px rgba(0, 170, 231, 0.5);
+  --xy-node-boxshadow-selected-default: 0 0 0 2px rgba(0, 170, 231, 0.5);
+  
+  /* Selection box (when ctrl/cmd-dragging to select multiple) */
+  --xy-selection-background-color-default: rgba(0, 170, 231, 0.08) !important;
+  --xy-selection-border-default: 2px dashed rgba(0, 170, 231, 0.5) !important;
+  
+  /* Additional React Flow v12 variables for selection */
+  --xy-selection-background-color: rgba(0, 170, 231, 0.08) !important;
+  --xy-selection-border: 2px dashed rgba(0, 170, 231, 0.5) !important;
+  --xy-selection-stroke: rgba(0, 170, 231, 0.5) !important;
+  --xy-selection-fill: rgba(0, 170, 231, 0.08) !important;
+}
+
+/* STREAMLINED: Healthcare blue selection styling */
+.gms-flow .react-flow__selection,
+.gms-flow .react-flow__nodesselection {
+  stroke: rgba(0, 170, 231, 0.5) !important;
+  stroke-width: 2px !important;
+  fill: rgba(0, 170, 231, 0.08) !important;
+  stroke-dasharray: 5,5 !important;
+}
+
+/* Remove default browser outline on focus - prevents black outline artifacts */
+.react-flow .react-flow__node:focus,
+.react-flow .react-flow__node.selected:focus,
+.gms-flow .react-flow__node:focus,
+.gms-flow .react-flow__node.selected:focus {
+  outline: none !important;
+}
+
+/* ============================================
+   2. HEALTHCARE NODE STYLES
+   ============================================ */
+
+/* Unified node card base styles */
+.gms-flow .unified-agent-card,
+.gms-flow .unified-static-node,
+.gms-flow .unified-agent-node,
+.gms-flow .unified-node-card {
+  background-color: var(--gms-white) !important;
+  border: 1px solid var(--gms-node-border) !important;
+  box-shadow: var(--gms-node-shadow) !important;
+  border-radius: var(--gms-radius-lg) !important;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1) !important;
+}
+
+/* Healthcare hover state */
+.gms-flow .unified-agent-card:hover,
+.gms-flow .unified-static-node:hover,
+.gms-flow .unified-agent-node:hover,
+.gms-flow .unified-node-card:hover {
+  border-color: var(--gms-node-border-hover) !important;
+  box-shadow: var(--gms-shadow-md) !important;
+  transform: translateY(-1px) !important;
+}
+
+/* Healthcare selection state - removed custom box-shadow (doesn't transform with viewport) */
+/* React Flow's native selection system handles selection outline via CSS variables above */
+
+/* ESSENTIAL: Force healthcare blue selection outline directly on selected nodes */
+.react-flow .react-flow__node.selected,
+.gms-flow .react-flow__node.selected {
+  /* Force healthcare blue box-shadow selection - overrides all defaults */
+  box-shadow: 0 0 0 2px rgba(0, 170, 231, 0.5) !important;
+  outline: none !important;  /* Remove browser default outline */
+}
+
+/* Accessibility: Focus visible for keyboard navigation */
+.gms-flow .react-flow__node:focus-visible .unified-node-card {
+  box-shadow: 0 0 0 3px var(--gms-focus-ring-color, #3B82F6) !important;
+}
+
+/* ============================================
+   3. CTRL/CMD SELECTION MODE UI
+   ============================================ */
+
+/* Change cursor when Ctrl/Cmd is pressed */
+.react-flow-container.ctrl-selection-mode .react-flow {
+  cursor: crosshair !important;
+}
+
+/* Selection mode indicator badge */
+.selection-mode-indicator {
+  position: absolute;
+  top: 16px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(0, 170, 231, 0.95);
+  color: white;
+  padding: 8px 16px;
+  border-radius: 20px;
+  font-size: 13px;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  z-index: 1000;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+  animation: slideDown 0.2s ease-out;
+  pointer-events: none;
+}
+
+.selection-mode-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 4px;
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateX(-50%) translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+  }
+}
+
+/* ============================================
+   4. A2A EDGE ANIMATIONS & HEALTHCARE FLOWS
+   ============================================ */
+
+/* A2A message flow animation */
+@keyframes a2a-message-dash {
+  0% { stroke-dashoffset: 0; }
+  100% { stroke-dashoffset: 24; }
+}
+
+.a2a-message-flow {
+  animation: a2a-message-dash 1.5s linear infinite;
+}
+
+/* ============================================
+   ENHANCED EDGE STYLING FOR HEALTHCARE UX
+   ============================================ */
+
+/* Default edge styling - thicker for easier clicking */
+.react-flow__edge-path {
+  stroke-width: 2.5px;
+  cursor: pointer;
+  transition: all 0.2s ease-in-out;
+}
+
+/* Enhanced edge hover effect - much more prominent */
+.react-flow__edge-path:hover {
+  stroke-width: 4px;
+  transition: all 0.2s ease-in-out;
+  filter: drop-shadow(0 0 3px currentColor);
+}
+
+/* Invisible wider click area for edges - healthcare UX improvement */
+.react-flow__edge {
+  position: relative;
+}
+
+/* Create larger click target area around edges */
+.react-flow__edge::before {
+  content: '';
+  position: absolute;
+  top: -10px;
+  left: -10px;
+  right: -10px;
+  bottom: -10px;
+  cursor: context-menu;
+  background: transparent;
+  pointer-events: all;
+  z-index: 1;
+}
+
+/* A2A connection health indicators - using design system colors */
+.a2a-connection-healthy .react-flow__edge-path {
+  stroke: var(--gms-success-500);
+  stroke-width: 3px;
+  filter: drop-shadow(0 0 2px var(--gms-success-400));
+}
+
+.a2a-connection-degraded .react-flow__edge-path {
+  stroke: var(--gms-warning-500);
+  stroke-width: 3px;
+  filter: drop-shadow(0 0 2px var(--gms-warning-400));
+}
+
+.a2a-connection-unhealthy .react-flow__edge-path {
+  stroke: var(--gms-error-500);
+  stroke-width: 3px;
+  filter: drop-shadow(0 0 2px var(--gms-error-400));
+}
+
+.a2a-connection-offline .react-flow__edge-path {
+  stroke: var(--gms-neutral-400);
+  stroke-width: 2.5px;
+  opacity: 0.3;
+  stroke-dasharray: 5,5;
+}
+
+/* Hover effects for A2A connections */
+.a2a-connection-healthy .react-flow__edge-path:hover {
+  stroke-width: 5px;
+}
+
+.a2a-connection-degraded .react-flow__edge-path:hover {
+  stroke-width: 5px;
+}
+
+.a2a-connection-unhealthy .react-flow__edge-path:hover {
+  stroke-width: 5px;
+}
+
+/* PHI data flow animation */
+@keyframes phi-data-flow {
+  0% {
+    stroke-dashoffset: 0;
+    opacity: 0.8;
+  }
+  50% {
+    opacity: 1;
+  }
+  100% {
+    stroke-dashoffset: 30;
+    opacity: 0.8;
+  }
+}
+
+.phi-data-flow {
+  animation: phi-data-flow 2s ease-in-out infinite;
+  stroke-width: 4px;
+  stroke: var(--gms-warning-500);
+}
+
+.phi-data-flow:hover {
+  stroke-width: 6px;
+  filter: drop-shadow(0 0 6px var(--gms-warning-400));
+}
+
+/* Critical healthcare edges - extra thick for importance */
+.critical-healthcare-edge {
+  stroke: var(--gms-error-500);
+  stroke-width: 4px;
+}
+
+.critical-healthcare-edge:hover {
+  stroke-width: 6px;
+  filter: drop-shadow(0 0 4px var(--gms-error-400));
+}
+
+/* Connection status indicator edges */
+.connection-active {
+  stroke: var(--gms-success-500);
+  stroke-width: 3px;
+}
+
+.connection-inactive {
+  stroke: var(--gms-neutral-400);
+  stroke-width: 2.5px;
+  stroke-dasharray: 5,5;
+  opacity: 0.7;
+}
+
+/* Critical priority pulsing */
+@keyframes critical-priority-pulse {
+  0%, 100% {
+    stroke-width: 4;
+    opacity: 1;
+  }
+  50% {
+    stroke-width: 6;
+    opacity: 0.8;
+  }
+}
+
+.a2a-critical-priority {
+  animation: critical-priority-pulse 1s ease-in-out infinite;
+}
+
+/* Edge label styling */
+.react-flow__edge .a2a-edge-label {
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(4px);
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  border-radius: 6px;
+  padding: 4px 8px;
+  font-size: 11px;
+  font-weight: 500;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  transition: all 0.2s ease-in-out;
+}
+
+.react-flow__edge .a2a-edge-label:hover {
+  transform: scale(1.05);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+/* Healthcare compliant edge - using design system colors */
+.healthcare-compliant-edge {
+  stroke: var(--gms-success-500);
+  stroke-width: 3px;
+}
+
+/* Default edge colors using unified design system */
+.react-flow__edge-path {
+  stroke: var(--gms-primary-400);
+}
+
+/* Data flow edges - make them prominent and easy to click */
+.react-flow__edge-path[data-testid*="data-flow"],
+.react-flow__edge[data-testid*="data-flow"] .react-flow__edge-path,
+.react-flow__edge-label[data-label*="Data Flow"] ~ .react-flow__edge-path {
+  stroke: var(--gms-bright-blue);
+  stroke-width: 3px;
+}
+
+.react-flow__edge-path[data-testid*="data-flow"]:hover,
+.react-flow__edge[data-testid*="data-flow"] .react-flow__edge-path:hover {
+  stroke-width: 5px;
+  filter: drop-shadow(0 0 4px var(--gms-bright-blue));
+}
+
+/* Enhanced edge labels for better UX */
+.react-flow__edge-label {
+  cursor: pointer;
+  transition: transform 0.2s ease-in-out;
+}
+
+.react-flow__edge-label:hover {
+  transform: scale(1.05);
+}
+
+.healthcare-compliant-edge.a2a-message-flow {
+  stroke-dasharray: 8,4;
+  animation: a2a-message-dash 1s linear infinite;
+}
+
+/* ============================================
+   5. ESSENTIAL VIEWPORT FIXES
+   ============================================ */
+
+/* Ensure proper transform behavior for React Flow SVG elements */
+.gms-flow svg {
+  transform-origin: top left !important;
+}
+
+.gms-flow svg rect {
+  vector-effect: non-scaling-stroke !important;
+}
+
+
+/* ============================================
+   7. DESIGN FALLBACK - EMBRACE THE BLACK
+   ============================================ */
+
+/* 
+  FALLBACK OPTION: Use GraymatterStudio's matte black design
+  If technical solutions fail, this creates a cohesive black theme
+  that makes React Flow's black outline look intentional
+*/
+
+.gms-black-theme .react-flow {
+  /* Use design system colors */
+  --gms-matte-black: #1a1a1a;
+  --gms-dark-gray: #2d2d2d;
+  --gms-medium-gray: #404040;
+}
+
+.gms-black-theme .unified-agent-card,
+.gms-black-theme .unified-static-node,
+.gms-black-theme .unified-agent-node,
+.gms-black-theme .unified-node-card {
+  /* Wider matte black outline that absorbs React Flow's black */
+  border: 3px solid var(--gms-matte-black) !important;
+  box-shadow: 
+    0 0 0 1px var(--gms-dark-gray), 
+    0 2px 8px rgba(0, 0, 0, 0.15) !important;
+  
+  /* Subtle dark theme background */
+  background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%) !important;
+}
+
+.gms-black-theme .unified-agent-card.selected,
+.gms-black-theme .unified-static-node.selected,
+.gms-black-theme .unified-agent-node.selected,
+.gms-black-theme .unified-node-card.selected {
+  /* Even wider black outline for selection - React Flow's thin black disappears */
+  border: 4px solid var(--gms-matte-black) !important;
+  box-shadow: 
+    0 0 0 2px var(--gms-medium-gray),
+    0 4px 12px rgba(0, 0, 0, 0.2) !important;
+  
+  /* Subtle elevation effect */
+  transform: translateY(-1px) !important;
+}
+
+.gms-black-theme .unified-agent-card:hover,
+.gms-black-theme .unified-static-node:hover,
+.gms-black-theme .unified-agent-node:hover,
+.gms-black-theme .unified-node-card:hover {
+  /* Hover state with matte black theme */
+  border-color: var(--gms-medium-gray) !important;
+  box-shadow: 
+    0 0 0 1px var(--gms-matte-black),
+    0 6px 16px rgba(0, 0, 0, 0.1) !important;
+}
+
+/* Selection area styling for black theme */
+.gms-black-theme .react-flow svg rect {
+  /* Make selection area use dark gray instead of fighting the black */
+  stroke: var(--gms-dark-gray) !important;
+  stroke-width: 2px !important;
+  stroke-dasharray: 8,4 !important;
+  fill: rgba(45, 45, 45, 0.1) !important;
+}
+
+/* Instructions for enabling fallback theme:
+   Add 'gms-black-theme' class to your main container:
+   <div className="gms-black-theme">
+     <VirtualizedReactFlowCanvas />
+   </div>
+*/
