@@ -40,6 +40,9 @@ mypy = "^1.8.0"
 pre-commit = "^3.6.0"
 faker = "^22.0.0"
 factory-boy = "^3.3.0"
+locust = "^2.24.0"
+bandit = "^1.7.7"
+safety = "^3.0.0"
 
 [build-system]
 requires = ["poetry-core"]
@@ -116,6 +119,7 @@ python_functions = ["test_*"]
 asyncio_mode = "auto"
 markers = [
     "integration: marks tests that require database (deselect with '-m \"not integration\"')",
+    "security: marks security-related tests",
 ]
 
 [tool.coverage.run]

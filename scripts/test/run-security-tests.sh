@@ -1,0 +1,309 @@
+#!/bin/bash
+# Security testing script for ADK Platform
+#
+# This script runs various security scans and tests:
+# - Python dependency vulnerability scanning (safety, pip-audit)
+# - Python code security linting (bandit)
+# - Node.js dependency scanning (npm audit)
+# - Application security tests (pytest security markers)
+#
+# Usage: ./scripts/test/run-security-tests.sh [--full] [--quick]
+
+set -e
+
+# Colors
+RED='\033[0;31m'
+GREEN='\033[0;32m'
+YELLOW='\033[1;33m'
+BLUE='\033[0;34m'
+NC='\033[0m'
+
+# Configuration
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+PROJECT_ROOT="$(cd "$SCRIPT_DIR/../.." && pwd)"
+REPORTS_DIR="$PROJECT_ROOT/test-reports/security"
+
+# Parse arguments
+FULL_SCAN=false
+QUICK_SCAN=false
+
+for arg in "$@"; do
+    case $arg in
+        --full)
+            FULL_SCAN=true
+            ;;
+        --quick)
+            QUICK_SCAN=true
+            ;;
+    esac
+done
+
+log_info() {
+    echo -e "${BLUE}[INFO]${NC} $1"
+}
+
+log_success() {
+    echo -e "${GREEN}[SUCCESS]${NC} $1"
+}
+
+log_warning() {
+    echo -e "${YELLOW}[WARNING]${NC} $1"
+}
+
+log_error() {
+    echo -e "${RED}[ERROR]${NC} $1"
+}
+
+# Setup reports directory
+setup_reports() {
+    mkdir -p "$REPORTS_DIR"
+    log_success "Reports directory: $REPORTS_DIR"
+}
+
+# Check for installed tools
+check_tools() {
+    log_info "Checking security tools..."
+
+    local missing_tools=()
+
+    if ! command -v bandit &> /dev/null; then
+        missing_tools+=("bandit (pip install bandit)")
+    fi
+
+    if ! command -v safety &> /dev/null; then
+        log_warning "safety not installed (pip install safety)"
+    fi
+
+    if [ ${#missing_tools[@]} -gt 0 ]; then
+        log_warning "Some tools are missing. Install with poetry/pip:"
+        for tool in "${missing_tools[@]}"; do
+            echo "  - $tool"
+        done
+    fi
+}
+
+# Run Bandit security linter
+run_bandit() {
+    log_info "Running Bandit security linter..."
+
+    cd "$PROJECT_ROOT"
+
+    if command -v bandit &> /dev/null; then
+        local report_file="$REPORTS_DIR/bandit_report.txt"
+        local json_report="$REPORTS_DIR/bandit_report.json"
+
+        # Run bandit with medium severity and above
+        bandit -r src/ -ll -ii -f txt -o "$report_file" 2>/dev/null || true
+        bandit -r src/ -ll -ii -f json -o "$json_report" 2>/dev/null || true
+
+        log_success "Bandit report: $report_file"
+
+        # Show summary
+        if [ -f "$report_file" ]; then
+            echo ""
+            echo "Bandit Summary:"
+            tail -20 "$report_file"
+        fi
+    else
+        log_warning "Bandit not installed, skipping"
+    fi
+}
+
+# Run dependency vulnerability scan (Python)
+run_python_deps_scan() {
+    log_info "Scanning Python dependencies for vulnerabilities..."
+
+    cd "$PROJECT_ROOT"
+
+    local report_file="$REPORTS_DIR/python_deps_scan.txt"
+
+    # Try safety first
+    if command -v safety &> /dev/null; then
+        log_info "Running safety check..."
+        poetry export -f requirements.txt --without-hashes 2>/dev/null | \
+            safety check --stdin --output text > "$report_file" 2>&1 || true
+
+        log_success "Python deps report: $report_file"
+    else
+        log_warning "safety not installed"
+
+        # Fall back to pip-audit if available
+        if command -v pip-audit &> /dev/null; then
+            log_info "Running pip-audit..."
+            pip-audit > "$report_file" 2>&1 || true
+        fi
+    fi
+}
+
+# Run npm audit
+run_npm_audit() {
+    log_info "Scanning Node.js dependencies for vulnerabilities..."
+
+    cd "$PROJECT_ROOT/frontend"
+
+    local report_file="$REPORTS_DIR/npm_audit_report.json"
+    local text_report="$REPORTS_DIR/npm_audit_report.txt"
+
+    npm audit --json > "$report_file" 2>/dev/null || true
+    npm audit > "$text_report" 2>/dev/null || true
+
+    log_success "npm audit report: $text_report"
+
+    # Show summary
+    if [ -f "$text_report" ]; then
+        echo ""
+        echo "npm audit Summary:"
+        head -30 "$text_report"
+    fi
+}
+
+# Run security unit tests
+run_security_tests() {
+    log_info "Running security tests..."
+
+    cd "$PROJECT_ROOT"
+
+    local report_file="$REPORTS_DIR/security_tests_report.txt"
+
+    # Run pytest with security marker
+    poetry run pytest tests/security/ -v --tb=short > "$report_file" 2>&1 || true
+
+    log_success "Security tests report: $report_file"
+
+    # Show summary
+    if [ -f "$report_file" ]; then
+        echo ""
+        echo "Security Tests Summary:"
+        tail -30 "$report_file"
+    fi
+}
+
+# Check for hardcoded secrets
+check_secrets() {
+    log_info "Checking for hardcoded secrets..."
+
+    cd "$PROJECT_ROOT"
+
+    local report_file="$REPORTS_DIR/secrets_scan.txt"
+
+    # Simple pattern-based secret detection
+    {
+        echo "=== Potential Secrets Scan ==="
+        echo ""
+
+        # Check for common secret patterns
+        echo "Checking for API keys..."
+        grep -rn --include="*.py" --include="*.ts" --include="*.tsx" \
+            -E "(api_key|apikey|API_KEY).*=.*['\"][^'\"]{10,}" src/ frontend/src/ 2>/dev/null || echo "None found"
+
+        echo ""
+        echo "Checking for passwords..."
+        grep -rn --include="*.py" --include="*.ts" --include="*.tsx" \
+            -E "(password|PASSWORD|passwd).*=.*['\"][^'\"]{5,}" src/ frontend/src/ 2>/dev/null || echo "None found"
+
+        echo ""
+        echo "Checking for secrets..."
+        grep -rn --include="*.py" --include="*.ts" --include="*.tsx" \
+            -E "(secret|SECRET).*=.*['\"][^'\"]{10,}" src/ frontend/src/ 2>/dev/null || echo "None found"
+
+        echo ""
+        echo "Checking for tokens..."
+        grep -rn --include="*.py" --include="*.ts" --include="*.tsx" \
+            -E "(token|TOKEN).*=.*['\"][^'\"]{20,}" src/ frontend/src/ 2>/dev/null || echo "None found"
+
+    } > "$report_file"
+
+    log_success "Secrets scan report: $report_file"
+
+    # Show summary
+    echo ""
+    echo "Secrets Scan Summary:"
+    cat "$report_file"
+}
+
+# Check SSL/TLS configuration (if applicable)
+check_tls_config() {
+    log_info "Checking for insecure TLS usage..."
+
+    cd "$PROJECT_ROOT"
+
+    local report_file="$REPORTS_DIR/tls_config_check.txt"
+
+    {
+        echo "=== TLS Configuration Check ==="
+        echo ""
+
+        # Check for disabled SSL verification
+        echo "Checking for disabled SSL verification..."
+        grep -rn --include="*.py" "verify=False" src/ 2>/dev/null || echo "None found"
+        grep -rn --include="*.py" "ssl=False" src/ 2>/dev/null || echo "None found"
+
+        echo ""
+        echo "Checking for insecure protocols..."
+        grep -rn --include="*.py" -E "SSLv2|SSLv3|TLSv1[^.]" src/ 2>/dev/null || echo "None found"
+
+    } > "$report_file"
+
+    log_success "TLS config report: $report_file"
+}
+
+# Generate summary report
+generate_summary() {
+    local summary_file="$REPORTS_DIR/security_summary.md"
+
+    {
+        echo "# Security Scan Summary"
+        echo ""
+        echo "Date: $(date)"
+        echo ""
+        echo "## Reports Generated"
+        echo ""
+        ls -la "$REPORTS_DIR"/*.txt "$REPORTS_DIR"/*.json 2>/dev/null | awk '{print "- " $NF}'
+        echo ""
+        echo "## Quick Recommendations"
+        echo ""
+        echo "1. Review Bandit findings for code security issues"
+        echo "2. Update vulnerable dependencies identified by safety/npm audit"
+        echo "3. Address any failing security tests"
+        echo "4. Remove any hardcoded secrets and use environment variables"
+        echo ""
+    } > "$summary_file"
+
+    log_success "Summary report: $summary_file"
+}
+
+# Main execution
+main() {
+    echo ""
+    echo "========================================"
+    echo "  ADK Platform Security Testing"
+    echo "========================================"
+    echo ""
+
+    setup_reports
+    check_tools
+
+    if [ "$QUICK_SCAN" = true ]; then
+        log_info "Running quick scan..."
+        run_bandit
+        run_security_tests
+    else
+        # Full scan
+        run_bandit
+        run_python_deps_scan
+        run_npm_audit
+        run_security_tests
+        check_secrets
+        check_tls_config
+    fi
+
+    generate_summary
+
+    echo ""
+    echo "========================================"
+    log_success "Security testing complete!"
+    echo "Reports available in: $REPORTS_DIR"
+    echo "========================================"
+}
+
+main
