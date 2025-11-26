@@ -25,6 +25,12 @@ enable_private_networking = true
 # Security - require authentication for staging (use IAP or service-to-service auth)
 allow_unauthenticated_api = false
 
+# Database authorized networks - empty by default (private VPC provides access)
+# Only needed if specific external CIDRs require direct access
+# db_authorized_networks = [
+#   { name = "ci-runner", cidr = "10.128.0.0/20" }
+# ]
+
 # Labels
 labels = {
   team        = "platform"

@@ -32,6 +32,10 @@ static_cors_origins = [
   "https://www.adk-platform.example.com"
 ]
 
+# Database authorized networks - empty by default (private VPC provides access)
+# SECURITY: Avoid direct database access in production; use Cloud SQL Proxy or VPC
+# db_authorized_networks = []
+
 # Labels
 labels = {
   team        = "platform"
