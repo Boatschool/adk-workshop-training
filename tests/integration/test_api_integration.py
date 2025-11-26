@@ -5,6 +5,11 @@ This module tests the complete integration between:
 - Authentication flows (JWT tokens, refresh tokens)
 - Multi-tenant operations with X-Tenant-ID header
 - CRUD operations for all entities
+
+Requirements:
+- PostgreSQL must be running (docker-compose up -d postgres)
+- Database migrations must be applied (poetry run alembic upgrade head)
+- Test database URL is read from DATABASE_URL env var or uses default test database
 """
 
 import os
@@ -16,9 +21,13 @@ from httpx import ASGITransport, AsyncClient
 
 # Set environment variables before importing modules
 os.environ["SECRET_KEY"] = "test-secret-key-for-testing-only-not-for-production"
-os.environ["DATABASE_URL"] = (
-    "postgresql+asyncpg://adk_user:adk_password@localhost:5433/adk_platform"
+
+# Use test database URL from environment or default
+TEST_DATABASE_URL = os.environ.get(
+    "DATABASE_URL",
+    "postgresql+asyncpg://adk_user:adk_password@localhost:5433/adk_platform_test"
 )
+os.environ["DATABASE_URL"] = TEST_DATABASE_URL
 
 from src.api.main import app
 from src.core.security import create_access_token

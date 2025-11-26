@@ -22,9 +22,13 @@ from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_asyn
 
 # Set environment variables before importing modules
 os.environ["SECRET_KEY"] = "test-secret-key-for-testing-only-not-for-production"
-os.environ["DATABASE_URL"] = (
-    "postgresql+asyncpg://adk_user:adk_password@localhost:5433/adk_platform"
+
+# Use test database URL from environment or default
+TEST_DATABASE_URL = os.environ.get(
+    "DATABASE_URL",
+    "postgresql+asyncpg://adk_user:adk_password@localhost:5433/adk_platform_test"
 )
+os.environ["DATABASE_URL"] = TEST_DATABASE_URL
 
 from src.api.main import app
 from src.core.security import create_access_token
@@ -44,7 +48,7 @@ class TestTenantSchemaIsolation:
     async def engine(self):
         """Create async engine."""
         engine = create_async_engine(
-            os.environ["DATABASE_URL"],
+            TEST_DATABASE_URL,
             echo=False,
             pool_pre_ping=True,
         )

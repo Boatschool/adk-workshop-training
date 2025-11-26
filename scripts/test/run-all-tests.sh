@@ -18,6 +18,13 @@
 #   --ci        CI mode (appropriate for GitHub Actions)
 
 set -e
+set -o pipefail
+
+# Track test failures for CI
+INTEGRATION_FAILED=0
+E2E_FAILED=0
+SECURITY_FAILED=0
+TENANCY_FAILED=0
 
 # Colors
 RED='\033[0;31m'
@@ -134,10 +141,14 @@ run_integration_tests() {
 
     # Backend integration tests
     log_info "Running backend integration tests..."
-    if poetry run pytest tests/integration/ -v --tb=short -q 2>&1 | tee -a "$LOG_FILE"; then
+    local exit_code=0
+    poetry run pytest tests/integration/ -v --tb=short -q 2>&1 | tee -a "$LOG_FILE" || exit_code=$?
+
+    if [ $exit_code -eq 0 ]; then
         log_success "Backend integration tests passed"
     else
-        log_warning "Some backend integration tests may have failed"
+        log_error "Backend integration tests failed (exit code: $exit_code)"
+        INTEGRATION_FAILED=1
     fi
 }
 
@@ -149,10 +160,14 @@ run_e2e_tests() {
 
     # Frontend unit tests
     log_info "Running frontend unit tests..."
-    if npm run test 2>&1 | tee -a "$LOG_FILE"; then
+    local exit_code=0
+    npm run test 2>&1 | tee -a "$LOG_FILE" || exit_code=$?
+
+    if [ $exit_code -eq 0 ]; then
         log_success "Frontend unit tests passed"
     else
-        log_warning "Some frontend tests may have failed"
+        log_error "Frontend unit tests failed (exit code: $exit_code)"
+        E2E_FAILED=1
     fi
 
     # E2E tests (skip in CI if no browser)
@@ -162,10 +177,14 @@ run_e2e_tests() {
     fi
 
     log_info "Running E2E tests..."
-    if npm run test:e2e 2>&1 | tee -a "$LOG_FILE"; then
+    exit_code=0
+    npm run test:e2e 2>&1 | tee -a "$LOG_FILE" || exit_code=$?
+
+    if [ $exit_code -eq 0 ]; then
         log_success "E2E tests passed"
     else
-        log_warning "Some E2E tests may have failed"
+        log_error "E2E tests failed (exit code: $exit_code)"
+        E2E_FAILED=1
     fi
 }
 
@@ -205,16 +224,26 @@ run_security_tests() {
 
     # Run security test suite
     log_info "Running security tests..."
-    if poetry run pytest tests/security/ -v --tb=short -q 2>&1 | tee -a "$LOG_FILE"; then
+    local exit_code=0
+    poetry run pytest tests/security/ -v --tb=short -q 2>&1 | tee -a "$LOG_FILE" || exit_code=$?
+
+    if [ $exit_code -eq 0 ]; then
         log_success "Security tests passed"
     else
-        log_warning "Some security tests may have failed"
+        log_error "Security tests failed (exit code: $exit_code)"
+        SECURITY_FAILED=1
     fi
 
-    # Run security scan script
-    if [ "$MODE" = "full" ]; then
+    # Run security scan script (enforcing in CI mode)
+    if [ "$MODE" = "full" ] || [ "$MODE" = "ci" ]; then
         log_info "Running security scans..."
-        "$SCRIPT_DIR/run-security-tests.sh" --quick 2>&1 | tee -a "$LOG_FILE" || true
+        exit_code=0
+        "$SCRIPT_DIR/run-security-tests.sh" --ci 2>&1 | tee -a "$LOG_FILE" || exit_code=$?
+
+        if [ $exit_code -ne 0 ]; then
+            log_error "Security scans found issues (exit code: $exit_code)"
+            SECURITY_FAILED=1
+        fi
     fi
 }
 
@@ -225,10 +254,14 @@ run_tenancy_tests() {
     cd "$PROJECT_ROOT"
 
     log_info "Running multi-tenancy tests..."
-    if poetry run pytest tests/integration/test_multi_tenancy.py tests/integration/test_tenant_isolation.py -v --tb=short -q 2>&1 | tee -a "$LOG_FILE"; then
+    local exit_code=0
+    poetry run pytest tests/integration/test_multi_tenancy.py -v --tb=short -q 2>&1 | tee -a "$LOG_FILE" || exit_code=$?
+
+    if [ $exit_code -eq 0 ]; then
         log_success "Multi-tenancy tests passed"
     else
-        log_warning "Some multi-tenancy tests may have failed"
+        log_error "Multi-tenancy tests failed (exit code: $exit_code)"
+        TENANCY_FAILED=1
     fi
 }
 
@@ -290,7 +323,7 @@ generate_final_report() {
     log_success "Final report: $report_file"
 }
 
-# Print summary
+# Print summary and return appropriate exit code
 print_summary() {
     echo ""
     echo "========================================"
@@ -301,7 +334,21 @@ print_summary() {
     echo "Log file: $LOG_FILE"
     echo "Reports: $REPORTS_DIR"
     echo ""
-    log_success "All test phases completed!"
+
+    # Calculate total failures
+    local total_failures=$((INTEGRATION_FAILED + E2E_FAILED + SECURITY_FAILED + TENANCY_FAILED))
+
+    if [ $total_failures -eq 0 ]; then
+        log_success "All test phases completed successfully!"
+        return 0
+    else
+        log_error "Test failures detected:"
+        [ $INTEGRATION_FAILED -eq 1 ] && log_error "  - Integration tests failed"
+        [ $E2E_FAILED -eq 1 ] && log_error "  - E2E tests failed"
+        [ $SECURITY_FAILED -eq 1 ] && log_error "  - Security tests failed"
+        [ $TENANCY_FAILED -eq 1 ] && log_error "  - Multi-tenancy tests failed"
+        return 1
+    fi
 }
 
 # Main
@@ -324,7 +371,11 @@ main() {
     run_smoke_tests
 
     generate_final_report
-    print_summary
+
+    # Return proper exit code for CI
+    if ! print_summary; then
+        exit 1
+    fi
 }
 
 main "$@"

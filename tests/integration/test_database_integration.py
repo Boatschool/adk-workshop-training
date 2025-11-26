@@ -6,9 +6,16 @@ This module tests database operations including:
 - Connection pooling behavior
 - Query performance
 - Migration scripts
+
+Requirements:
+- PostgreSQL must be running (docker-compose up -d postgres)
+- Database migrations must be applied (poetry run alembic upgrade head)
+- Test database URL is read from DATABASE_URL env var or uses default test database
 """
 
 import os
+import subprocess
+import sys
 from datetime import datetime, timezone
 from uuid import uuid4
 
@@ -18,9 +25,13 @@ from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_asyn
 
 # Set environment variables before importing modules
 os.environ["SECRET_KEY"] = "test-secret-key-for-testing-only-not-for-production"
-os.environ["DATABASE_URL"] = (
-    "postgresql+asyncpg://adk_user:adk_password@localhost:5433/adk_platform"
+
+# Use test database URL from environment or default
+TEST_DATABASE_URL = os.environ.get(
+    "DATABASE_URL",
+    "postgresql+asyncpg://adk_user:adk_password@localhost:5433/adk_platform_test"
 )
+os.environ["DATABASE_URL"] = TEST_DATABASE_URL
 
 from src.core.config import get_settings
 from src.core.constants import UserRole, WorkshopStatus
@@ -30,10 +41,71 @@ pytestmark = pytest.mark.integration
 settings = get_settings()
 
 
+def _check_database_available() -> bool:
+    """Check if the test database is available."""
+    import asyncio
+    from sqlalchemy.ext.asyncio import create_async_engine
+
+    async def check():
+        try:
+            engine = create_async_engine(TEST_DATABASE_URL, echo=False)
+            async with engine.connect() as conn:
+                await conn.execute(text("SELECT 1"))
+            await engine.dispose()
+            return True
+        except Exception:
+            return False
+
+    return asyncio.get_event_loop().run_until_complete(check())
+
+
+def _check_migrations_applied() -> bool:
+    """Check if database migrations have been applied."""
+    import asyncio
+    from sqlalchemy.ext.asyncio import create_async_engine
+
+    async def check():
+        try:
+            engine = create_async_engine(TEST_DATABASE_URL, echo=False)
+            async with engine.connect() as conn:
+                # Check if alembic_version table exists and has entries
+                result = await conn.execute(
+                    text("SELECT version_num FROM alembic_version LIMIT 1")
+                )
+                version = result.scalar()
+                await engine.dispose()
+                return version is not None
+        except Exception:
+            return False
+
+    return asyncio.get_event_loop().run_until_complete(check())
+
+
+# Skip all tests if database is not available
+pytestmark = [
+    pytest.mark.integration,
+    pytest.mark.skipif(
+        not _check_database_available(),
+        reason=(
+            f"Test database not available at {TEST_DATABASE_URL}. "
+            "Run: docker-compose up -d postgres && "
+            "createdb -h localhost -p 5433 -U adk_user adk_platform_test"
+        )
+    ),
+    pytest.mark.skipif(
+        _check_database_available() and not _check_migrations_applied(),
+        reason=(
+            "Database migrations not applied. "
+            f"Run: DATABASE_URL='{TEST_DATABASE_URL}' poetry run alembic upgrade head"
+        )
+    ),
+]
+
+
 @pytest.fixture(scope="module")
 def db_url() -> str:
     """Database URL for testing."""
-    return settings.database_url
+    return TEST_DATABASE_URL
 
 
 @pytest.fixture
@@ -46,7 +118,7 @@ async def engine(db_url: str):
 
 @pytest.fixture
 async def session(engine) -> AsyncSession:
-    """Create async session."""
+    """Create async session for tests."""
     async_session_factory = async_sessionmaker(
         engine,
         class_=AsyncSession,

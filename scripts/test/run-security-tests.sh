@@ -7,9 +7,21 @@
 # - Node.js dependency scanning (npm audit)
 # - Application security tests (pytest security markers)
 #
-# Usage: ./scripts/test/run-security-tests.sh [--full] [--quick]
+# Usage: ./scripts/test/run-security-tests.sh [--full] [--quick] [--ci]
+#
+# Options:
+#   --full   Run all security scans
+#   --quick  Run only bandit and security tests
+#   --ci     CI mode - fail on any security findings (enforcing mode)
 
 set -e
+set -o pipefail
+
+# Track failures for CI mode
+BANDIT_FAILED=0
+DEPS_FAILED=0
+NPM_FAILED=0
+TESTS_FAILED=0
 
 # Colors
 RED='\033[0;31m'
@@ -26,6 +38,7 @@ REPORTS_DIR="$PROJECT_ROOT/test-reports/security"
 # Parse arguments
 FULL_SCAN=false
 QUICK_SCAN=false
+CI_MODE=false
 
 for arg in "$@"; do
     case $arg in
@@ -34,6 +47,9 @@ for arg in "$@"; do
             ;;
         --quick)
             QUICK_SCAN=true
+            ;;
+        --ci)
+            CI_MODE=true
             ;;
     esac
 done
@@ -91,9 +107,10 @@ run_bandit() {
     if command -v bandit &> /dev/null; then
         local report_file="$REPORTS_DIR/bandit_report.txt"
         local json_report="$REPORTS_DIR/bandit_report.json"
+        local exit_code=0
 
         # Run bandit with medium severity and above
-        bandit -r src/ -ll -ii -f txt -o "$report_file" 2>/dev/null || true
+        bandit -r src/ -ll -ii -f txt -o "$report_file" 2>/dev/null || exit_code=$?
         bandit -r src/ -ll -ii -f json -o "$json_report" 2>/dev/null || true
 
         log_success "Bandit report: $report_file"
@@ -104,8 +121,18 @@ run_bandit() {
             echo "Bandit Summary:"
             tail -20 "$report_file"
         fi
+
+        # In CI mode, fail if bandit found issues (exit code 1 = issues found)
+        if [ "$CI_MODE" = true ] && [ $exit_code -ne 0 ]; then
+            log_error "Bandit found security issues (exit code: $exit_code)"
+            BANDIT_FAILED=1
+        fi
     else
         log_warning "Bandit not installed, skipping"
+        if [ "$CI_MODE" = true ]; then
+            log_error "Bandit is required in CI mode"
+            BANDIT_FAILED=1
+        fi
     fi
 }
 
@@ -116,21 +143,36 @@ run_python_deps_scan() {
     cd "$PROJECT_ROOT"
 
     local report_file="$REPORTS_DIR/python_deps_scan.txt"
+    local exit_code=0
 
     # Try safety first
     if command -v safety &> /dev/null; then
         log_info "Running safety check..."
         poetry export -f requirements.txt --without-hashes 2>/dev/null | \
-            safety check --stdin --output text > "$report_file" 2>&1 || true
+            safety check --stdin --output text > "$report_file" 2>&1 || exit_code=$?
 
         log_success "Python deps report: $report_file"
+
+        # In CI mode, fail if vulnerabilities found (exit code 64 = vulnerabilities, 0 = clean)
+        if [ "$CI_MODE" = true ] && [ $exit_code -ne 0 ]; then
+            log_error "Safety found vulnerable dependencies (exit code: $exit_code)"
+            DEPS_FAILED=1
+        fi
     else
         log_warning "safety not installed"
 
         # Fall back to pip-audit if available
         if command -v pip-audit &> /dev/null; then
             log_info "Running pip-audit..."
-            pip-audit > "$report_file" 2>&1 || true
+            pip-audit > "$report_file" 2>&1 || exit_code=$?
+
+            if [ "$CI_MODE" = true ] && [ $exit_code -ne 0 ]; then
+                log_error "pip-audit found vulnerable dependencies"
+                DEPS_FAILED=1
+            fi
+        elif [ "$CI_MODE" = true ]; then
+            log_error "Neither safety nor pip-audit installed - required for CI"
+            DEPS_FAILED=1
         fi
     fi
 }
@@ -143,8 +185,9 @@ run_npm_audit() {
 
     local report_file="$REPORTS_DIR/npm_audit_report.json"
     local text_report="$REPORTS_DIR/npm_audit_report.txt"
+    local exit_code=0
 
-    npm audit --json > "$report_file" 2>/dev/null || true
+    npm audit --json > "$report_file" 2>/dev/null || exit_code=$?
     npm audit > "$text_report" 2>/dev/null || true
 
     log_success "npm audit report: $text_report"
@@ -155,6 +198,19 @@ run_npm_audit() {
         echo "npm audit Summary:"
         head -30 "$text_report"
     fi
+
+    # In CI mode, fail on high/critical vulnerabilities
+    # npm audit returns: 0 = no vulns, non-zero = vulns found
+    if [ "$CI_MODE" = true ] && [ $exit_code -ne 0 ]; then
+        # Check if there are high or critical vulnerabilities
+        local high_critical=$(jq -r '.metadata.vulnerabilities.high + .metadata.vulnerabilities.critical' "$report_file" 2>/dev/null || echo "0")
+        if [ "$high_critical" != "0" ] && [ "$high_critical" != "null" ]; then
+            log_error "npm audit found $high_critical high/critical vulnerabilities"
+            NPM_FAILED=1
+        else
+            log_warning "npm audit found lower severity issues (not failing CI)"
+        fi
+    fi
 }
 
 # Run security unit tests
@@ -164,9 +220,10 @@ run_security_tests() {
     cd "$PROJECT_ROOT"
 
     local report_file="$REPORTS_DIR/security_tests_report.txt"
+    local exit_code=0
 
     # Run pytest with security marker
-    poetry run pytest tests/security/ -v --tb=short > "$report_file" 2>&1 || true
+    poetry run pytest tests/security/ -v --tb=short > "$report_file" 2>&1 || exit_code=$?
 
     log_success "Security tests report: $report_file"
 
@@ -175,6 +232,12 @@ run_security_tests() {
         echo ""
         echo "Security Tests Summary:"
         tail -30 "$report_file"
+    fi
+
+    # In CI mode, fail if tests fail
+    if [ "$CI_MODE" = true ] && [ $exit_code -ne 0 ]; then
+        log_error "Security tests failed (exit code: $exit_code)"
+        TESTS_FAILED=1
     fi
 }
 
@@ -280,6 +343,10 @@ main() {
     echo "========================================"
     echo ""
 
+    if [ "$CI_MODE" = true ]; then
+        log_info "Running in CI mode (enforcing)"
+    fi
+
     setup_reports
     check_tools
 
@@ -301,6 +368,22 @@ main() {
 
     echo ""
     echo "========================================"
+
+    # In CI mode, return proper exit code
+    if [ "$CI_MODE" = true ]; then
+        local total_failures=$((BANDIT_FAILED + DEPS_FAILED + NPM_FAILED + TESTS_FAILED))
+        if [ $total_failures -gt 0 ]; then
+            log_error "Security testing failed with $total_failures issue(s):"
+            [ $BANDIT_FAILED -eq 1 ] && log_error "  - Bandit found code security issues"
+            [ $DEPS_FAILED -eq 1 ] && log_error "  - Vulnerable Python dependencies found"
+            [ $NPM_FAILED -eq 1 ] && log_error "  - Vulnerable npm dependencies found"
+            [ $TESTS_FAILED -eq 1 ] && log_error "  - Security tests failed"
+            echo "Reports available in: $REPORTS_DIR"
+            echo "========================================"
+            exit 1
+        fi
+    fi
+
     log_success "Security testing complete!"
     echo "Reports available in: $REPORTS_DIR"
     echo "========================================"
