@@ -102,6 +102,15 @@ variable "static_cors_origins" {
   default     = ["*"]
 }
 
+variable "db_authorized_networks" {
+  description = "List of authorized networks for direct Cloud SQL access. SECURITY: Prefer Cloud SQL Proxy. Use only for specific trusted CIDRs."
+  type = list(object({
+    name = string
+    cidr = string
+  }))
+  default = []
+}
+
 # Domain Configuration
 variable "domain" {
   description = "Custom domain for the application (optional)"

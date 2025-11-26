@@ -44,6 +44,7 @@ module "cloud_sql" {
   high_availability   = var.db_high_availability
   enable_backup       = var.db_enable_backup
   private_network_id  = var.enable_private_networking ? module.networking.vpc_id : null
+  authorized_networks = var.db_authorized_networks
   labels              = local.common_labels
 
   depends_on = [module.networking]

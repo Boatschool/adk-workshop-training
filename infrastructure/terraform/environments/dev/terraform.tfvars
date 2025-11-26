@@ -25,6 +25,13 @@ enable_private_networking = false
 # Security - explicitly enable public access for dev API (testing/demos)
 allow_unauthenticated_api = true
 
+# Database authorized networks - empty by default, use Cloud SQL Proxy
+# Uncomment and add specific CIDRs if direct access is needed (e.g., office IP)
+# db_authorized_networks = [
+#   { name = "office-network", cidr = "203.0.113.0/24" },
+#   { name = "vpn-gateway", cidr = "198.51.100.10/32" }
+# ]
+
 # Labels
 labels = {
   team        = "platform"
