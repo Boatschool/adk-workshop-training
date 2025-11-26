@@ -74,11 +74,12 @@ module "secret_manager" {
 module "storage" {
   source = "./modules/storage"
 
-  project_id  = var.project_id
-  region      = var.region
-  name_prefix = local.name_prefix
-  environment = var.environment
-  labels      = local.common_labels
+  project_id   = var.project_id
+  region       = var.region
+  name_prefix  = local.name_prefix
+  environment  = var.environment
+  labels       = local.common_labels
+  cors_origins = var.static_cors_origins
 }
 
 # =============================================================================
@@ -91,10 +92,11 @@ module "iam" {
   name_prefix = local.name_prefix
   environment = var.environment
 
-  # Grant Cloud Run service account access to storage
+  # Grant Cloud Run service account access to specific buckets (least privilege)
   cloud_run_service_account = module.cloud_run.service_account_email
+  bucket_names              = module.storage.bucket_names
 
-  depends_on = [module.cloud_run]
+  depends_on = [module.cloud_run, module.storage]
 }
 
 # =============================================================================
@@ -113,6 +115,10 @@ module "cloud_run" {
   memory           = var.cloud_run_memory
   concurrency      = var.cloud_run_concurrency
   labels           = local.common_labels
+
+  # SECURITY: Explicitly control public access - only for dev/staging APIs
+  # Production should use IAP or require authentication
+  allow_unauthenticated = var.allow_unauthenticated_api
 
   # VPC connector for private networking (if enabled)
   vpc_connector = var.enable_private_networking ? module.networking.vpc_connector_name : null

@@ -67,9 +67,9 @@ variable "secret_references" {
 }
 
 variable "allow_unauthenticated" {
-  description = "Allow unauthenticated access to the service"
+  description = "Allow unauthenticated access to the service. SECURITY: Defaults to false, opt-in only for public APIs."
   type        = bool
-  default     = true
+  default     = false
 }
 
 variable "labels" {

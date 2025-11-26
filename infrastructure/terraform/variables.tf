@@ -89,6 +89,19 @@ variable "enable_private_networking" {
   default     = false # Set true for production
 }
 
+# Security
+variable "allow_unauthenticated_api" {
+  description = "Allow unauthenticated access to Cloud Run API. SECURITY: Defaults to false, enable only for public APIs."
+  type        = bool
+  default     = false
+}
+
+variable "static_cors_origins" {
+  description = "Allowed CORS origins for static assets bucket. SECURITY: Restrict to your domain(s) in production."
+  type        = list(string)
+  default     = ["*"]
+}
+
 # Domain Configuration
 variable "domain" {
   description = "Custom domain for the application (optional)"

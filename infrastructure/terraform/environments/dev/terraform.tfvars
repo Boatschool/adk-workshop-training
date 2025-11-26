@@ -22,6 +22,9 @@ cloud_run_concurrency   = 80
 # Networking - public IP for dev (simpler)
 enable_private_networking = false
 
+# Security - explicitly enable public access for dev API (testing/demos)
+allow_unauthenticated_api = true
+
 # Labels
 labels = {
   team        = "platform"

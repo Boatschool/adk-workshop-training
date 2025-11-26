@@ -18,6 +18,16 @@ variable "cloud_run_service_account" {
   type        = string
 }
 
+variable "bucket_names" {
+  description = "Map of bucket purposes to bucket names for per-bucket IAM"
+  type = object({
+    static  = string
+    uploads = string
+    logs    = string
+    backups = string
+  })
+}
+
 variable "enable_workload_identity" {
   description = "Enable Workload Identity Federation for GitHub Actions"
   type        = bool

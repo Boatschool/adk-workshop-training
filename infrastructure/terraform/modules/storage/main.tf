@@ -28,8 +28,9 @@ resource "google_storage_bucket" "static" {
   }
 
   # CORS configuration for frontend access
+  # SECURITY: Use cors_origins variable to restrict allowed origins per environment
   cors {
-    origin          = ["*"] # Restrict to specific domains in production
+    origin          = var.cors_origins
     method          = ["GET", "HEAD"]
     response_header = ["Content-Type", "Cache-Control"]
     max_age_seconds = 3600

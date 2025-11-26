@@ -1,14 +1,33 @@
 # IAM Module - Service Account and Permissions
 
 # =============================================================================
-# Storage Access for Cloud Run (Project-level)
-# Using project-level IAM for simplicity - works with dynamic bucket names
+# Storage Access for Cloud Run (Per-Bucket - Least Privilege)
+# SECURITY: Grant specific roles to specific buckets instead of project-wide admin
 # =============================================================================
-resource "google_project_iam_member" "cloud_run_storage_admin" {
-  project = var.project_id
-  role    = "roles/storage.objectAdmin"
-  member  = "serviceAccount:${var.cloud_run_service_account}"
+
+# Static bucket: Read-only access (serving static assets)
+resource "google_storage_bucket_iam_member" "cloud_run_static_viewer" {
+  bucket = var.bucket_names.static
+  role   = "roles/storage.objectViewer"
+  member = "serviceAccount:${var.cloud_run_service_account}"
 }
+
+# Uploads bucket: Read/write access (user file uploads)
+resource "google_storage_bucket_iam_member" "cloud_run_uploads_admin" {
+  bucket = var.bucket_names.uploads
+  role   = "roles/storage.objectAdmin"
+  member = "serviceAccount:${var.cloud_run_service_account}"
+}
+
+# Logs bucket: Write-only access (append logs, no delete)
+resource "google_storage_bucket_iam_member" "cloud_run_logs_creator" {
+  bucket = var.bucket_names.logs
+  role   = "roles/storage.objectCreator"
+  member = "serviceAccount:${var.cloud_run_service_account}"
+}
+
+# Backups bucket: NO direct access from Cloud Run
+# Backups should be created by Cloud SQL or a dedicated backup service account
 
 # =============================================================================
 # Secret Manager Access for Cloud Run (Project-level)

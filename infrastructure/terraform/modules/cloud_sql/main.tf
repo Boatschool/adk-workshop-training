@@ -40,17 +40,20 @@ resource "google_sql_database_instance" "main" {
     }
 
     # IP configuration
+    # SECURITY: When private networking is disabled, access is ONLY via Cloud SQL Proxy
+    # No authorized_networks are configured - all access must use the proxy sidecar
     ip_configuration {
       ipv4_enabled    = var.private_network_id == null ? true : false
       private_network = var.private_network_id
       ssl_mode        = "ENCRYPTED_ONLY"
 
-      # Allow Cloud Run and local development (non-production only)
+      # SECURITY: Explicitly require Cloud SQL Proxy for all access
+      # Only add authorized networks if explicitly provided and validated
       dynamic "authorized_networks" {
-        for_each = var.private_network_id == null && var.environment != "production" ? [1] : []
+        for_each = var.authorized_networks
         content {
-          name  = "allow-all-dev"
-          value = "0.0.0.0/0"
+          name  = authorized_networks.value.name
+          value = authorized_networks.value.cidr
         }
       }
     }

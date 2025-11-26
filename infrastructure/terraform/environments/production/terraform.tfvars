@@ -22,6 +22,16 @@ cloud_run_concurrency   = 100
 # Networking - private networking for production
 enable_private_networking = true
 
+# Security - NEVER allow unauthenticated access in production (use IAP)
+allow_unauthenticated_api = false
+
+# CORS - restrict to production domain(s) only
+# TODO: Update with actual production domain(s) when configured
+static_cors_origins = [
+  "https://adk-platform.example.com",
+  "https://www.adk-platform.example.com"
+]
+
 # Labels
 labels = {
   team        = "platform"

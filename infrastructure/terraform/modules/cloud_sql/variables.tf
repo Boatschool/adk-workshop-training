@@ -53,3 +53,26 @@ variable "labels" {
   type        = map(string)
   default     = {}
 }
+
+variable "authorized_networks" {
+  description = "List of authorized networks for Cloud SQL access. SECURITY: Use sparingly, prefer Cloud SQL Proxy instead."
+  type = list(object({
+    name = string
+    cidr = string
+  }))
+  default = []
+
+  validation {
+    condition = alltrue([
+      for net in var.authorized_networks : can(regex("^([0-9]{1,3}\\.){3}[0-9]{1,3}/[0-9]{1,2}$", net.cidr))
+    ])
+    error_message = "All authorized_networks must have valid CIDR notation (e.g., 10.0.0.0/8)."
+  }
+
+  validation {
+    condition = alltrue([
+      for net in var.authorized_networks : net.cidr != "0.0.0.0/0"
+    ])
+    error_message = "SECURITY: 0.0.0.0/0 is not allowed. Use specific CIDR ranges or Cloud SQL Proxy."
+  }
+}

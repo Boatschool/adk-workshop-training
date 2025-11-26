@@ -22,6 +22,9 @@ cloud_run_concurrency   = 80
 # Networking - private networking for staging
 enable_private_networking = true
 
+# Security - require authentication for staging (use IAP or service-to-service auth)
+allow_unauthenticated_api = false
+
 # Labels
 labels = {
   team        = "platform"
