@@ -150,16 +150,25 @@ jobs:
       - name: Get database connection info
         id: db-info
         run: |
-          # Get the database instance connection name from Terraform output or Secret Manager
+          # Get the database instance connection name
           DB_INSTANCE=$(gcloud sql instances list --filter="name~staging" --format="value(connectionName)" | head -1)
+
+          if [ -z "$DB_INSTANCE" ]; then
+            echo "Warning: Could not find staging database instance"
+            echo "skip_migration=true" >> $GITHUB_OUTPUT
+            exit 0
+          fi
           echo "db_instance=$DB_INSTANCE" >> $GITHUB_OUTPUT
 
-          # Get database password from Secret Manager
+          # Get database password from Secret Manager (single source of truth)
           DB_PASSWORD=$(gcloud secrets versions access latest --secret="adk-platform-staging-db-password" 2>/dev/null || echo "")
           if [ -z "$DB_PASSWORD" ]; then
             echo "Warning: Could not retrieve staging database password from Secret Manager"
             echo "skip_migration=true" >> $GITHUB_OUTPUT
           else
+            # Mask the password in logs
+            echo "::add-mask::$DB_PASSWORD"
+            echo "db_password=$DB_PASSWORD" >> $GITHUB_OUTPUT
             echo "skip_migration=false" >> $GITHUB_OUTPUT
           fi
 
@@ -173,7 +182,7 @@ jobs:
           # Run migrations
           poetry run alembic upgrade head
         env:
-          DATABASE_URL: postgresql+asyncpg://adk_user:${{ secrets.STAGING_DB_PASSWORD }}@localhost:5432/adk_platform
+          DATABASE_URL: postgresql+asyncpg://adk_user:${{ steps.db-info.outputs.db_password }}@localhost:5432/adk_platform
 
   # Deploy to Cloud Run
   deploy:
