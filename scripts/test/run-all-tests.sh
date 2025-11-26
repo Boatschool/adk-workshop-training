@@ -25,6 +25,8 @@ INTEGRATION_FAILED=0
 E2E_FAILED=0
 SECURITY_FAILED=0
 TENANCY_FAILED=0
+PERFORMANCE_FAILED=0
+PERFORMANCE_SKIPPED=0
 
 # Colors
 RED='\033[0;31m'
@@ -194,6 +196,7 @@ run_performance_tests() {
 
     if [ "$MODE" = "quick" ] || [ "$MODE" = "ci" ]; then
         log_info "Skipping performance tests in $MODE mode"
+        PERFORMANCE_SKIPPED=1
         return
     fi
 
@@ -203,17 +206,27 @@ run_performance_tests() {
     if ! command -v locust &> /dev/null; then
         log_warning "Locust not installed. Skipping performance tests."
         log_info "Install with: pip install locust"
+        PERFORMANCE_SKIPPED=1
         return
     fi
 
     # Check if server is running
     if ! curl -s "http://localhost:8080/health/" | grep -q "healthy"; then
         log_warning "API server not running. Skipping performance tests."
+        PERFORMANCE_SKIPPED=1
         return
     fi
 
     log_info "Running baseline load test..."
-    "$SCRIPT_DIR/run-load-tests.sh" baseline 2>&1 | tee -a "$LOG_FILE" || true
+    local exit_code=0
+    "$SCRIPT_DIR/run-load-tests.sh" baseline 2>&1 | tee -a "$LOG_FILE" || exit_code=$?
+
+    if [ $exit_code -eq 0 ]; then
+        log_success "Performance tests passed"
+    else
+        log_error "Performance tests failed (exit code: $exit_code)"
+        PERFORMANCE_FAILED=1
+    fi
 }
 
 # Phase 4: Security Tests
@@ -291,11 +304,11 @@ run_smoke_tests() {
     fi
 }
 
-# Helper to get status emoji based on failure flag
-get_status_emoji() {
+# Helper to get status emoji based on failure/skipped flags
+get_phase_status() {
     local failed=$1
-    local skipped=${2:-false}
-    if [ "$skipped" = "true" ]; then
+    local skipped=$2
+    if [ "$skipped" -eq 1 ]; then
         echo "⏭️"
     elif [ "$failed" -eq 1 ]; then
         echo "❌"
@@ -304,10 +317,23 @@ get_status_emoji() {
     fi
 }
 
+# Helper to get result text
+get_phase_result() {
+    local failed=$1
+    local skipped=$2
+    if [ "$skipped" -eq 1 ]; then
+        echo "Skipped"
+    elif [ "$failed" -eq 1 ]; then
+        echo "Failed"
+    else
+        echo "Passed"
+    fi
+}
+
 # Generate final report
 generate_final_report() {
     local report_file="$REPORTS_DIR/final_report_$(date +%Y%m%d_%H%M%S).md"
-    local total_failures=$((INTEGRATION_FAILED + E2E_FAILED + SECURITY_FAILED + TENANCY_FAILED))
+    local total_failures=$((INTEGRATION_FAILED + E2E_FAILED + SECURITY_FAILED + TENANCY_FAILED + PERFORMANCE_FAILED))
 
     {
         echo "# ADK Platform Test Report"
@@ -320,11 +346,11 @@ generate_final_report() {
         echo ""
         echo "| Phase | Status | Result |"
         echo "|-------|--------|--------|"
-        echo "| 1. Integration Testing | $(get_status_emoji $INTEGRATION_FAILED) | $([ $INTEGRATION_FAILED -eq 0 ] && echo 'Passed' || echo 'Failed') |"
-        echo "| 2. End-to-End Testing | $(get_status_emoji $E2E_FAILED) | $([ $E2E_FAILED -eq 0 ] && echo 'Passed' || echo 'Failed') |"
-        echo "| 3. Performance Testing | $([ "$MODE" = "full" ] && get_status_emoji 0 || echo '⏭️') | $([ "$MODE" = "full" ] && echo 'Passed' || echo 'Skipped') |"
-        echo "| 4. Security Testing | $(get_status_emoji $SECURITY_FAILED) | $([ $SECURITY_FAILED -eq 0 ] && echo 'Passed' || echo 'Failed') |"
-        echo "| 5. Multi-Tenancy Validation | $(get_status_emoji $TENANCY_FAILED) | $([ $TENANCY_FAILED -eq 0 ] && echo 'Passed' || echo 'Failed') |"
+        echo "| 1. Integration Testing | $(get_phase_status $INTEGRATION_FAILED 0) | $(get_phase_result $INTEGRATION_FAILED 0) |"
+        echo "| 2. End-to-End Testing | $(get_phase_status $E2E_FAILED 0) | $(get_phase_result $E2E_FAILED 0) |"
+        echo "| 3. Performance Testing | $(get_phase_status $PERFORMANCE_FAILED $PERFORMANCE_SKIPPED) | $(get_phase_result $PERFORMANCE_FAILED $PERFORMANCE_SKIPPED) |"
+        echo "| 4. Security Testing | $(get_phase_status $SECURITY_FAILED 0) | $(get_phase_result $SECURITY_FAILED 0) |"
+        echo "| 5. Multi-Tenancy Validation | $(get_phase_status $TENANCY_FAILED 0) | $(get_phase_result $TENANCY_FAILED 0) |"
         echo "| 6. Deployment Readiness | ✅ | Completed |"
         echo "| 7. Smoke Testing | ✅ | Completed |"
         echo ""
@@ -333,6 +359,7 @@ generate_final_report() {
             echo ""
             [ $INTEGRATION_FAILED -eq 1 ] && echo "- ❌ Integration tests failed"
             [ $E2E_FAILED -eq 1 ] && echo "- ❌ E2E tests failed"
+            [ $PERFORMANCE_FAILED -eq 1 ] && echo "- ❌ Performance tests failed"
             [ $SECURITY_FAILED -eq 1 ] && echo "- ❌ Security tests failed"
             [ $TENANCY_FAILED -eq 1 ] && echo "- ❌ Multi-tenancy tests failed"
             echo ""
@@ -362,7 +389,7 @@ print_summary() {
     echo ""
 
     # Calculate total failures
-    local total_failures=$((INTEGRATION_FAILED + E2E_FAILED + SECURITY_FAILED + TENANCY_FAILED))
+    local total_failures=$((INTEGRATION_FAILED + E2E_FAILED + SECURITY_FAILED + TENANCY_FAILED + PERFORMANCE_FAILED))
 
     if [ $total_failures -eq 0 ]; then
         log_success "All test phases completed successfully!"
@@ -371,6 +398,7 @@ print_summary() {
         log_error "Test failures detected:"
         [ $INTEGRATION_FAILED -eq 1 ] && log_error "  - Integration tests failed"
         [ $E2E_FAILED -eq 1 ] && log_error "  - E2E tests failed"
+        [ $PERFORMANCE_FAILED -eq 1 ] && log_error "  - Performance tests failed"
         [ $SECURITY_FAILED -eq 1 ] && log_error "  - Security tests failed"
         [ $TENANCY_FAILED -eq 1 ] && log_error "  - Multi-tenancy tests failed"
         return 1

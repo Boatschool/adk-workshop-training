@@ -41,8 +41,13 @@ pytestmark = pytest.mark.integration
 settings = get_settings()
 
 
-def _run_async_check(coro):
-    """Run an async coroutine safely, handling existing event loops."""
+def _run_async_check(coro, timeout: float = 30.0):
+    """Run an async coroutine safely, handling existing event loops.
+
+    Args:
+        coro: The coroutine to run
+        timeout: Maximum time to wait in seconds (default: 30s for slow databases)
+    """
     import asyncio
 
     try:
@@ -58,19 +63,28 @@ def _run_async_check(coro):
         import concurrent.futures
         with concurrent.futures.ThreadPoolExecutor() as executor:
             future = executor.submit(asyncio.run, coro)
-            return future.result(timeout=10)
+            return future.result(timeout=timeout)
     else:
         # No existing loop, use asyncio.run() directly
         return asyncio.run(coro)
 
 
 def _check_database_available() -> bool:
-    """Check if the test database is available."""
+    """Check if the test database is available.
+
+    Uses a 30-second timeout to accommodate slow database connections
+    (e.g., cold starts, network latency).
+    """
     from sqlalchemy.ext.asyncio import create_async_engine
 
     async def check():
         try:
-            engine = create_async_engine(TEST_DATABASE_URL, echo=False)
+            # Use connect_args with timeout for slow connections
+            engine = create_async_engine(
+                TEST_DATABASE_URL,
+                echo=False,
+                connect_args={"timeout": 20},  # Connection timeout in seconds
+            )
             async with engine.connect() as conn:
                 await conn.execute(text("SELECT 1"))
             await engine.dispose()
@@ -79,18 +93,25 @@ def _check_database_available() -> bool:
             return False
 
     try:
-        return _run_async_check(check())
+        return _run_async_check(check(), timeout=30.0)
     except Exception:
         return False
 
 
 def _check_migrations_applied() -> bool:
-    """Check if database migrations have been applied."""
+    """Check if database migrations have been applied.
+
+    Uses a 30-second timeout to accommodate slow database connections.
+    """
     from sqlalchemy.ext.asyncio import create_async_engine
 
     async def check():
         try:
-            engine = create_async_engine(TEST_DATABASE_URL, echo=False)
+            engine = create_async_engine(
+                TEST_DATABASE_URL,
+                echo=False,
+                connect_args={"timeout": 20},
+            )
             async with engine.connect() as conn:
                 # Check if alembic_version table exists and has entries
                 result = await conn.execute(
@@ -103,7 +124,7 @@ def _check_migrations_applied() -> bool:
             return False
 
     try:
-        return _run_async_check(check())
+        return _run_async_check(check(), timeout=30.0)
     except Exception:
         return False
 
