@@ -161,8 +161,7 @@ jobs:
           echo "db_instance=$DB_INSTANCE" >> $GITHUB_OUTPUT
 
           # Get database password from Secret Manager (single source of truth)
-          # Use tr -d '\n' to remove trailing newline that gcloud adds
-          DB_PASSWORD=$(gcloud secrets versions access latest --secret="adk-platform-staging-db-password" 2>/dev/null | tr -d '\n' || echo "")
+          DB_PASSWORD=$(gcloud secrets versions access latest --secret="adk-platform-staging-db-password" 2>/dev/null) || DB_PASSWORD=""
           if [ -z "$DB_PASSWORD" ]; then
             echo "Warning: Could not retrieve staging database password from Secret Manager"
             echo "skip_migration=true" >> $GITHUB_OUTPUT
