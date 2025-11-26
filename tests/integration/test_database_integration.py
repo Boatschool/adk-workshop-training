@@ -41,9 +41,31 @@ pytestmark = pytest.mark.integration
 settings = get_settings()
 
 
+def _run_async_check(coro):
+    """Run an async coroutine safely, handling existing event loops."""
+    import asyncio
+
+    try:
+        # Try to get the current event loop
+        loop = asyncio.get_running_loop()
+    except RuntimeError:
+        # No running loop, safe to use asyncio.run()
+        loop = None
+
+    if loop is not None:
+        # Already in an async context (e.g., pytest-asyncio with asyncio_mode=auto)
+        # Create a new loop in a separate thread to avoid conflicts
+        import concurrent.futures
+        with concurrent.futures.ThreadPoolExecutor() as executor:
+            future = executor.submit(asyncio.run, coro)
+            return future.result(timeout=10)
+    else:
+        # No existing loop, use asyncio.run() directly
+        return asyncio.run(coro)
+
+
 def _check_database_available() -> bool:
     """Check if the test database is available."""
-    import asyncio
     from sqlalchemy.ext.asyncio import create_async_engine
 
     async def check():
@@ -56,12 +78,14 @@ def _check_database_available() -> bool:
         except Exception:
             return False
 
-    return asyncio.get_event_loop().run_until_complete(check())
+    try:
+        return _run_async_check(check())
+    except Exception:
+        return False
 
 
 def _check_migrations_applied() -> bool:
     """Check if database migrations have been applied."""
-    import asyncio
     from sqlalchemy.ext.asyncio import create_async_engine
 
     async def check():
@@ -78,7 +102,10 @@ def _check_migrations_applied() -> bool:
         except Exception:
             return False
 
-    return asyncio.get_event_loop().run_until_complete(check())
+    try:
+        return _run_async_check(check())
+    except Exception:
+        return False
 
 
 # Skip all tests if database is not available

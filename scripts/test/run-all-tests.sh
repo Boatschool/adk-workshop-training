@@ -291,26 +291,52 @@ run_smoke_tests() {
     fi
 }
 
+# Helper to get status emoji based on failure flag
+get_status_emoji() {
+    local failed=$1
+    local skipped=${2:-false}
+    if [ "$skipped" = "true" ]; then
+        echo "⏭️"
+    elif [ "$failed" -eq 1 ]; then
+        echo "❌"
+    else
+        echo "✅"
+    fi
+}
+
 # Generate final report
 generate_final_report() {
     local report_file="$REPORTS_DIR/final_report_$(date +%Y%m%d_%H%M%S).md"
+    local total_failures=$((INTEGRATION_FAILED + E2E_FAILED + SECURITY_FAILED + TENANCY_FAILED))
 
     {
         echo "# ADK Platform Test Report"
         echo ""
         echo "**Date:** $(date)"
         echo "**Mode:** $MODE"
+        echo "**Status:** $([ $total_failures -eq 0 ] && echo '✅ PASSED' || echo '❌ FAILED')"
         echo ""
-        echo "## Test Phases Completed"
+        echo "## Test Phases Results"
         echo ""
-        echo "1. ✅ Integration Testing"
-        echo "2. ✅ End-to-End Testing"
-        echo "3. $([ "$MODE" = "full" ] && echo "✅" || echo "⏭️") Performance Testing"
-        echo "4. ✅ Security Testing"
-        echo "5. ✅ Multi-Tenancy Validation"
-        echo "6. ✅ Deployment Readiness"
-        echo "7. ✅ Smoke Testing"
+        echo "| Phase | Status | Result |"
+        echo "|-------|--------|--------|"
+        echo "| 1. Integration Testing | $(get_status_emoji $INTEGRATION_FAILED) | $([ $INTEGRATION_FAILED -eq 0 ] && echo 'Passed' || echo 'Failed') |"
+        echo "| 2. End-to-End Testing | $(get_status_emoji $E2E_FAILED) | $([ $E2E_FAILED -eq 0 ] && echo 'Passed' || echo 'Failed') |"
+        echo "| 3. Performance Testing | $([ "$MODE" = "full" ] && get_status_emoji 0 || echo '⏭️') | $([ "$MODE" = "full" ] && echo 'Passed' || echo 'Skipped') |"
+        echo "| 4. Security Testing | $(get_status_emoji $SECURITY_FAILED) | $([ $SECURITY_FAILED -eq 0 ] && echo 'Passed' || echo 'Failed') |"
+        echo "| 5. Multi-Tenancy Validation | $(get_status_emoji $TENANCY_FAILED) | $([ $TENANCY_FAILED -eq 0 ] && echo 'Passed' || echo 'Failed') |"
+        echo "| 6. Deployment Readiness | ✅ | Completed |"
+        echo "| 7. Smoke Testing | ✅ | Completed |"
         echo ""
+        if [ $total_failures -gt 0 ]; then
+            echo "## Failures Summary"
+            echo ""
+            [ $INTEGRATION_FAILED -eq 1 ] && echo "- ❌ Integration tests failed"
+            [ $E2E_FAILED -eq 1 ] && echo "- ❌ E2E tests failed"
+            [ $SECURITY_FAILED -eq 1 ] && echo "- ❌ Security tests failed"
+            [ $TENANCY_FAILED -eq 1 ] && echo "- ❌ Multi-tenancy tests failed"
+            echo ""
+        fi
         echo "## Reports Generated"
         echo ""
         ls -la "$REPORTS_DIR"/*.md "$REPORTS_DIR"/*.html "$REPORTS_DIR"/*.txt 2>/dev/null | awk '{print "- " $NF}' || echo "No reports found"
