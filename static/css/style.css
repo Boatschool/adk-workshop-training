@@ -1017,6 +1017,30 @@ textarea:focus-visible {
     color: var(--accent-color);
 }
 
+.footer-attribution {
+    margin-top: 2rem;
+    padding-top: 1.5rem;
+    border-top: 1px solid rgba(255, 255, 255, 0.2);
+    text-align: center;
+    font-size: 0.875rem;
+    color: rgba(255, 255, 255, 0.8);
+}
+
+.footer-attribution p {
+    margin: 0.25rem 0;
+}
+
+.footer-attribution a {
+    color: var(--accent-color);
+    text-decoration: none;
+    transition: var(--transition);
+}
+
+.footer-attribution a:hover {
+    color: white;
+    text-decoration: underline;
+}
+
 /* Modal */
 .modal {
     display: none;

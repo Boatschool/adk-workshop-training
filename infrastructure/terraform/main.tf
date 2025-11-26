@@ -22,11 +22,12 @@ locals {
 module "networking" {
   source = "./modules/networking"
 
-  project_id            = var.project_id
-  region                = var.region
-  name_prefix           = local.name_prefix
+  project_id             = var.project_id
+  region                 = var.region
+  name_prefix            = local.name_prefix
+  environment            = var.environment
   enable_private_network = var.enable_private_networking
-  labels                = local.common_labels
+  labels                 = local.common_labels
 }
 
 # =============================================================================
@@ -122,7 +123,7 @@ module "cloud_run" {
   allow_unauthenticated = var.allow_unauthenticated_api
 
   # VPC connector for private networking (if enabled)
-  vpc_connector = var.enable_private_networking ? module.networking.vpc_connector_name : null
+  vpc_connector = var.enable_private_networking ? module.networking.vpc_connector_id : null
 
   # Database connection
   db_connection_name = local.db_connection_name
