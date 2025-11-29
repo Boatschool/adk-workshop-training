@@ -7,7 +7,7 @@
 - **Priority**: HIGH
 - **Estimated Effort**: 2-3 days
 - **Created Date**: 2025-11-29
-- **Status**: IN_PROGRESS
+- **Status**: COMPLETED
 - **Replaces**: Temporarily defers Task #004 (Centralized Authentication Platform)
 
 ## Executive Summary
@@ -182,8 +182,8 @@ When ready to implement Task #004:
 - [x] Registration returns access token and refresh token
 - [x] Rate limiting on auth endpoints (10 req/min) - *already existed*
 - [x] Security headers middleware
-- [ ] Audit logging for auth events
-- [x] All existing auth tests pass (163 passed)
+- [x] Audit logging for auth events (`src/core/audit.py`)
+- [x] All existing auth tests pass (163 unit tests passed)
 - [ ] Production deployment verified
 
 ### Should Have

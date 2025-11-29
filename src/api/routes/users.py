@@ -2,7 +2,7 @@
 
 from typing import Annotated
 
-from fastapi import APIRouter, Depends, HTTPException, Query, status
+from fastapi import APIRouter, Depends, HTTPException, Query, Request, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.api.dependencies import (
@@ -19,6 +19,7 @@ from src.api.schemas.user import (
     UserUpdate,
     UserWithToken,
 )
+from src.core.audit import AuditEvent, log_audit_event
 from src.core.config import get_settings
 from src.core.exceptions import (
     AccountLockedError,
@@ -38,6 +39,7 @@ router = APIRouter()
 
 @router.post("/register", response_model=UserWithToken, status_code=status.HTTP_201_CREATED)
 async def register_user(
+    request: Request,
     user_data: UserCreate,
     db: Annotated[AsyncSession, Depends(get_tenant_db_dependency)],
     tenant_id: Annotated[str, Depends(get_tenant_id)],
@@ -62,6 +64,10 @@ async def register_user(
     Raises:
         HTTPException: If validation fails or email already exists
     """
+    # Get client info for audit logging
+    client_ip = request.client.host if request.client else None
+    user_agent = request.headers.get("user-agent")
+
     try:
         service = UserService(db, tenant_id)
         user = await service.create_user(user_data)
@@ -81,6 +87,17 @@ async def register_user(
         # Calculate expiry in seconds
         expires_in = settings.jwt_access_token_expire_minutes * 60
 
+        # Audit log successful registration
+        log_audit_event(
+            AuditEvent.REGISTER,
+            tenant_id=tenant_id,
+            user_id=str(user.id),
+            email=user_data.email,
+            ip_address=client_ip,
+            user_agent=user_agent,
+            success=True,
+        )
+
         return UserWithToken(
             **user.__dict__,
             access_token=access_token,
@@ -89,6 +106,16 @@ async def register_user(
             expires_in=expires_in,
         )
     except ValidationError as e:
+        # Audit log failed registration
+        log_audit_event(
+            AuditEvent.REGISTER,
+            tenant_id=tenant_id,
+            email=user_data.email,
+            ip_address=client_ip,
+            user_agent=user_agent,
+            success=False,
+            details={"reason": str(e)},
+        )
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e)) from None
 
 
@@ -126,6 +153,7 @@ async def create_user_with_role(
 
 @router.post("/login", response_model=UserWithToken)
 async def login_user(
+    request: Request,
     credentials: UserLogin,
     db: Annotated[AsyncSession, Depends(get_tenant_db_dependency)],
     tenant_id: Annotated[str, Depends(get_tenant_id)],
@@ -134,6 +162,7 @@ async def login_user(
     Authenticate user and return access token.
 
     Args:
+        request: FastAPI request object
         credentials: User login credentials
         db: Database session (with tenant schema already set)
         tenant_id: Tenant ID from header
@@ -144,6 +173,10 @@ async def login_user(
     Raises:
         HTTPException: If authentication fails
     """
+    # Get client info for audit logging
+    client_ip = request.client.host if request.client else None
+    user_agent = request.headers.get("user-agent")
+
     try:
         service = UserService(db, tenant_id)
         user = await service.authenticate_user(credentials.email, credentials.password)
@@ -163,6 +196,17 @@ async def login_user(
         # Calculate expiry in seconds
         expires_in = settings.jwt_access_token_expire_minutes * 60
 
+        # Audit log successful login
+        log_audit_event(
+            AuditEvent.LOGIN_SUCCESS,
+            tenant_id=tenant_id,
+            user_id=str(user.id),
+            email=credentials.email,
+            ip_address=client_ip,
+            user_agent=user_agent,
+            success=True,
+        )
+
         return UserWithToken(
             **user.__dict__,
             access_token=access_token,
@@ -171,11 +215,31 @@ async def login_user(
             expires_in=expires_in,
         )
     except AccountLockedError as e:
+        # Audit log account locked
+        log_audit_event(
+            AuditEvent.ACCOUNT_LOCKED,
+            tenant_id=tenant_id,
+            email=credentials.email,
+            ip_address=client_ip,
+            user_agent=user_agent,
+            success=False,
+            details={"reason": "too_many_failed_attempts"},
+        )
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
             detail=str(e),
         ) from None
     except AuthenticationError as e:
+        # Audit log failed login
+        log_audit_event(
+            AuditEvent.LOGIN_FAILURE,
+            tenant_id=tenant_id,
+            email=credentials.email,
+            ip_address=client_ip,
+            user_agent=user_agent,
+            success=False,
+            details={"reason": "invalid_credentials"},
+        )
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail=str(e),
