@@ -1,7 +1,7 @@
 """Refresh token service for managing refresh token operations."""
 
 import secrets
-from datetime import datetime, timedelta, timezone
+from datetime import UTC, datetime, timedelta
 from uuid import UUID
 
 from sqlalchemy import select
@@ -9,7 +9,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.core.config import get_settings
 from src.core.exceptions import AuthenticationError
-from src.core.security import hash_token, verify_token_hash
+from src.core.security import hash_token
 from src.db.models.refresh_token import RefreshToken
 from src.db.models.user import User
 
@@ -52,7 +52,7 @@ class RefreshTokenService:
         token_hash = hash_token(plain_token)
 
         # Calculate expiration
-        expires_at = datetime.now(timezone.utc) + timedelta(days=settings.refresh_token_expire_days)
+        expires_at = datetime.now(UTC) + timedelta(days=settings.refresh_token_expire_days)
 
         # Create token with hashed value in database
         refresh_token = RefreshToken(
@@ -111,7 +111,7 @@ class RefreshTokenService:
             raise AuthenticationError("Refresh token has been revoked")
 
         # Check if token is expired
-        if refresh_token.expires_at < datetime.now(timezone.utc):
+        if refresh_token.expires_at < datetime.now(UTC):
             raise AuthenticationError("Refresh token has expired")
 
         # Get user
@@ -135,7 +135,7 @@ class RefreshTokenService:
         """
         refresh_token = await self.get_by_token(token)
         if refresh_token:
-            refresh_token.revoked_at = datetime.now(timezone.utc)
+            refresh_token.revoked_at = datetime.now(UTC)
             await self.db.commit()
 
     async def revoke_all_user_tokens(self, user_id: UUID) -> int:
@@ -157,7 +157,7 @@ class RefreshTokenService:
 
         count = 0
         for token in tokens:
-            token.revoked_at = datetime.now(timezone.utc)
+            token.revoked_at = datetime.now(UTC)
             count += 1
 
         await self.db.commit()

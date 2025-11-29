@@ -1,15 +1,14 @@
 """Password reset service for managing password recovery."""
 
 import secrets
-from datetime import datetime, timedelta, timezone
-from uuid import UUID
+from datetime import UTC, datetime, timedelta
 
 from sqlalchemy import select, update
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.core.config import get_settings
 from src.core.exceptions import AuthenticationError, ValidationError
-from src.core.security import hash_password
+from src.core.security import hash_password, hash_token
 from src.db.models.password_reset_token import PasswordResetToken
 from src.db.models.refresh_token import RefreshToken
 from src.db.models.user import User
@@ -45,27 +44,32 @@ class PasswordResetService:
         result = await self.db.execute(select(User).where(User.email == email))
         return result.scalar_one_or_none()
 
-    async def create_reset_token(self, user: User) -> PasswordResetToken:
+    async def create_reset_token(self, user: User) -> tuple[PasswordResetToken, str]:
         """
         Create a password reset token for a user.
+
+        SECURITY: The plain token is returned separately for the email link,
+        but only the hash is stored in the database. This prevents token theft
+        if the database is compromised (same pattern as refresh tokens).
 
         Args:
             user: User to create token for
 
         Returns:
-            PasswordResetToken: Created token
+            tuple[PasswordResetToken, str]: Created token record and plain token value
         """
         # Generate secure random token
-        token_value = secrets.token_urlsafe(32)
+        plain_token = secrets.token_urlsafe(32)
+
+        # SECURITY: Hash the token for storage (never store plain tokens)
+        token_hash = hash_token(plain_token)
 
         # Calculate expiration
-        expires_at = datetime.now(timezone.utc) + timedelta(
-            hours=settings.password_reset_token_expire_hours
-        )
+        expires_at = datetime.now(UTC) + timedelta(hours=settings.password_reset_token_expire_hours)
 
-        # Create token
+        # Create token with hashed value in database
         reset_token = PasswordResetToken(
-            token=token_value,
+            token=token_hash,
             user_id=user.id,
             expires_at=expires_at,
         )
@@ -74,7 +78,8 @@ class PasswordResetService:
         await self.db.commit()
         await self.db.refresh(reset_token)
 
-        return reset_token
+        # Return both the DB record and the plain token for the email
+        return reset_token, plain_token
 
     async def request_password_reset(self, email: str) -> bool:
         """
@@ -93,11 +98,11 @@ class PasswordResetService:
 
         # Only proceed if user exists and is active
         if user and user.is_active:
-            # Create reset token
-            reset_token = await self.create_reset_token(user)
+            # Create reset token (returns DB record and plain token)
+            _reset_token_record, plain_token = await self.create_reset_token(user)
 
-            # Build reset link
-            reset_link = f"{settings.frontend_url}/reset-password?token={reset_token.token}"
+            # Build reset link using the plain token (not the hash)
+            reset_link = f"{settings.frontend_url}/reset-password?token={plain_token}"
 
             # Send email (fire and forget - don't fail if email fails)
             try:
@@ -118,14 +123,19 @@ class PasswordResetService:
         """
         Get password reset token by token value.
 
+        SECURITY: The provided plain token is hashed and compared against
+        stored hashes (same pattern as refresh tokens).
+
         Args:
-            token: Token string
+            token: Plain token string from the reset link
 
         Returns:
             PasswordResetToken or None if not found
         """
+        # Hash the provided token to match against stored hash
+        token_hash = hash_token(token)
         result = await self.db.execute(
-            select(PasswordResetToken).where(PasswordResetToken.token == token)
+            select(PasswordResetToken).where(PasswordResetToken.token == token_hash)
         )
         return result.scalar_one_or_none()
 
@@ -150,7 +160,7 @@ class PasswordResetService:
         if reset_token.used_at is not None:
             raise ValidationError("Password reset token has already been used")
 
-        if reset_token.expires_at < datetime.now(timezone.utc):
+        if reset_token.expires_at < datetime.now(UTC):
             raise ValidationError("Password reset token has expired")
 
         return reset_token
@@ -187,7 +197,7 @@ class PasswordResetService:
         user.hashed_password = hash_password(new_password)
 
         # Mark token as used
-        reset_token.used_at = datetime.now(timezone.utc)
+        reset_token.used_at = datetime.now(UTC)
 
         # Reset any failed login attempts
         user.failed_login_attempts = 0
@@ -197,7 +207,7 @@ class PasswordResetService:
         await self.db.execute(
             update(RefreshToken)
             .where(RefreshToken.user_id == user.id, RefreshToken.revoked_at.is_(None))
-            .values(revoked_at=datetime.now(timezone.utc))
+            .values(revoked_at=datetime.now(UTC))
         )
 
         await self.db.commit()

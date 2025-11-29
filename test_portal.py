@@ -6,10 +6,10 @@ This script tests the portal's functionality by simulating user interactions.
 Tests navigation, content loading, progress tracking, and API endpoints.
 """
 
-import requests
-import time
 import json
 from datetime import datetime
+
+import requests
 
 # Configuration
 BASE_URL = "http://localhost:5001"

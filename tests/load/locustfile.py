@@ -25,16 +25,11 @@ Performance Targets:
     - Throughput: > 1000 req/sec
 """
 
-import json
 import random
 import string
-from datetime import datetime
-from typing import Any
 from uuid import uuid4
 
 from locust import HttpUser, between, events, task
-from locust.runners import MasterRunner
-
 
 # Test configuration
 TEST_TENANT_ID = str(uuid4())

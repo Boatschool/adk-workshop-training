@@ -1,8 +1,6 @@
 """Unit tests for configuration management."""
 
-import os
 
-import pytest
 
 
 class TestSettings:

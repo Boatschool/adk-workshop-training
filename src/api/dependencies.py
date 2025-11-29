@@ -1,6 +1,6 @@
 """FastAPI dependencies for dependency injection."""
 
-from collections.abc import AsyncGenerator
+from collections.abc import AsyncGenerator, Awaitable, Callable
 from typing import Annotated
 
 from fastapi import Depends, Header, HTTPException, status
@@ -10,9 +10,8 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from src.core.constants import UserRole
 from src.core.exceptions import AuthenticationError
 from src.core.security import decode_access_token
-from src.core.tenancy import TenantContext
 from src.db.models.user import User
-from src.db.session import get_db, get_tenant_db
+from src.db.session import TenantNotFoundError, get_tenant_db
 from src.services.user_service import UserService
 
 security = HTTPBearer()
@@ -50,14 +49,26 @@ async def get_tenant_db_dependency(
     This dependency ensures the tenant_id is resolved FIRST,
     then creates a database session with the correct schema search_path.
 
+    SECURITY: Rejects unknown/invalid tenant IDs with 404 to prevent
+    cross-tenant data access via spoofed headers.
+
     Args:
         tenant_id: Tenant ID from header (resolved first)
 
     Yields:
         AsyncSession: Database session scoped to tenant schema
+
+    Raises:
+        HTTPException 404: If tenant_id does not resolve to a valid schema
     """
-    async for session in get_tenant_db(tenant_id):
-        yield session
+    try:
+        async for session in get_tenant_db(tenant_id):
+            yield session
+    except TenantNotFoundError as e:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=str(e),
+        ) from None
 
 
 async def get_current_user(
@@ -109,10 +120,12 @@ async def get_current_user(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail=str(e),
             headers={"WWW-Authenticate": "Bearer"},
-        )
+        ) from None
 
 
-def require_role(*allowed_roles: UserRole):
+def require_role(
+    *allowed_roles: UserRole,
+) -> Callable[[Annotated[User, Depends(get_current_user)]], Awaitable[User]]:
     """
     Dependency factory for role-based authorization.
 
@@ -150,6 +163,4 @@ def require_role(*allowed_roles: UserRole):
 
 # Convenience dependencies for common role checks
 require_admin = require_role(UserRole.SUPER_ADMIN, UserRole.TENANT_ADMIN)
-require_instructor = require_role(
-    UserRole.SUPER_ADMIN, UserRole.TENANT_ADMIN, UserRole.INSTRUCTOR
-)
+require_instructor = require_role(UserRole.SUPER_ADMIN, UserRole.TENANT_ADMIN, UserRole.INSTRUCTOR)

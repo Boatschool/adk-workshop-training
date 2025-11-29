@@ -9,9 +9,9 @@ Provides shared utility functions and services:
 
 from src.utils.cache import (
     Cache,
-    get_cache,
-    cached,
     cache_key,
+    cached,
+    get_cache,
 )
 
 __all__ = [

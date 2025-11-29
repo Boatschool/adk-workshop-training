@@ -193,9 +193,7 @@ The ADK Platform Team
         """
         self.settings = get_settings()
         self.provider = provider or self._detect_provider()
-        self.from_email = getattr(
-            self.settings, "email_from", "noreply@adk-platform.com"
-        )
+        self.from_email = getattr(self.settings, "email_from", "noreply@adk-platform.com")
 
         logger.info(f"EmailService initialized with provider: {self.provider}")
 
@@ -354,9 +352,10 @@ The ADK Platform Team
         Returns:
             True if successful
         """
-        import aiosmtplib
-        from email.mime.text import MIMEText
         from email.mime.multipart import MIMEMultipart
+        from email.mime.text import MIMEText
+
+        import aiosmtplib
 
         msg = MIMEMultipart("alternative")
         msg["Subject"] = message.subject

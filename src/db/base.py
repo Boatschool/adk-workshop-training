@@ -2,6 +2,7 @@
 
 from datetime import datetime
 from typing import Any
+from uuid import UUID as PyUUID
 from uuid import uuid4
 
 from sqlalchemy import DateTime, func
@@ -21,7 +22,7 @@ class BaseModel(Base):
 
     __abstract__ = True
 
-    id: Mapped[UUID] = mapped_column(
+    id: Mapped[PyUUID] = mapped_column(
         UUID(as_uuid=True), primary_key=True, default=uuid4, nullable=False
     )
     created_at: Mapped[datetime] = mapped_column(
@@ -36,6 +37,4 @@ class BaseModel(Base):
 
     def to_dict(self) -> dict[str, Any]:
         """Convert model to dictionary"""
-        return {
-            column.name: getattr(self, column.name) for column in self.__table__.columns
-        }
+        return {column.name: getattr(self, column.name) for column in self.__table__.columns}

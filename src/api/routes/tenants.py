@@ -8,6 +8,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from src.api.dependencies import require_admin
 from src.api.schemas.tenant import TenantCreate, TenantResponse, TenantUpdate
 from src.core.exceptions import NotFoundError, ValidationError
+from src.db.models.tenant import Tenant
 from src.db.models.user import User
 from src.db.session import get_db
 from src.services.tenant_service import TenantService
@@ -19,7 +20,7 @@ router = APIRouter()
 async def create_tenant(
     tenant_data: TenantCreate,
     db: Annotated[AsyncSession, Depends(get_db)],
-):
+) -> Tenant:
     """
     Create a new tenant.
 
@@ -41,7 +42,7 @@ async def create_tenant(
         tenant = await service.create_tenant(tenant_data)
         return tenant
     except ValidationError as e:
-        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e))
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e)) from None
 
 
 @router.get("/{tenant_id}", response_model=TenantResponse)
@@ -49,7 +50,7 @@ async def get_tenant(
     tenant_id: str,
     db: Annotated[AsyncSession, Depends(get_db)],
     current_user: Annotated[User, Depends(require_admin)],
-):
+) -> Tenant:
     """
     Get tenant by ID.
 
@@ -82,7 +83,7 @@ async def update_tenant(
     tenant_data: TenantUpdate,
     db: Annotated[AsyncSession, Depends(get_db)],
     current_user: Annotated[User, Depends(require_admin)],
-):
+) -> Tenant:
     """
     Update an existing tenant.
 
@@ -105,7 +106,7 @@ async def update_tenant(
         tenant = await service.update_tenant(tenant_id, tenant_data)
         return tenant
     except NotFoundError as e:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e))
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e)) from None
 
 
 @router.get("/", response_model=list[TenantResponse])
@@ -114,7 +115,7 @@ async def list_tenants(
     current_user: Annotated[User, Depends(require_admin)],
     skip: Annotated[int, Query(ge=0)] = 0,
     limit: Annotated[int, Query(ge=1, le=100)] = 100,
-):
+) -> list[Tenant]:
     """
     List all tenants with pagination.
 

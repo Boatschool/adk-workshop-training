@@ -56,14 +56,10 @@ class AgentService:
         Returns:
             Agent or None if not found
         """
-        result = await self.db.execute(
-            select(Agent).where(Agent.id == agent_id)
-        )
+        result = await self.db.execute(select(Agent).where(Agent.id == agent_id))
         return result.scalar_one_or_none()
 
-    async def update_agent(
-        self, agent_id: str, agent_data: AgentUpdate
-    ) -> Agent:
+    async def update_agent(self, agent_id: str, agent_data: AgentUpdate) -> Agent:
         """
         Update an existing agent.
 

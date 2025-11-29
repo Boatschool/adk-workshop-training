@@ -10,6 +10,7 @@ from src.api.schemas.workshop import ExerciseCreate, ExerciseResponse, ExerciseU
 from src.core.exceptions import NotFoundError
 from src.core.tenancy import TenantContext
 from src.db.models.user import User
+from src.db.models.workshop import Exercise
 from src.db.session import get_db
 from src.services.exercise_service import ExerciseService
 
@@ -22,7 +23,7 @@ async def create_exercise(
     db: Annotated[AsyncSession, Depends(get_db)],
     current_user: Annotated[User, Depends(require_instructor)],
     tenant_id: Annotated[str, Depends(get_tenant_id)],
-):
+) -> Exercise:
     """
     Create a new exercise.
 
@@ -49,7 +50,7 @@ async def get_exercise(
     db: Annotated[AsyncSession, Depends(get_db)],
     current_user: Annotated[User, Depends(get_current_user)],
     tenant_id: Annotated[str, Depends(get_tenant_id)],
-):
+) -> Exercise:
     """
     Get exercise by ID.
 
@@ -83,7 +84,7 @@ async def update_exercise(
     db: Annotated[AsyncSession, Depends(get_db)],
     current_user: Annotated[User, Depends(require_instructor)],
     tenant_id: Annotated[str, Depends(get_tenant_id)],
-):
+) -> Exercise:
     """
     Update an existing exercise.
 
@@ -108,7 +109,7 @@ async def update_exercise(
         exercise = await service.update_exercise(exercise_id, exercise_data)
         return exercise
     except NotFoundError as e:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e))
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e)) from None
 
 
 @router.delete("/{exercise_id}", status_code=status.HTTP_204_NO_CONTENT)
@@ -117,7 +118,7 @@ async def delete_exercise(
     db: Annotated[AsyncSession, Depends(get_db)],
     current_user: Annotated[User, Depends(require_instructor)],
     tenant_id: Annotated[str, Depends(get_tenant_id)],
-):
+) -> None:
     """
     Delete an exercise.
 
@@ -137,7 +138,7 @@ async def delete_exercise(
         service = ExerciseService(db, tenant_id)
         await service.delete_exercise(exercise_id)
     except NotFoundError as e:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e))
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e)) from None
 
 
 @router.get("/", response_model=list[ExerciseResponse])
@@ -148,7 +149,7 @@ async def list_exercises(
     workshop_id: Annotated[str | None, Query(description="Filter by workshop ID")] = None,
     skip: Annotated[int, Query(ge=0)] = 0,
     limit: Annotated[int, Query(ge=1, le=100)] = 100,
-):
+) -> list[Exercise]:
     """
     List exercises with pagination and optional filtering.
 

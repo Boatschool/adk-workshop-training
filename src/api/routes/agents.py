@@ -25,6 +25,7 @@ from src.api.schemas.agent import (
 )
 from src.core.exceptions import NotFoundError
 from src.core.tenancy import TenantContext
+from src.db.models.agent import Agent
 from src.db.models.user import User
 from src.db.session import get_db
 from src.services.agent_service import AgentService
@@ -43,7 +44,7 @@ async def create_agent(
     db: Annotated[AsyncSession, Depends(get_db)],
     current_user: Annotated[User, Depends(get_current_user)],
     tenant_id: Annotated[str, Depends(get_tenant_id)],
-):
+) -> Agent:
     """
     Create a new agent.
 
@@ -70,7 +71,7 @@ async def get_agent(
     db: Annotated[AsyncSession, Depends(get_db)],
     current_user: Annotated[User, Depends(get_current_user)],
     tenant_id: Annotated[str, Depends(get_tenant_id)],
-):
+) -> Agent:
     """
     Get agent by ID.
 
@@ -104,7 +105,7 @@ async def update_agent(
     db: Annotated[AsyncSession, Depends(get_db)],
     current_user: Annotated[User, Depends(get_current_user)],
     tenant_id: Annotated[str, Depends(get_tenant_id)],
-):
+) -> Agent:
     """
     Update an existing agent.
 
@@ -148,7 +149,7 @@ async def update_agent(
         updated_agent = await service.update_agent(agent_id, agent_data)
         return updated_agent
     except NotFoundError as e:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e))
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e)) from None
 
 
 @router.delete("/{agent_id}", status_code=status.HTTP_204_NO_CONTENT)
@@ -157,7 +158,7 @@ async def delete_agent(
     db: Annotated[AsyncSession, Depends(get_db)],
     current_user: Annotated[User, Depends(get_current_user)],
     tenant_id: Annotated[str, Depends(get_tenant_id)],
-):
+) -> None:
     """
     Delete an agent.
 
@@ -196,7 +197,7 @@ async def delete_agent(
     try:
         await service.delete_agent(agent_id)
     except NotFoundError as e:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e))
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e)) from None
 
 
 @router.get("/", response_model=list[AgentResponse])
@@ -208,7 +209,7 @@ async def list_agents(
     agent_type: Annotated[str | None, Query(description="Filter by agent type")] = None,
     skip: Annotated[int, Query(ge=0)] = 0,
     limit: Annotated[int, Query(ge=1, le=100)] = 100,
-):
+) -> list[Agent]:
     """
     List agents with pagination and optional filtering.
 
@@ -246,7 +247,7 @@ async def get_my_agents(
     tenant_id: Annotated[str, Depends(get_tenant_id)],
     skip: Annotated[int, Query(ge=0)] = 0,
     limit: Annotated[int, Query(ge=1, le=100)] = 100,
-):
+) -> list[Agent]:
     """
     Get current user's agents.
 
@@ -262,9 +263,7 @@ async def get_my_agents(
     """
     TenantContext.set(tenant_id)
     service = AgentService(db, tenant_id)
-    agents = await service.list_agents_by_user(
-        str(current_user.id), skip=skip, limit=limit
-    )
+    agents = await service.list_agents_by_user(str(current_user.id), skip=skip, limit=limit)
     return agents
 
 

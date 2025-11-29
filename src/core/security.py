@@ -2,8 +2,8 @@
 
 import hashlib
 import hmac
-import secrets
-from datetime import datetime, timedelta, timezone
+from datetime import UTC, datetime, timedelta
+from typing import Any
 
 import bcrypt
 import jwt
@@ -95,17 +95,13 @@ def create_access_token(data: dict, expires_delta: timedelta | None = None) -> s
     to_encode = data.copy()
 
     if expires_delta:
-        expire = datetime.now(timezone.utc) + expires_delta
+        expire = datetime.now(UTC) + expires_delta
     else:
-        expire = datetime.now(timezone.utc) + timedelta(
-            minutes=settings.jwt_access_token_expire_minutes
-        )
+        expire = datetime.now(UTC) + timedelta(minutes=settings.jwt_access_token_expire_minutes)
 
-    to_encode.update({"exp": expire, "iat": datetime.now(timezone.utc)})
+    to_encode.update({"exp": expire, "iat": datetime.now(UTC)})
 
-    encoded_jwt = jwt.encode(
-        to_encode, settings.secret_key, algorithm=settings.jwt_algorithm
-    )
+    encoded_jwt = jwt.encode(to_encode, settings.secret_key, algorithm=settings.jwt_algorithm)
     return encoded_jwt
 
 
@@ -123,11 +119,11 @@ def decode_access_token(token: str) -> dict:
         AuthenticationError: If token is invalid or expired
     """
     try:
-        payload = jwt.decode(
+        payload: dict[str, Any] = jwt.decode(
             token, settings.secret_key, algorithms=[settings.jwt_algorithm]
         )
         return payload
     except jwt.ExpiredSignatureError:
-        raise AuthenticationError("Token has expired")
+        raise AuthenticationError("Token has expired") from None
     except jwt.InvalidTokenError:
-        raise AuthenticationError("Invalid token")
+        raise AuthenticationError("Invalid token") from None

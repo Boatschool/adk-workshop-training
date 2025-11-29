@@ -3,7 +3,8 @@
 import json
 import time
 from collections import defaultdict
-from typing import Callable
+from collections.abc import Awaitable, Callable
+from typing import Any
 
 from fastapi import Request, Response, status
 from starlette.middleware.base import BaseHTTPMiddleware
@@ -20,12 +21,14 @@ class RateLimitMiddleware(BaseHTTPMiddleware):
     For production, consider using Redis for distributed rate limiting.
     """
 
-    def __init__(self, app, requests_per_minute: int = 60):
+    def __init__(self, app: Any, requests_per_minute: int = 60) -> None:
         super().__init__(app)
         self.requests_per_minute = requests_per_minute
         self.requests: dict[str, list[float]] = defaultdict(list)
 
-    async def dispatch(self, request: Request, call_next: Callable) -> Response:
+    async def dispatch(
+        self, request: Request, call_next: Callable[[Request], Awaitable[Response]]
+    ) -> Response:
         """
         Process request with rate limiting.
 
@@ -59,7 +62,9 @@ class RateLimitMiddleware(BaseHTTPMiddleware):
         if len(self.requests[client_ip]) >= rate_limit:
             return Response(
                 content=json.dumps(
-                    {"detail": f"Rate limit exceeded. Maximum {rate_limit} requests per minute allowed."}
+                    {
+                        "detail": f"Rate limit exceeded. Maximum {rate_limit} requests per minute allowed."
+                    }
                 ),
                 status_code=status.HTTP_429_TOO_MANY_REQUESTS,
                 media_type="application/json",

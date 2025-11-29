@@ -1,9 +1,10 @@
 """Database session management"""
 
+import re
 from collections.abc import AsyncGenerator
 from contextlib import asynccontextmanager
 
-from sqlalchemy import event, text
+from sqlalchemy import text
 from sqlalchemy.ext.asyncio import (
     AsyncEngine,
     AsyncSession,
@@ -13,6 +14,11 @@ from sqlalchemy.ext.asyncio import (
 
 from src.core.config import get_settings
 from src.core.tenancy import TenantContext
+
+# Regex pattern for valid PostgreSQL identifiers (unquoted)
+# Must start with letter or underscore, followed by letters, digits, or underscores
+# Max length 63 characters (PostgreSQL limit)
+_VALID_IDENTIFIER_PATTERN = re.compile(r"^[a-zA-Z_][a-zA-Z0-9_]{0,62}$")
 
 # Global engine and session factory
 _engine: AsyncEngine | None = None
@@ -53,18 +59,55 @@ def get_session_factory() -> async_sessionmaker[AsyncSession]:
     return _async_session_factory
 
 
+def _validate_identifier(name: str) -> str:
+    """
+    Validate and return a safe PostgreSQL identifier.
+
+    SECURITY: This function prevents SQL injection by ensuring the identifier
+    contains only safe characters. Even though schema names come from our
+    database, we validate them to protect against compromised tenant records.
+
+    Args:
+        name: The identifier to validate
+
+    Returns:
+        The validated identifier (unchanged if valid)
+
+    Raises:
+        ValueError: If the identifier contains invalid characters
+    """
+    if not name:
+        raise ValueError("Identifier cannot be empty")
+
+    if not _VALID_IDENTIFIER_PATTERN.match(name):
+        raise ValueError(
+            f"Invalid identifier '{name}': must start with letter/underscore, "
+            "contain only alphanumeric/underscore, max 63 characters"
+        )
+
+    return name
+
+
 async def set_tenant_schema(session: AsyncSession, schema_name: str) -> None:
     """
     Set the PostgreSQL search_path to use the tenant's schema.
 
     This ensures all queries in this session use the tenant's schema by default.
 
+    SECURITY: The schema_name is validated before being used in the query
+    to prevent SQL injection, even from compromised tenant records.
+
     Args:
         session: Database session
         schema_name: Name of the tenant schema
+
+    Raises:
+        ValueError: If schema_name contains invalid characters
     """
+    # SECURITY: Validate schema name before interpolation to prevent SQL injection
+    safe_schema = _validate_identifier(schema_name)
     await session.execute(
-        text(f"SET search_path TO {schema_name}, adk_platform_shared, public")
+        text(f"SET search_path TO {safe_schema}, adk_platform_shared, public")
     )
 
 
@@ -86,6 +129,12 @@ async def get_db() -> AsyncGenerator[AsyncSession, None]:
             await session.close()
 
 
+class TenantNotFoundError(Exception):
+    """Raised when a tenant ID does not resolve to a valid schema."""
+
+    pass
+
+
 async def get_tenant_db(tenant_id: str) -> AsyncGenerator[AsyncSession, None]:
     """
     Get a database session with tenant schema properly set.
@@ -93,29 +142,66 @@ async def get_tenant_db(tenant_id: str) -> AsyncGenerator[AsyncSession, None]:
     This is a generator function that should be used with dependency injection
     that provides the tenant_id. Use get_tenant_db_dependency() for FastAPI.
 
+    SECURITY: This function explicitly resets the search_path and validates
+    that the tenant exists before yielding the session. This prevents:
+    - Cross-tenant data access via spoofed headers
+    - Stale search_path from pooled connections
+
     Args:
         tenant_id: The tenant ID to scope the session to
+
+    Raises:
+        TenantNotFoundError: If the tenant_id does not resolve to a valid schema
     """
     session_factory = get_session_factory()
     async with session_factory() as session:
         try:
-            # Set tenant context
-            TenantContext.set(tenant_id)
+            # SECURITY: Always reset search_path first to prevent cross-tenant access
+            # from pooled connections that may retain a previous tenant's search_path
+            await session.execute(text("SET search_path TO public"))
 
             # Get tenant record to find the actual schema name
             from sqlalchemy import select
+
             from src.db.models.tenant import Tenant
 
             result = await session.execute(
-                select(Tenant.database_schema).where(Tenant.id == tenant_id)
+                select(Tenant.database_schema, Tenant.status).where(Tenant.id == tenant_id)
             )
-            schema_name = result.scalar_one_or_none()
+            row = result.one_or_none()
 
-            if schema_name:
+            # SECURITY: Reject unknown or inactive tenants explicitly
+            if row is None:
+                raise TenantNotFoundError(f"Tenant '{tenant_id}' not found")
+
+            schema_name, tenant_status = row
+
+            if not schema_name:
+                raise TenantNotFoundError(f"Tenant '{tenant_id}' has no schema configured")
+
+            # Optional: reject inactive/suspended tenants
+            if tenant_status not in ("active", "trial"):
+                raise TenantNotFoundError(f"Tenant '{tenant_id}' is not active")
+
+            # Set tenant context only after validation
+            TenantContext.set(tenant_id)
+
+            # Set the validated schema
+            # SECURITY: set_tenant_schema validates the schema name format
+            try:
                 await set_tenant_schema(session, schema_name)
+            except ValueError as e:
+                # Convert validation error to application-level error
+                # This handles cases where stored schema data is malformed
+                raise TenantNotFoundError(
+                    f"Tenant '{tenant_id}' has invalid schema name: {e}"
+                ) from None
 
             yield session
             await session.commit()
+        except TenantNotFoundError:
+            await session.rollback()
+            raise
         except Exception:
             await session.rollback()
             raise
@@ -134,6 +220,7 @@ async def get_db_context() -> AsyncGenerator[AsyncSession, None]:
             if tenant_id:
                 # Get tenant record to find the actual schema name
                 from sqlalchemy import select
+
                 from src.db.models.tenant import Tenant
 
                 result = await session.execute(
@@ -142,10 +229,20 @@ async def get_db_context() -> AsyncGenerator[AsyncSession, None]:
                 schema_name = result.scalar_one_or_none()
 
                 if schema_name:
-                    await set_tenant_schema(session, schema_name)
+                    # SECURITY: set_tenant_schema validates the schema name format
+                    try:
+                        await set_tenant_schema(session, schema_name)
+                    except ValueError as e:
+                        # Convert validation error to application-level error
+                        raise TenantNotFoundError(
+                            f"Tenant '{tenant_id}' has invalid schema name: {e}"
+                        ) from None
 
             yield session
             await session.commit()
+        except TenantNotFoundError:
+            await session.rollback()
+            raise
         except Exception:
             await session.rollback()
             raise

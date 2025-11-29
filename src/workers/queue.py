@@ -8,10 +8,11 @@ In production, replace with Cloud Tasks or Celery.
 import asyncio
 import logging
 import uuid
+from collections.abc import Callable, Coroutine
 from dataclasses import dataclass, field
 from datetime import datetime
 from enum import Enum
-from typing import Any, Callable, Coroutine
+from typing import Any
 
 logger = logging.getLogger(__name__)
 
@@ -137,6 +138,7 @@ class TaskQueue:
         Returns:
             Decorator function
         """
+
         def decorator(handler: TaskHandler) -> TaskHandler:
             self._handlers[task_type] = handler
             logger.debug(f"Registered task handler: {task_type}")
@@ -180,9 +182,7 @@ class TaskQueue:
         )
 
         # Schedule execution and track the task
-        task = asyncio.create_task(
-            self._execute_task(task_id, task_type, delay_seconds, kwargs)
-        )
+        task = asyncio.create_task(self._execute_task(task_id, task_type, delay_seconds, kwargs))
         self._running_tasks[task_id] = task
 
         # Clean up task reference when done

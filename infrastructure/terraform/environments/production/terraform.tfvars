@@ -22,8 +22,10 @@ cloud_run_concurrency   = 100
 # Networking - private networking for production
 enable_private_networking = true
 
-# Security - NEVER allow unauthenticated access in production (use IAP)
-allow_unauthenticated_api = false
+# Security - allow public access for user registration/login
+# Application-level authentication (JWT) protects sensitive endpoints
+# Rate limiting, brute force protection, and security headers are enforced at app level
+allow_unauthenticated_api = true
 
 # CORS - restrict to production domain(s) only
 # TODO: Update with actual production domain(s) when configured

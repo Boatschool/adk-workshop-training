@@ -1,6 +1,6 @@
 """Progress service for managing user exercise progress."""
 
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -25,9 +25,7 @@ class ProgressService:
         self.db = db
         self.tenant_id = tenant_id
 
-    async def get_or_create_progress(
-        self, user_id: str, exercise_id: str
-    ) -> Progress:
+    async def get_or_create_progress(self, user_id: str, exercise_id: str) -> Progress:
         """
         Get existing progress or create a new one.
 
@@ -64,9 +62,7 @@ class ProgressService:
         Returns:
             Progress or None if not found
         """
-        result = await self.db.execute(
-            select(Progress).where(Progress.id == progress_id)
-        )
+        result = await self.db.execute(select(Progress).where(Progress.id == progress_id))
         return result.scalar_one_or_none()
 
     async def get_progress_by_user_exercise(
@@ -118,7 +114,7 @@ class ProgressService:
 
         # Auto-set completed_at when status changes to completed
         if progress.status == ExerciseStatus.COMPLETED.value and not progress.completed_at:
-            progress.completed_at = datetime.now(timezone.utc)
+            progress.completed_at = datetime.now(UTC)
 
         await self.db.commit()
         await self.db.refresh(progress)

@@ -36,9 +36,7 @@ class AgentExecuteRequest(BaseModel):
     config_override: dict[str, Any] | None = Field(
         None, description="Optional configuration overrides"
     )
-    session_id: str | None = Field(
-        None, description="Session ID for conversation continuity"
-    )
+    session_id: str | None = Field(None, description="Session ID for conversation continuity")
 
 
 class AgentExecuteResponse(BaseModel):
@@ -48,9 +46,7 @@ class AgentExecuteResponse(BaseModel):
     message: str = Field(..., description="Agent's response message")
     data: dict[str, Any] | None = Field(None, description="Additional response data")
     error: str | None = Field(None, description="Error message if failed")
-    execution_time_ms: int | None = Field(
-        None, description="Execution time in milliseconds"
-    )
+    execution_time_ms: int | None = Field(None, description="Execution time in milliseconds")
     model_used: str | None = Field(None, description="Model that processed the request")
     tokens_used: int | None = Field(None, description="Approximate token count")
 
@@ -67,9 +63,7 @@ class AgentTemplateInfo(BaseModel):
 class AgentTemplateDetail(AgentTemplateInfo):
     """Detailed information about an agent template."""
 
-    default_config: dict[str, Any] = Field(
-        ..., description="Default configuration values"
-    )
+    default_config: dict[str, Any] = Field(..., description="Default configuration values")
 
 
 class AgentCreate(AgentBase):

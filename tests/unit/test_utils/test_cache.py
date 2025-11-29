@@ -1,8 +1,9 @@
 """Tests for caching utility."""
 
 import asyncio
-import pytest
 import time
+
+import pytest
 
 from src.utils.cache import Cache, CacheEntry, cache_key, cached, get_cache
 

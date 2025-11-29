@@ -6,14 +6,11 @@ Each tenant gets their own PostgreSQL schema with isolated tables.
 
 from sqlalchemy import text
 from sqlalchemy.ext.asyncio import AsyncSession
-import sqlalchemy as sa
 
 from src.core.exceptions import ValidationError
 
 
-async def create_tenant_schema_and_tables(
-    db: AsyncSession, schema_name: str
-) -> None:
+async def create_tenant_schema_and_tables(db: AsyncSession, schema_name: str) -> None:
     """
     Create a new PostgreSQL schema for a tenant and all required tables.
 
@@ -40,7 +37,8 @@ async def create_tenant_schema_and_tables(
 
     # Create users table
     await db.execute(
-        text(f"""
+        text(
+            f"""
         CREATE TABLE {schema_name}.users (
             id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
             email VARCHAR(255) NOT NULL,
@@ -53,7 +51,8 @@ async def create_tenant_schema_and_tables(
             created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
             updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
         )
-        """)
+        """
+        )
     )
 
     # Create unique index on email
@@ -63,7 +62,8 @@ async def create_tenant_schema_and_tables(
 
     # Create refresh_tokens table
     await db.execute(
-        text(f"""
+        text(
+            f"""
         CREATE TABLE {schema_name}.refresh_tokens (
             id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
             token VARCHAR(255) NOT NULL,
@@ -73,15 +73,19 @@ async def create_tenant_schema_and_tables(
             created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
             updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
         )
-        """)
+        """
+        )
     )
     await db.execute(
-        text(f"CREATE UNIQUE INDEX ix_{schema_name}_refresh_tokens_token ON {schema_name}.refresh_tokens(token)")
+        text(
+            f"CREATE UNIQUE INDEX ix_{schema_name}_refresh_tokens_token ON {schema_name}.refresh_tokens(token)"
+        )
     )
 
     # Create password_reset_tokens table
     await db.execute(
-        text(f"""
+        text(
+            f"""
         CREATE TABLE {schema_name}.password_reset_tokens (
             id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
             token VARCHAR(255) NOT NULL,
@@ -91,15 +95,19 @@ async def create_tenant_schema_and_tables(
             created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
             updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
         )
-        """)
+        """
+        )
     )
     await db.execute(
-        text(f"CREATE UNIQUE INDEX ix_{schema_name}_password_reset_tokens_token ON {schema_name}.password_reset_tokens(token)")
+        text(
+            f"CREATE UNIQUE INDEX ix_{schema_name}_password_reset_tokens_token ON {schema_name}.password_reset_tokens(token)"
+        )
     )
 
     # Create workshops table
     await db.execute(
-        text(f"""
+        text(
+            f"""
         CREATE TABLE {schema_name}.workshops (
             id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
             title VARCHAR(255) NOT NULL,
@@ -111,12 +119,14 @@ async def create_tenant_schema_and_tables(
             created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
             updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
         )
-        """)
+        """
+        )
     )
 
     # Create exercises table
     await db.execute(
-        text(f"""
+        text(
+            f"""
         CREATE TABLE {schema_name}.exercises (
             id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
             workshop_id UUID NOT NULL REFERENCES {schema_name}.workshops(id) ON DELETE CASCADE,
@@ -127,12 +137,14 @@ async def create_tenant_schema_and_tables(
             created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
             updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
         )
-        """)
+        """
+        )
     )
 
     # Create progress table
     await db.execute(
-        text(f"""
+        text(
+            f"""
         CREATE TABLE {schema_name}.progress (
             id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
             user_id UUID NOT NULL REFERENCES {schema_name}.users(id) ON DELETE CASCADE,
@@ -144,12 +156,14 @@ async def create_tenant_schema_and_tables(
             updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
             UNIQUE(user_id, exercise_id)
         )
-        """)
+        """
+        )
     )
 
     # Create agents table
     await db.execute(
-        text(f"""
+        text(
+            f"""
         CREATE TABLE {schema_name}.agents (
             id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
             user_id UUID NOT NULL REFERENCES {schema_name}.users(id) ON DELETE CASCADE,
@@ -161,12 +175,14 @@ async def create_tenant_schema_and_tables(
             created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
             updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
         )
-        """)
+        """
+        )
     )
 
     # Create updated_at trigger function (if it doesn't exist)
     await db.execute(
-        text("""
+        text(
+            """
         CREATE OR REPLACE FUNCTION update_updated_at_column()
         RETURNS TRIGGER AS $$
         BEGIN
@@ -174,18 +190,29 @@ async def create_tenant_schema_and_tables(
             RETURN NEW;
         END;
         $$ language 'plpgsql'
-        """)
+        """
+        )
     )
 
     # Add triggers for updated_at on all tables
-    for table in ["users", "refresh_tokens", "password_reset_tokens", "workshops", "exercises", "progress", "agents"]:
+    for table in [
+        "users",
+        "refresh_tokens",
+        "password_reset_tokens",
+        "workshops",
+        "exercises",
+        "progress",
+        "agents",
+    ]:
         await db.execute(
-            text(f"""
+            text(
+                f"""
             CREATE TRIGGER update_{schema_name}_{table}_updated_at
             BEFORE UPDATE ON {schema_name}.{table}
             FOR EACH ROW
             EXECUTE FUNCTION update_updated_at_column()
-            """)
+            """
+            )
         )
 
     await db.commit()

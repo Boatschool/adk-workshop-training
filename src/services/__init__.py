@@ -3,8 +3,8 @@
 from src.services.agent_service import AgentService
 from src.services.email_service import (
     EmailService,
-    send_welcome_email,
     send_password_reset_email,
+    send_welcome_email,
     send_workshop_invitation,
 )
 from src.services.exercise_service import ExerciseService

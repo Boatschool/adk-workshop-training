@@ -1,5 +1,7 @@
 """Tenant middleware for multi-tenant request handling."""
 
+from collections.abc import Awaitable, Callable
+
 from fastapi import Request, Response
 from starlette.middleware.base import BaseHTTPMiddleware
 
@@ -15,7 +17,9 @@ class TenantMiddleware(BaseHTTPMiddleware):
     2. Subdomain (e.g., acme.adk-platform.com -> tenant slug: acme)
     """
 
-    async def dispatch(self, request: Request, call_next):
+    async def dispatch(
+        self, request: Request, call_next: Callable[[Request], Awaitable[Response]]
+    ) -> Response:
         """
         Process request and set tenant context.
 

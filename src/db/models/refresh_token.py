@@ -1,12 +1,18 @@
 """RefreshToken model - stored in tenant-specific schema"""
 
-from datetime import datetime, timezone
-from uuid import UUID, uuid4
+from __future__ import annotations
+
+from datetime import UTC, datetime
+from typing import TYPE_CHECKING
+from uuid import UUID
 
 from sqlalchemy import DateTime, ForeignKey, String
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from src.db.base import BaseModel
+
+if TYPE_CHECKING:
+    from src.db.models.user import User
 
 
 class RefreshToken(BaseModel):
@@ -23,7 +29,7 @@ class RefreshToken(BaseModel):
     revoked_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
 
     # Relationships
-    user: Mapped["User"] = relationship("User", back_populates="refresh_tokens")
+    user: Mapped[User] = relationship("User", back_populates="refresh_tokens")
 
     def __repr__(self) -> str:
         return f"<RefreshToken(id={self.id}, user_id={self.user_id}, revoked={self.revoked_at is not None})>"
@@ -33,6 +39,6 @@ class RefreshToken(BaseModel):
         """Check if token is valid (not revoked and not expired)."""
         if self.revoked_at is not None:
             return False
-        if self.expires_at < datetime.now(timezone.utc):
+        if self.expires_at < datetime.now(UTC):
             return False
         return True

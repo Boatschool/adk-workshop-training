@@ -1,14 +1,15 @@
 """Tests for email service."""
 
+from unittest.mock import AsyncMock, MagicMock, patch
+
 import pytest
-from unittest.mock import AsyncMock, patch, MagicMock
 
 from src.services.email_service import (
-    EmailService,
-    EmailProvider,
     EmailMessage,
-    send_welcome_email,
+    EmailProvider,
+    EmailService,
     send_password_reset_email,
+    send_welcome_email,
 )
 
 
