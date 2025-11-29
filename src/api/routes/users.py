@@ -98,8 +98,15 @@ async def register_user(
             success=True,
         )
 
+        # Build response using explicit field mapping to avoid SQLAlchemy internal fields
         return UserWithToken(
-            **user.__dict__,
+            id=user.id,
+            email=user.email,
+            full_name=user.full_name,
+            role=user.role,
+            is_active=user.is_active,
+            created_at=user.created_at,
+            updated_at=user.updated_at,
             access_token=access_token,
             refresh_token=refresh_token.token,
             token_type="bearer",
@@ -207,8 +214,15 @@ async def login_user(
             success=True,
         )
 
+        # Build response using explicit field mapping to avoid SQLAlchemy internal fields
         return UserWithToken(
-            **user.__dict__,
+            id=user.id,
+            email=user.email,
+            full_name=user.full_name,
+            role=user.role,
+            is_active=user.is_active,
+            created_at=user.created_at,
+            updated_at=user.updated_at,
             access_token=access_token,
             refresh_token=refresh_token.token,
             token_type="bearer",

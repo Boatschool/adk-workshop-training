@@ -70,6 +70,24 @@ output "cloud_run_service_account" {
 }
 
 # =============================================================================
+# Load Balancer Outputs
+# =============================================================================
+output "frontend_ip" {
+  description = "Static IP address for the frontend load balancer"
+  value       = var.enable_load_balancer ? module.load_balancer[0].frontend_ip : null
+}
+
+output "frontend_url" {
+  description = "Frontend URL (using custom domain if configured)"
+  value       = var.enable_load_balancer && length(var.frontend_domains) > 0 ? "https://${var.frontend_domains[0]}" : (var.enable_load_balancer ? module.load_balancer[0].load_balancer_url : null)
+}
+
+output "load_balancer_ip_name" {
+  description = "Name of the static IP address resource (for DNS configuration)"
+  value       = var.enable_load_balancer ? module.load_balancer[0].frontend_ip_name : null
+}
+
+# =============================================================================
 # Summary Output
 # =============================================================================
 output "deployment_summary" {
@@ -79,6 +97,8 @@ output "deployment_summary" {
     region       = var.region
     environment  = var.environment
     api_url      = module.cloud_run.service_url
+    frontend_url = var.enable_load_balancer && length(var.frontend_domains) > 0 ? "https://${var.frontend_domains[0]}" : null
+    frontend_ip  = var.enable_load_balancer ? module.load_balancer[0].frontend_ip : null
     database     = module.cloud_sql.instance_name
     buckets      = module.storage.bucket_names
   }

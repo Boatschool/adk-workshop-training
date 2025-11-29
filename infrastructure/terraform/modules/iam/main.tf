@@ -38,8 +38,14 @@ resource "google_storage_bucket_iam_member" "cloud_run_logs_creator" {
 # =============================================================================
 # CI/CD Service Account (for GitHub Actions)
 # =============================================================================
+locals {
+  # Truncate prefix to ensure service account name is <= 30 characters
+  # Format: {truncated_prefix}-cicd (account_id has 30 char limit)
+  cicd_account_id = substr("${var.name_prefix}-cicd", 0, 30)
+}
+
 resource "google_service_account" "cicd" {
-  account_id   = "${var.name_prefix}-cicd-sa"
+  account_id   = local.cicd_account_id
   project      = var.project_id
   display_name = "CI/CD Service Account for ${var.name_prefix}"
   description  = "Service account used by GitHub Actions for deployments"

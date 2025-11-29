@@ -8,8 +8,8 @@ const TENANT_KEY = 'adk_tenant_id'
 const THEME_KEY = 'adk_theme'
 
 // Default tenant ID for the application
-// This is the "Default Tenant" created during setup
-const DEFAULT_TENANT_ID = 'bb869643-8cdd-441a-b991-fb1fcd089aa0'
+// This is the "Graymatter" tenant created for production
+const DEFAULT_TENANT_ID = '17d9ee0f-dfff-44a0-9f5e-75afcd44dc9c'
 
 /**
  * Get the stored access token

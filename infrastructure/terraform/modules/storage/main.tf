@@ -27,6 +27,13 @@ resource "google_storage_bucket" "static" {
     enabled = true
   }
 
+  # Website configuration for SPA routing
+  # All 404s return index.html so client-side routing works
+  website {
+    main_page_suffix = "index.html"
+    not_found_page   = "index.html"
+  }
+
   # CORS configuration for frontend access
   # SECURITY: Use cors_origins variable to restrict allowed origins per environment
   cors {
@@ -49,9 +56,9 @@ resource "google_storage_bucket" "static" {
   labels = var.labels
 }
 
-# Make static bucket publicly readable (for static assets)
+# Make static bucket publicly readable (required for Load Balancer backend bucket)
+# This is safe because the bucket only contains static frontend assets (HTML, CSS, JS)
 resource "google_storage_bucket_iam_member" "static_public_read" {
-  count  = var.environment != "production" ? 1 : 0 # Only in non-prod
   bucket = google_storage_bucket.static.name
   role   = "roles/storage.objectViewer"
   member = "allUsers"

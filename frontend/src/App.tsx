@@ -11,7 +11,7 @@ import { queryClient } from '@services/queryClient'
 import { AuthProvider } from '@contexts/AuthContext'
 import { TenantProvider } from '@contexts/TenantContext'
 import { ThemeProvider } from '@contexts/ThemeContext'
-import { RootLayout } from '@components/layout'
+import { RootLayout, ProtectedRoute } from '@components/layout'
 
 // Page imports
 import { DashboardPage } from '@pages/dashboard'
@@ -76,9 +76,11 @@ function App() {
                 <Route
                   path="/"
                   element={
-                    <RootLayout>
-                      <DashboardPage />
-                    </RootLayout>
+                    <ProtectedRoute>
+                      <RootLayout>
+                        <DashboardPage />
+                      </RootLayout>
+                    </ProtectedRoute>
                   }
                 />
 
@@ -86,17 +88,21 @@ function App() {
                 <Route
                   path="/workshops"
                   element={
-                    <RootLayout>
-                      <WorkshopsPage />
-                    </RootLayout>
+                    <ProtectedRoute>
+                      <RootLayout>
+                        <WorkshopsPage />
+                      </RootLayout>
+                    </ProtectedRoute>
                   }
                 />
                 <Route
                   path="/workshops/:id"
                   element={
-                    <RootLayout>
-                      <WorkshopDetailPage />
-                    </RootLayout>
+                    <ProtectedRoute>
+                      <RootLayout>
+                        <WorkshopDetailPage />
+                      </RootLayout>
+                    </ProtectedRoute>
                   }
                 />
 
@@ -104,9 +110,11 @@ function App() {
                 <Route
                   path="/exercises/:id"
                   element={
-                    <RootLayout>
-                      <ExercisePage />
-                    </RootLayout>
+                    <ProtectedRoute>
+                      <RootLayout>
+                        <ExercisePage />
+                      </RootLayout>
+                    </ProtectedRoute>
                   }
                 />
 
@@ -114,17 +122,21 @@ function App() {
                 <Route
                   path="/guides"
                   element={
-                    <RootLayout>
-                      <GuidesListPage />
-                    </RootLayout>
+                    <ProtectedRoute>
+                      <RootLayout>
+                        <GuidesListPage />
+                      </RootLayout>
+                    </ProtectedRoute>
                   }
                 />
                 <Route
                   path="/guides/:slug"
                   element={
-                    <RootLayout>
-                      <GuidePage />
-                    </RootLayout>
+                    <ProtectedRoute>
+                      <RootLayout>
+                        <GuidePage />
+                      </RootLayout>
+                    </ProtectedRoute>
                   }
                 />
 
@@ -132,9 +144,11 @@ function App() {
                 <Route
                   path="/getting-started"
                   element={
-                    <RootLayout>
-                      <SetupWizard />
-                    </RootLayout>
+                    <ProtectedRoute>
+                      <RootLayout>
+                        <SetupWizard />
+                      </RootLayout>
+                    </ProtectedRoute>
                   }
                 />
 
@@ -142,9 +156,11 @@ function App() {
                 <Route
                   path="/examples/:id"
                   element={
-                    <RootLayout>
-                      <ExamplePage />
-                    </RootLayout>
+                    <ProtectedRoute>
+                      <RootLayout>
+                        <ExamplePage />
+                      </RootLayout>
+                    </ProtectedRoute>
                   }
                 />
 
@@ -152,9 +168,11 @@ function App() {
                 <Route
                   path="/agents"
                   element={
-                    <RootLayout>
-                      <AgentsPage />
-                    </RootLayout>
+                    <ProtectedRoute>
+                      <RootLayout>
+                        <AgentsPage />
+                      </RootLayout>
+                    </ProtectedRoute>
                   }
                 />
 
@@ -164,9 +182,11 @@ function App() {
                 <Route
                   path="/profile/settings"
                   element={
-                    <RootLayout>
-                      <SettingsPage />
-                    </RootLayout>
+                    <ProtectedRoute>
+                      <RootLayout>
+                        <SettingsPage />
+                      </RootLayout>
+                    </ProtectedRoute>
                   }
                 />
 
@@ -174,17 +194,21 @@ function App() {
                 <Route
                   path="/admin/users"
                   element={
-                    <RootLayout>
-                      <AdminUsersPage />
-                    </RootLayout>
+                    <ProtectedRoute requiredRole="tenant_admin">
+                      <RootLayout>
+                        <AdminUsersPage />
+                      </RootLayout>
+                    </ProtectedRoute>
                   }
                 />
                 <Route
                   path="/admin/tenants"
                   element={
-                    <RootLayout>
-                      <AdminTenantsPage />
-                    </RootLayout>
+                    <ProtectedRoute requiredRole="super_admin">
+                      <RootLayout>
+                        <AdminTenantsPage />
+                      </RootLayout>
+                    </ProtectedRoute>
                   }
                 />
 
