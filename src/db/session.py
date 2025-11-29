@@ -1,5 +1,6 @@
 """Database session management"""
 
+import re
 from collections.abc import AsyncGenerator
 from contextlib import asynccontextmanager
 
@@ -13,6 +14,11 @@ from sqlalchemy.ext.asyncio import (
 
 from src.core.config import get_settings
 from src.core.tenancy import TenantContext
+
+# Regex pattern for valid PostgreSQL identifiers (unquoted)
+# Must start with letter or underscore, followed by letters, digits, or underscores
+# Max length 63 characters (PostgreSQL limit)
+_VALID_IDENTIFIER_PATTERN = re.compile(r"^[a-zA-Z_][a-zA-Z0-9_]{0,62}$")
 
 # Global engine and session factory
 _engine: AsyncEngine | None = None
@@ -53,17 +59,56 @@ def get_session_factory() -> async_sessionmaker[AsyncSession]:
     return _async_session_factory
 
 
+def _validate_identifier(name: str) -> str:
+    """
+    Validate and return a safe PostgreSQL identifier.
+
+    SECURITY: This function prevents SQL injection by ensuring the identifier
+    contains only safe characters. Even though schema names come from our
+    database, we validate them to protect against compromised tenant records.
+
+    Args:
+        name: The identifier to validate
+
+    Returns:
+        The validated identifier (unchanged if valid)
+
+    Raises:
+        ValueError: If the identifier contains invalid characters
+    """
+    if not name:
+        raise ValueError("Identifier cannot be empty")
+
+    if not _VALID_IDENTIFIER_PATTERN.match(name):
+        raise ValueError(
+            f"Invalid identifier '{name}': must start with letter/underscore, "
+            "contain only alphanumeric/underscore, max 63 characters"
+        )
+
+    return name
+
+
 async def set_tenant_schema(session: AsyncSession, schema_name: str) -> None:
     """
     Set the PostgreSQL search_path to use the tenant's schema.
 
     This ensures all queries in this session use the tenant's schema by default.
 
+    SECURITY: The schema_name is validated before being used in the query
+    to prevent SQL injection, even from compromised tenant records.
+
     Args:
         session: Database session
         schema_name: Name of the tenant schema
+
+    Raises:
+        ValueError: If schema_name contains invalid characters
     """
-    await session.execute(text(f"SET search_path TO {schema_name}, adk_platform_shared, public"))
+    # SECURITY: Validate schema name before interpolation to prevent SQL injection
+    safe_schema = _validate_identifier(schema_name)
+    await session.execute(
+        text(f"SET search_path TO {safe_schema}, adk_platform_shared, public")
+    )
 
 
 async def get_db() -> AsyncGenerator[AsyncSession, None]:
