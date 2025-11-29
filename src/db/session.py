@@ -3,7 +3,7 @@
 from collections.abc import AsyncGenerator
 from contextlib import asynccontextmanager
 
-from sqlalchemy import event, text
+from sqlalchemy import text
 from sqlalchemy.ext.asyncio import (
     AsyncEngine,
     AsyncSession,
@@ -86,6 +86,12 @@ async def get_db() -> AsyncGenerator[AsyncSession, None]:
             await session.close()
 
 
+class TenantNotFoundError(Exception):
+    """Raised when a tenant ID does not resolve to a valid schema."""
+
+    pass
+
+
 async def get_tenant_db(tenant_id: str) -> AsyncGenerator[AsyncSession, None]:
     """
     Get a database session with tenant schema properly set.
@@ -93,29 +99,58 @@ async def get_tenant_db(tenant_id: str) -> AsyncGenerator[AsyncSession, None]:
     This is a generator function that should be used with dependency injection
     that provides the tenant_id. Use get_tenant_db_dependency() for FastAPI.
 
+    SECURITY: This function explicitly resets the search_path and validates
+    that the tenant exists before yielding the session. This prevents:
+    - Cross-tenant data access via spoofed headers
+    - Stale search_path from pooled connections
+
     Args:
         tenant_id: The tenant ID to scope the session to
+
+    Raises:
+        TenantNotFoundError: If the tenant_id does not resolve to a valid schema
     """
     session_factory = get_session_factory()
     async with session_factory() as session:
         try:
-            # Set tenant context
-            TenantContext.set(tenant_id)
+            # SECURITY: Always reset search_path first to prevent cross-tenant access
+            # from pooled connections that may retain a previous tenant's search_path
+            await session.execute(text("SET search_path TO public"))
 
             # Get tenant record to find the actual schema name
             from sqlalchemy import select
+
             from src.db.models.tenant import Tenant
 
             result = await session.execute(
-                select(Tenant.database_schema).where(Tenant.id == tenant_id)
+                select(Tenant.database_schema, Tenant.status).where(Tenant.id == tenant_id)
             )
-            schema_name = result.scalar_one_or_none()
+            row = result.one_or_none()
 
-            if schema_name:
-                await set_tenant_schema(session, schema_name)
+            # SECURITY: Reject unknown or inactive tenants explicitly
+            if row is None:
+                raise TenantNotFoundError(f"Tenant '{tenant_id}' not found")
+
+            schema_name, tenant_status = row
+
+            if not schema_name:
+                raise TenantNotFoundError(f"Tenant '{tenant_id}' has no schema configured")
+
+            # Optional: reject inactive/suspended tenants
+            if tenant_status not in ("active", "trial"):
+                raise TenantNotFoundError(f"Tenant '{tenant_id}' is not active")
+
+            # Set tenant context only after validation
+            TenantContext.set(tenant_id)
+
+            # Set the validated schema
+            await set_tenant_schema(session, schema_name)
 
             yield session
             await session.commit()
+        except TenantNotFoundError:
+            await session.rollback()
+            raise
         except Exception:
             await session.rollback()
             raise
@@ -134,6 +169,7 @@ async def get_db_context() -> AsyncGenerator[AsyncSession, None]:
             if tenant_id:
                 # Get tenant record to find the actual schema name
                 from sqlalchemy import select
+
                 from src.db.models.tenant import Tenant
 
                 result = await session.execute(
