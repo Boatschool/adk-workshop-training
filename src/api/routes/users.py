@@ -5,7 +5,12 @@ from typing import Annotated
 from fastapi import APIRouter, Depends, HTTPException, Query, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from src.api.dependencies import get_current_user, get_tenant_id, get_tenant_db_dependency, require_admin
+from src.api.dependencies import (
+    get_current_user,
+    get_tenant_db_dependency,
+    get_tenant_id,
+    require_admin,
+)
 from src.api.schemas.user import (
     UserCreate,
     UserCreateAdmin,
@@ -31,7 +36,7 @@ settings = get_settings()
 router = APIRouter()
 
 
-@router.post("/register", response_model=UserResponse, status_code=status.HTTP_201_CREATED)
+@router.post("/register", response_model=UserWithToken, status_code=status.HTTP_201_CREATED)
 async def register_user(
     user_data: UserCreate,
     db: Annotated[AsyncSession, Depends(get_tenant_db_dependency)],
@@ -43,13 +48,16 @@ async def register_user(
     Always creates users with PARTICIPANT role. For elevated roles,
     use the POST /users/create endpoint (admin-only).
 
+    Returns access and refresh tokens so users are automatically
+    logged in after registration.
+
     Args:
         user_data: User registration data
         db: Database session (with tenant schema already set)
         tenant_id: Tenant ID from header
 
     Returns:
-        UserResponse: Created user with PARTICIPANT role
+        UserWithToken: Created user with access and refresh tokens
 
     Raises:
         HTTPException: If validation fails or email already exists
@@ -57,9 +65,31 @@ async def register_user(
     try:
         service = UserService(db, tenant_id)
         user = await service.create_user(user_data)
-        return user
+
+        # Create JWT access token
+        token_data = {
+            "user_id": str(user.id),
+            "tenant_id": tenant_id,
+            "role": user.role,
+        }
+        access_token = create_access_token(token_data)
+
+        # Create refresh token
+        refresh_service = RefreshTokenService(db, tenant_id)
+        refresh_token = await refresh_service.create_refresh_token(user.id)
+
+        # Calculate expiry in seconds
+        expires_in = settings.jwt_access_token_expire_minutes * 60
+
+        return UserWithToken(
+            **user.__dict__,
+            access_token=access_token,
+            refresh_token=refresh_token.token,
+            token_type="bearer",
+            expires_in=expires_in,
+        )
     except ValidationError as e:
-        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e))
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e)) from None
 
 
 @router.post("/create", response_model=UserResponse, status_code=status.HTTP_201_CREATED)

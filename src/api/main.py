@@ -42,7 +42,11 @@ app.add_middleware(
 
 # Add middleware
 from src.api.middleware.rate_limit import RateLimitMiddleware
+from src.api.middleware.security_headers import SecurityHeadersMiddleware
 from src.api.middleware.tenant import TenantMiddleware
+
+# Security headers middleware (outermost - runs first on response)
+app.add_middleware(SecurityHeadersMiddleware)
 
 # Rate limiting middleware (should be added before tenant middleware)
 app.add_middleware(
