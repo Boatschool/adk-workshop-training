@@ -6,10 +6,10 @@ region      = "us-central1"
 environment = "production"
 app_name    = "adk-platform"
 
-# Database - cost-optimized (same as staging, can upgrade later)
-db_tier              = "db-custom-2-4096" # 2 vCPU, 4GB RAM
+# Database - production grade
+db_tier              = "db-custom-4-16384" # 4 vCPU, 16GB RAM
 db_disk_size         = 100
-db_high_availability = false
+db_high_availability = true
 db_enable_backup     = true
 
 # Cloud Run - production scale
