@@ -8,7 +8,6 @@ import {
   ProgressCard,
   QuickStartCard,
   ResourceSection,
-  SetupProgressBanner,
   TipCard,
   VisualBuilderStatus,
 } from '@components/dashboard'
@@ -140,9 +139,6 @@ export function DashboardPage() {
       <a id="main-content" className="sr-only focus:not-sr-only">
         Main content
       </a>
-
-      {/* Setup Progress Banner for new users */}
-      <SetupProgressBanner />
 
       {/* Welcome Section with Visual Builder Status */}
       <section className="mb-8">

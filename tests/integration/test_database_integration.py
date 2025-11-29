@@ -40,15 +40,26 @@ pytestmark = pytest.mark.integration
 
 settings = get_settings()
 
+# Timeout constants for database operations
+DB_CONNECT_TIMEOUT = 20  # Connection timeout in seconds (for asyncpg connect_args)
+DB_CHECK_TIMEOUT = 30.0  # Overall check timeout in seconds (for thread executor)
 
-def _run_async_check(coro, timeout: float = 30.0):
+
+def _run_async_check(coro, timeout: float = DB_CHECK_TIMEOUT):
     """Run an async coroutine safely, handling existing event loops.
 
     Args:
         coro: The coroutine to run
-        timeout: Maximum time to wait in seconds (default: 30s for slow databases)
+        timeout: Maximum time to wait in seconds (default: DB_CHECK_TIMEOUT for slow databases)
+
+    Returns:
+        The result of the coroutine, or raises TimeoutError if it exceeds timeout.
     """
     import asyncio
+    import concurrent.futures
+    import logging
+
+    logger = logging.getLogger(__name__)
 
     try:
         # Try to get the current event loop
@@ -60,10 +71,16 @@ def _run_async_check(coro, timeout: float = 30.0):
     if loop is not None:
         # Already in an async context (e.g., pytest-asyncio with asyncio_mode=auto)
         # Create a new loop in a separate thread to avoid conflicts
-        import concurrent.futures
         with concurrent.futures.ThreadPoolExecutor() as executor:
             future = executor.submit(asyncio.run, coro)
-            return future.result(timeout=timeout)
+            try:
+                return future.result(timeout=timeout)
+            except concurrent.futures.TimeoutError:
+                logger.warning(
+                    f"Database check timed out after {timeout}s. "
+                    "This may indicate slow database connectivity or a cold start."
+                )
+                raise
     else:
         # No existing loop, use asyncio.run() directly
         return asyncio.run(coro)
@@ -72,10 +89,13 @@ def _run_async_check(coro, timeout: float = 30.0):
 def _check_database_available() -> bool:
     """Check if the test database is available.
 
-    Uses a 30-second timeout to accommodate slow database connections
+    Uses DB_CHECK_TIMEOUT to accommodate slow database connections
     (e.g., cold starts, network latency).
     """
+    import logging
     from sqlalchemy.ext.asyncio import create_async_engine
+
+    logger = logging.getLogger(__name__)
 
     async def check():
         try:
@@ -83,34 +103,39 @@ def _check_database_available() -> bool:
             engine = create_async_engine(
                 TEST_DATABASE_URL,
                 echo=False,
-                connect_args={"timeout": 20},  # Connection timeout in seconds
+                connect_args={"timeout": DB_CONNECT_TIMEOUT},
             )
             async with engine.connect() as conn:
                 await conn.execute(text("SELECT 1"))
             await engine.dispose()
             return True
-        except Exception:
+        except Exception as e:
+            logger.debug(f"Database availability check failed: {e}")
             return False
 
     try:
-        return _run_async_check(check(), timeout=30.0)
-    except Exception:
+        return _run_async_check(check(), timeout=DB_CHECK_TIMEOUT)
+    except Exception as e:
+        logger.warning(f"Database availability check failed with exception: {e}")
         return False
 
 
 def _check_migrations_applied() -> bool:
     """Check if database migrations have been applied.
 
-    Uses a 30-second timeout to accommodate slow database connections.
+    Uses DB_CHECK_TIMEOUT to accommodate slow database connections.
     """
+    import logging
     from sqlalchemy.ext.asyncio import create_async_engine
+
+    logger = logging.getLogger(__name__)
 
     async def check():
         try:
             engine = create_async_engine(
                 TEST_DATABASE_URL,
                 echo=False,
-                connect_args={"timeout": 20},
+                connect_args={"timeout": DB_CONNECT_TIMEOUT},
             )
             async with engine.connect() as conn:
                 # Check if alembic_version table exists and has entries
@@ -120,12 +145,14 @@ def _check_migrations_applied() -> bool:
                 version = result.scalar()
                 await engine.dispose()
                 return version is not None
-        except Exception:
+        except Exception as e:
+            logger.debug(f"Migration check failed: {e}")
             return False
 
     try:
-        return _run_async_check(check(), timeout=30.0)
-    except Exception:
+        return _run_async_check(check(), timeout=DB_CHECK_TIMEOUT)
+    except Exception as e:
+        logger.warning(f"Migration check failed with exception: {e}")
         return False
 
 
@@ -158,8 +185,13 @@ def db_url() -> str:
 
 @pytest.fixture
 async def engine(db_url: str):
-    """Create async engine."""
-    engine = create_async_engine(db_url, echo=False, pool_pre_ping=True)
+    """Create async engine with connection timeout for slow databases."""
+    engine = create_async_engine(
+        db_url,
+        echo=False,
+        pool_pre_ping=True,
+        connect_args={"timeout": DB_CONNECT_TIMEOUT},
+    )
     yield engine
     await engine.dispose()
 

@@ -19,6 +19,12 @@ variable "enable_private_network" {
   default     = false
 }
 
+variable "environment" {
+  description = "Environment name (dev, staging, production)"
+  type        = string
+  default     = "dev"
+}
+
 variable "labels" {
   description = "Labels to apply to resources"
   type        = map(string)

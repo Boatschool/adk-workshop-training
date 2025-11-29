@@ -47,12 +47,12 @@ PROGRESS_FILE = WORKSHOP_DIR / ".progress.json"
 
 # Branding configuration (customize here!)
 BRANDING = {
-    "organization_name": "Your Healthcare Organization",
+    "organization_name": "GraymatterLab",
     "workshop_title": "AI Agent Development Workshop",
     "logo_url": "/static/logo.png",  # Place your logo in static/
-    "primary_color": "#1a73e8",  # Google Blue
-    "secondary_color": "#34a853",  # Google Green
-    "support_email": "support@yourorg.com",
+    "primary_color": "#1a73e8",  # Brand blue
+    "secondary_color": "#34a853",  # Brand green
+    "support_email": "support@graymatterlab.com",
     "instructor_name": "Workshop Instructor"
 }
 

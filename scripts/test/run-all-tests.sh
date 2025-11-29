@@ -27,6 +27,8 @@ SECURITY_FAILED=0
 TENANCY_FAILED=0
 PERFORMANCE_FAILED=0
 PERFORMANCE_SKIPPED=0
+DEPLOYMENT_SKIPPED=0
+SMOKE_SKIPPED=0
 
 # Colors
 RED='\033[0;31m'
@@ -284,6 +286,13 @@ run_deployment_validation() {
 
     cd "$PROJECT_ROOT"
 
+    # Check if validation script exists
+    if [ ! -f "$SCRIPT_DIR/validate-deployment.sh" ]; then
+        log_warning "Deployment validation script not found. Skipping."
+        DEPLOYMENT_SKIPPED=1
+        return
+    fi
+
     log_info "Running deployment validation..."
     "$SCRIPT_DIR/validate-deployment.sh" 2>&1 | tee -a "$LOG_FILE" || true
 }
@@ -301,10 +310,14 @@ run_smoke_tests() {
     else
         log_warning "API server not running. Skipping smoke tests."
         log_info "Start with: poetry run uvicorn src.api.main:app --port 8080"
+        SMOKE_SKIPPED=1
     fi
 }
 
 # Helper to get status emoji based on failure/skipped flags
+# Args:
+#   $1 (failed): 0 or 1 indicating if the phase failed
+#   $2 (skipped): 0 or 1 indicating if the phase was skipped
 get_phase_status() {
     local failed=$1
     local skipped=$2
@@ -318,6 +331,9 @@ get_phase_status() {
 }
 
 # Helper to get result text
+# Args:
+#   $1 (failed): 0 or 1 indicating if the phase failed
+#   $2 (skipped): 0 or 1 indicating if the phase was skipped
 get_phase_result() {
     local failed=$1
     local skipped=$2
@@ -351,8 +367,8 @@ generate_final_report() {
         echo "| 3. Performance Testing | $(get_phase_status $PERFORMANCE_FAILED $PERFORMANCE_SKIPPED) | $(get_phase_result $PERFORMANCE_FAILED $PERFORMANCE_SKIPPED) |"
         echo "| 4. Security Testing | $(get_phase_status $SECURITY_FAILED 0) | $(get_phase_result $SECURITY_FAILED 0) |"
         echo "| 5. Multi-Tenancy Validation | $(get_phase_status $TENANCY_FAILED 0) | $(get_phase_result $TENANCY_FAILED 0) |"
-        echo "| 6. Deployment Readiness | ✅ | Completed |"
-        echo "| 7. Smoke Testing | ✅ | Completed |"
+        echo "| 6. Deployment Readiness | $(get_phase_status 0 $DEPLOYMENT_SKIPPED) | $(get_phase_result 0 $DEPLOYMENT_SKIPPED) |"
+        echo "| 7. Smoke Testing | $(get_phase_status 0 $SMOKE_SKIPPED) | $(get_phase_result 0 $SMOKE_SKIPPED) |"
         echo ""
         if [ $total_failures -gt 0 ]; then
             echo "## Failures Summary"

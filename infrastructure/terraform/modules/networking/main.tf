@@ -39,7 +39,8 @@ resource "google_compute_subnetwork" "subnet" {
 resource "google_vpc_access_connector" "connector" {
   count = var.enable_private_network ? 1 : 0
 
-  name          = "${var.name_prefix}-connector"
+  # VPC connector names must be <= 25 characters, so use abbreviated name
+  name          = "adk-${var.environment}-conn"
   project       = var.project_id
   region        = var.region
   network       = google_compute_network.vpc[0].name
