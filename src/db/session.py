@@ -187,7 +187,15 @@ async def get_tenant_db(tenant_id: str) -> AsyncGenerator[AsyncSession, None]:
             TenantContext.set(tenant_id)
 
             # Set the validated schema
-            await set_tenant_schema(session, schema_name)
+            # SECURITY: set_tenant_schema validates the schema name format
+            try:
+                await set_tenant_schema(session, schema_name)
+            except ValueError as e:
+                # Convert validation error to application-level error
+                # This handles cases where stored schema data is malformed
+                raise TenantNotFoundError(
+                    f"Tenant '{tenant_id}' has invalid schema name: {e}"
+                ) from None
 
             yield session
             await session.commit()
@@ -221,10 +229,20 @@ async def get_db_context() -> AsyncGenerator[AsyncSession, None]:
                 schema_name = result.scalar_one_or_none()
 
                 if schema_name:
-                    await set_tenant_schema(session, schema_name)
+                    # SECURITY: set_tenant_schema validates the schema name format
+                    try:
+                        await set_tenant_schema(session, schema_name)
+                    except ValueError as e:
+                        # Convert validation error to application-level error
+                        raise TenantNotFoundError(
+                            f"Tenant '{tenant_id}' has invalid schema name: {e}"
+                        ) from None
 
             yield session
             await session.commit()
+        except TenantNotFoundError:
+            await session.rollback()
+            raise
         except Exception:
             await session.rollback()
             raise
