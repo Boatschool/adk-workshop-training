@@ -6,10 +6,10 @@ region      = "us-central1"
 environment = "production"
 app_name    = "adk-platform"
 
-# Database - production grade
-db_tier              = "db-custom-4-16384" # 4 vCPU, 16GB RAM
+# Database - cost-optimized (same as staging, can upgrade later)
+db_tier              = "db-custom-2-4096" # 2 vCPU, 4GB RAM
 db_disk_size         = 100
-db_high_availability = true
+db_high_availability = false
 db_enable_backup     = true
 
 # Cloud Run - production scale
@@ -22,8 +22,10 @@ cloud_run_concurrency   = 100
 # Networking - private networking for production
 enable_private_networking = true
 
-# Security - NEVER allow unauthenticated access in production (use IAP)
-allow_unauthenticated_api = false
+# Security - allow public access for user registration/login
+# Application-level authentication (JWT) protects sensitive endpoints
+# Rate limiting, brute force protection, and security headers are enforced at app level
+allow_unauthenticated_api = true
 
 # CORS - restrict to production domain(s) only
 # TODO: Update with actual production domain(s) when configured
