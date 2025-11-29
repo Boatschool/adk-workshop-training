@@ -63,9 +63,7 @@ async def set_tenant_schema(session: AsyncSession, schema_name: str) -> None:
         session: Database session
         schema_name: Name of the tenant schema
     """
-    await session.execute(
-        text(f"SET search_path TO {schema_name}, adk_platform_shared, public")
-    )
+    await session.execute(text(f"SET search_path TO {schema_name}, adk_platform_shared, public"))
 
 
 async def get_db() -> AsyncGenerator[AsyncSession, None]:

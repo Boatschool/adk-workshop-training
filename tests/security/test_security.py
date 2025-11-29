@@ -25,6 +25,8 @@ os.environ["DATABASE_URL"] = (
     "postgresql+asyncpg://adk_user:adk_password@localhost:5433/adk_platform"
 )
 
+from datetime import UTC
+
 from src.api.main import app
 from src.core.security import create_access_token
 
@@ -72,8 +74,9 @@ class TestAuthenticationSecurity:
         self, client: TestClient, tenant_id: str
     ) -> None:
         """Test that expired tokens are rejected."""
+        from datetime import datetime, timedelta
+
         import jwt
-        from datetime import datetime, timedelta, timezone
 
         from src.core.config import get_settings
 
@@ -84,8 +87,8 @@ class TestAuthenticationSecurity:
             "user_id": str(uuid4()),
             "tenant_id": tenant_id,
             "role": "participant",
-            "exp": datetime.now(timezone.utc) - timedelta(hours=1),  # Expired
-            "iat": datetime.now(timezone.utc) - timedelta(hours=2),
+            "exp": datetime.now(UTC) - timedelta(hours=1),  # Expired
+            "iat": datetime.now(UTC) - timedelta(hours=2),
         }
 
         expired_token = jwt.encode(payload, settings.secret_key, algorithm="HS256")
@@ -128,16 +131,17 @@ class TestAuthenticationSecurity:
         self, client: TestClient, tenant_id: str
     ) -> None:
         """Test that tokens signed with wrong key are rejected."""
+        from datetime import datetime, timedelta
+
         import jwt
-        from datetime import datetime, timedelta, timezone
 
         # Create token with different secret
         payload = {
             "user_id": str(uuid4()),
             "tenant_id": tenant_id,
             "role": "participant",
-            "exp": datetime.now(timezone.utc) + timedelta(hours=1),
-            "iat": datetime.now(timezone.utc),
+            "exp": datetime.now(UTC) + timedelta(hours=1),
+            "iat": datetime.now(UTC),
         }
 
         wrong_key_token = jwt.encode(payload, "wrong-secret-key", algorithm="HS256")

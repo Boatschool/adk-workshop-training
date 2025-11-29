@@ -11,7 +11,7 @@ import logging
 from enum import Enum
 from typing import Any
 
-from src.workers.queue import get_task_queue, TaskResult
+from src.workers.queue import TaskResult, get_task_queue
 
 logger = logging.getLogger(__name__)
 
@@ -35,6 +35,7 @@ class TaskType(str, Enum):
 #
 # @_queue.register(TaskType.AGENT_EXECUTION.value)
 # async def execute_agent_task(...): ...
+
 
 async def execute_agent_task(
     tenant_id: str,
@@ -65,8 +66,8 @@ async def execute_agent_task(
     return {
         "success": False,
         "error": "Agent execution via background tasks is currently disabled. "
-                 "The custom agent framework was not ADK v1.18.0 compliant. "
-                 "Use the Visual Builder at http://localhost:8000/dev-ui instead.",
+        "The custom agent framework was not ADK v1.18.0 compliant. "
+        "Use the Visual Builder at http://localhost:8000/dev-ui instead.",
         "tenant_id": tenant_id,
         "agent_type": agent_type,
     }

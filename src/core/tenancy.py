@@ -1,12 +1,11 @@
 """Multi-tenant context management"""
 
 from contextvars import ContextVar
-from typing import Optional
 
 from src.core.exceptions import TenantNotSetError
 
 # Thread-safe tenant context
-_tenant_context: ContextVar[Optional[str]] = ContextVar("tenant_id", default=None)
+_tenant_context: ContextVar[str | None] = ContextVar("tenant_id", default=None)
 
 
 class TenantContext:
@@ -26,7 +25,7 @@ class TenantContext:
         return tenant_id
 
     @staticmethod
-    def get_optional() -> Optional[str]:
+    def get_optional() -> str | None:
         """Get the current tenant ID without raising an exception"""
         return _tenant_context.get()
 

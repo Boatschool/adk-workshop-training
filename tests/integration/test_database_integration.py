@@ -14,9 +14,6 @@ Requirements:
 """
 
 import os
-import subprocess
-import sys
-from datetime import datetime, timezone
 from uuid import uuid4
 
 import pytest
@@ -34,7 +31,6 @@ TEST_DATABASE_URL = os.environ.get(
 os.environ["DATABASE_URL"] = TEST_DATABASE_URL
 
 from src.core.config import get_settings
-from src.core.constants import UserRole, WorkshopStatus
 
 pytestmark = pytest.mark.integration
 
@@ -93,6 +89,7 @@ def _check_database_available() -> bool:
     (e.g., cold starts, network latency).
     """
     import logging
+
     from sqlalchemy.ext.asyncio import create_async_engine
 
     logger = logging.getLogger(__name__)
@@ -126,6 +123,7 @@ def _check_migrations_applied() -> bool:
     Uses DB_CHECK_TIMEOUT to accommodate slow database connections.
     """
     import logging
+
     from sqlalchemy.ext.asyncio import create_async_engine
 
     logger = logging.getLogger(__name__)

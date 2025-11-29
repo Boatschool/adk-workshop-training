@@ -3,7 +3,7 @@
 from functools import lru_cache
 from typing import Literal
 
-from pydantic import Field, field_validator
+from pydantic import Field
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
@@ -27,7 +27,9 @@ class Settings(BaseSettings):
 
     # Server
     host: str = Field(default="0.0.0.0", alias="HOST")
-    port: int = Field(default=8080, alias="PORT")  # 8080 to avoid conflict with ADK Visual Builder on 8000
+    port: int = Field(
+        default=8080, alias="PORT"
+    )  # 8080 to avoid conflict with ADK Visual Builder on 8000
     frontend_url: str = Field(default="http://localhost:4000", alias="FRONTEND_URL")
 
     # ADK Visual Builder
@@ -60,9 +62,7 @@ class Settings(BaseSettings):
     lockout_duration_minutes: int = Field(default=15, alias="LOCKOUT_DURATION_MINUTES")
 
     # Rate Limiting
-    rate_limit_requests_per_minute: int = Field(
-        default=60, alias="RATE_LIMIT_REQUESTS_PER_MINUTE"
-    )
+    rate_limit_requests_per_minute: int = Field(default=60, alias="RATE_LIMIT_REQUESTS_PER_MINUTE")
     rate_limit_auth_requests_per_minute: int = Field(
         default=10, alias="RATE_LIMIT_AUTH_REQUESTS_PER_MINUTE"
     )
@@ -72,7 +72,8 @@ class Settings(BaseSettings):
 
     # CORS
     cors_origins: str = Field(
-        default="http://localhost:4000,http://localhost:8080,http://localhost:8000", alias="CORS_ORIGINS"
+        default="http://localhost:4000,http://localhost:8080,http://localhost:8000",
+        alias="CORS_ORIGINS",
     )
 
     # Logging
@@ -92,9 +93,7 @@ class Settings(BaseSettings):
 
     def get_cors_origins_list(self) -> list[str]:
         """Get CORS origins as a list"""
-        if isinstance(self.cors_origins, str):
-            return [origin.strip() for origin in self.cors_origins.split(",") if origin.strip()]
-        return self.cors_origins
+        return [origin.strip() for origin in self.cors_origins.split(",") if origin.strip()]
 
     @property
     def is_development(self) -> bool:
@@ -116,4 +115,4 @@ class Settings(BaseSettings):
 @lru_cache
 def get_settings() -> Settings:
     """Get cached settings instance"""
-    return Settings()
+    return Settings()  # type: ignore[call-arg]  # SECRET_KEY loaded from env

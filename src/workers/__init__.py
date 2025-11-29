@@ -26,8 +26,8 @@ Usage:
     status = await task_queue.get_task_status(task_id)
 """
 
-from src.workers.queue import TaskQueue, TaskStatus, TaskResult, get_task_queue
-from src.workers.tasks import enqueue_task, TaskType
+from src.workers.queue import TaskQueue, TaskResult, TaskStatus, get_task_queue
+from src.workers.tasks import TaskType, enqueue_task
 
 __all__ = [
     "TaskQueue",

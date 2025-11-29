@@ -94,9 +94,7 @@ class TenantService:
         result = await self.db.execute(select(Tenant).where(Tenant.slug == slug))
         return result.scalar_one_or_none()
 
-    async def update_tenant(
-        self, tenant_id: str, tenant_data: TenantUpdate
-    ) -> Tenant:
+    async def update_tenant(self, tenant_id: str, tenant_data: TenantUpdate) -> Tenant:
         """
         Update an existing tenant.
 
@@ -130,9 +128,7 @@ class TenantService:
 
         return tenant
 
-    async def list_tenants(
-        self, skip: int = 0, limit: int = 100
-    ) -> list[Tenant]:
+    async def list_tenants(self, skip: int = 0, limit: int = 100) -> list[Tenant]:
         """
         List all tenants with pagination.
 

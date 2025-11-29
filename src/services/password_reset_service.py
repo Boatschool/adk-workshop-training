@@ -65,9 +65,7 @@ class PasswordResetService:
         token_hash = hash_token(plain_token)
 
         # Calculate expiration
-        expires_at = datetime.now(UTC) + timedelta(
-            hours=settings.password_reset_token_expire_hours
-        )
+        expires_at = datetime.now(UTC) + timedelta(hours=settings.password_reset_token_expire_hours)
 
         # Create token with hashed value in database
         reset_token = PasswordResetToken(

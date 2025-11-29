@@ -9,7 +9,6 @@ Run from project root: poetry run python scripts/dev/seed-data.py
 import asyncio
 import sys
 from pathlib import Path
-from uuid import uuid4
 
 # Add project root to path
 sys.path.insert(0, str(Path(__file__).parent.parent.parent))
@@ -18,7 +17,6 @@ from src.core.config import get_settings
 from src.core.constants import UserRole, WorkshopStatus
 from src.core.tenancy import TenantContext
 from src.db.session import get_db_context, init_db
-from src.db.tenant_schema import create_tenant_schema_and_tables
 from src.services.tenant_service import TenantService
 from src.services.user_service import UserService
 from src.services.workshop_service import WorkshopService

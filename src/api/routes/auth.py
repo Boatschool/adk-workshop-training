@@ -6,12 +6,12 @@ from fastapi import APIRouter, Body, Depends, HTTPException, status
 from pydantic import BaseModel, EmailStr, Field
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from src.api.dependencies import get_current_user, get_tenant_id, get_tenant_db_dependency
+from src.api.dependencies import get_current_user, get_tenant_db_dependency, get_tenant_id
 from src.api.schemas.user import TokenResponse
-from src.db.models.user import User
 from src.core.config import get_settings
 from src.core.exceptions import AuthenticationError, ValidationError
 from src.core.security import create_access_token, hash_password, verify_password
+from src.db.models.user import User
 from src.services.password_reset_service import PasswordResetService
 from src.services.refresh_token_service import RefreshTokenService
 
@@ -51,7 +51,7 @@ async def refresh_access_token(
     refresh_token: Annotated[str, Body(..., embed=True)],
     db: Annotated[AsyncSession, Depends(get_tenant_db_dependency)],
     tenant_id: Annotated[str, Depends(get_tenant_id)],
-):
+) -> TokenResponse:
     """
     Refresh access token using a refresh token.
 
@@ -103,7 +103,7 @@ async def refresh_access_token(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail=str(e),
             headers={"WWW-Authenticate": "Bearer"},
-        )
+        ) from None
 
 
 @router.post("/forgot-password", response_model=MessageResponse)
@@ -111,7 +111,7 @@ async def forgot_password(
     request: ForgotPasswordRequest,
     db: Annotated[AsyncSession, Depends(get_tenant_db_dependency)],
     tenant_id: Annotated[str, Depends(get_tenant_id)],
-):
+) -> MessageResponse:
     """
     Request a password reset email.
 
@@ -139,7 +139,7 @@ async def reset_password(
     request: ResetPasswordRequest,
     db: Annotated[AsyncSession, Depends(get_tenant_db_dependency)],
     tenant_id: Annotated[str, Depends(get_tenant_id)],
-):
+) -> MessageResponse:
     """
     Reset password using a valid reset token.
 
@@ -166,12 +166,12 @@ async def reset_password(
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail=str(e),
-        )
+        ) from None
     except AuthenticationError as e:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail=str(e),
-        )
+        ) from None
 
 
 @router.post("/change-password", response_model=MessageResponse)
@@ -180,7 +180,7 @@ async def change_password(
     db: Annotated[AsyncSession, Depends(get_tenant_db_dependency)],
     current_user: Annotated[User, Depends(get_current_user)],
     tenant_id: Annotated[str, Depends(get_tenant_id)],
-):
+) -> MessageResponse:
     """
     Change password for the currently authenticated user.
 
@@ -233,7 +233,7 @@ async def logout(
     db: Annotated[AsyncSession, Depends(get_tenant_db_dependency)],
     current_user: Annotated[User, Depends(get_current_user)],
     tenant_id: Annotated[str, Depends(get_tenant_id)],
-):
+) -> MessageResponse:
     """
     Logout the current user by revoking all refresh tokens.
 

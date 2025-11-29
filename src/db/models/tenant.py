@@ -19,9 +19,7 @@ class Tenant(BaseModel):
     status: Mapped[str] = mapped_column(
         String(50), nullable=False, default=TenantStatus.ACTIVE.value
     )
-    subscription_tier: Mapped[str] = mapped_column(
-        String(50), nullable=False, default="trial"
-    )
+    subscription_tier: Mapped[str] = mapped_column(String(50), nullable=False, default="trial")
     google_api_key_secret: Mapped[str | None] = mapped_column(String(255), nullable=True)
     settings: Mapped[dict] = mapped_column(JSON, nullable=False, default=dict)
 

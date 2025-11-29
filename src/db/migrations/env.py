@@ -1,18 +1,15 @@
 """Alembic environment configuration"""
 
-import asyncio
 from logging.config import fileConfig
 
+from alembic import context
 from sqlalchemy import pool
 from sqlalchemy.engine import Connection
 from sqlalchemy.ext.asyncio import async_engine_from_config
 
-from alembic import context
-
 # Import all models to ensure they're registered with Base.metadata
 from src.core.config import get_settings
 from src.db.base import Base
-from src.db.models import Agent, Exercise, Progress, Tenant, User, Workshop
 
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.

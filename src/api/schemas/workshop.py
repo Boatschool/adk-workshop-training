@@ -51,9 +51,7 @@ class ExerciseBase(BaseModel):
     """Base exercise schema with common fields."""
 
     title: str = Field(..., min_length=1, max_length=255, description="Exercise title")
-    content_type: str = Field(
-        ..., description="Content type (markdown, jupyter, interactive)"
-    )
+    content_type: str = Field(..., description="Content type (markdown, jupyter, interactive)")
     content_path: str | None = Field(None, description="Cloud Storage path to content")
     order_index: int = Field(..., ge=0, description="Order within workshop")
 

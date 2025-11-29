@@ -6,17 +6,16 @@ Create Date: 2025-11-24 12:26:12.139768
 
 """
 
-from typing import Sequence, Union
+from collections.abc import Sequence
 
-from alembic import op
 import sqlalchemy as sa
-
+from alembic import op
 
 # revision identifiers, used by Alembic.
 revision: str = "eef9007a89c5"
-down_revision: Union[str, None] = "69b9c231e4cb"
-branch_labels: Union[str, Sequence[str], None] = None
-depends_on: Union[str, Sequence[str], None] = None
+down_revision: str | None = "69b9c231e4cb"
+branch_labels: str | Sequence[str] | None = None
+depends_on: str | Sequence[str] | None = None
 
 
 def upgrade() -> None:
@@ -82,6 +81,10 @@ def downgrade() -> None:
 
     # Drop refresh_tokens table from each tenant schema
     for schema in tenant_schemas:
-        op.drop_index(f"ix_{schema}_refresh_tokens_user_id", table_name="refresh_tokens", schema=schema)
-        op.drop_index(f"ix_{schema}_refresh_tokens_token", table_name="refresh_tokens", schema=schema)
+        op.drop_index(
+            f"ix_{schema}_refresh_tokens_user_id", table_name="refresh_tokens", schema=schema
+        )
+        op.drop_index(
+            f"ix_{schema}_refresh_tokens_token", table_name="refresh_tokens", schema=schema
+        )
         op.drop_table("refresh_tokens", schema=schema)

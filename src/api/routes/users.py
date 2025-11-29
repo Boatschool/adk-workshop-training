@@ -41,7 +41,7 @@ async def register_user(
     user_data: UserCreate,
     db: Annotated[AsyncSession, Depends(get_tenant_db_dependency)],
     tenant_id: Annotated[str, Depends(get_tenant_id)],
-):
+) -> UserWithToken:
     """
     Register a new user in the tenant (self-registration).
 
@@ -98,7 +98,7 @@ async def create_user_with_role(
     db: Annotated[AsyncSession, Depends(get_tenant_db_dependency)],
     current_user: Annotated[User, Depends(require_admin)],
     tenant_id: Annotated[str, Depends(get_tenant_id)],
-):
+) -> User:
     """
     Create a new user with specified role (admin-only endpoint).
 
@@ -121,7 +121,7 @@ async def create_user_with_role(
         user = await service.create_user_admin(user_data)
         return user
     except ValidationError as e:
-        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e))
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e)) from None
 
 
 @router.post("/login", response_model=UserWithToken)
@@ -129,7 +129,7 @@ async def login_user(
     credentials: UserLogin,
     db: Annotated[AsyncSession, Depends(get_tenant_db_dependency)],
     tenant_id: Annotated[str, Depends(get_tenant_id)],
-):
+) -> UserWithToken:
     """
     Authenticate user and return access token.
 
@@ -174,19 +174,19 @@ async def login_user(
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
             detail=str(e),
-        )
+        ) from None
     except AuthenticationError as e:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail=str(e),
             headers={"WWW-Authenticate": "Bearer"},
-        )
+        ) from None
 
 
 @router.get("/me", response_model=UserResponse)
 async def get_current_user_info(
     current_user: Annotated[User, Depends(get_current_user)],
-):
+) -> User:
     """
     Get current authenticated user information.
 
@@ -205,7 +205,7 @@ async def get_user(
     db: Annotated[AsyncSession, Depends(get_tenant_db_dependency)],
     current_user: Annotated[User, Depends(get_current_user)],
     tenant_id: Annotated[str, Depends(get_tenant_id)],
-):
+) -> User:
     """
     Get user by ID.
 
@@ -238,7 +238,7 @@ async def update_user(
     db: Annotated[AsyncSession, Depends(get_tenant_db_dependency)],
     current_user: Annotated[User, Depends(require_admin)],
     tenant_id: Annotated[str, Depends(get_tenant_id)],
-):
+) -> User:
     """
     Update an existing user.
 
@@ -262,7 +262,7 @@ async def update_user(
         user = await service.update_user(user_id, user_data)
         return user
     except NotFoundError as e:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e))
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e)) from None
 
 
 @router.get("/", response_model=list[UserResponse])
@@ -273,7 +273,7 @@ async def list_users(
     skip: Annotated[int, Query(ge=0)] = 0,
     limit: Annotated[int, Query(ge=1, le=100)] = 100,
     is_active: Annotated[bool | None, Query()] = None,
-):
+) -> list[User]:
     """
     List users with pagination and optional filtering.
 

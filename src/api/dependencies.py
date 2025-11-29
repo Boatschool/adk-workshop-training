@@ -1,6 +1,6 @@
 """FastAPI dependencies for dependency injection."""
 
-from collections.abc import AsyncGenerator
+from collections.abc import AsyncGenerator, Awaitable, Callable
 from typing import Annotated
 
 from fastapi import Depends, Header, HTTPException, status
@@ -120,10 +120,12 @@ async def get_current_user(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail=str(e),
             headers={"WWW-Authenticate": "Bearer"},
-        )
+        ) from None
 
 
-def require_role(*allowed_roles: UserRole):
+def require_role(
+    *allowed_roles: UserRole,
+) -> Callable[[Annotated[User, Depends(get_current_user)]], Awaitable[User]]:
     """
     Dependency factory for role-based authorization.
 
@@ -161,6 +163,4 @@ def require_role(*allowed_roles: UserRole):
 
 # Convenience dependencies for common role checks
 require_admin = require_role(UserRole.SUPER_ADMIN, UserRole.TENANT_ADMIN)
-require_instructor = require_role(
-    UserRole.SUPER_ADMIN, UserRole.TENANT_ADMIN, UserRole.INSTRUCTOR
-)
+require_instructor = require_role(UserRole.SUPER_ADMIN, UserRole.TENANT_ADMIN, UserRole.INSTRUCTOR)

@@ -1,12 +1,19 @@
 """User model - stored in tenant-specific schema"""
 
+from __future__ import annotations
+
 from datetime import datetime
+from typing import TYPE_CHECKING
 
 from sqlalchemy import Boolean, DateTime, Integer, String
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from src.core.constants import UserRole
 from src.db.base import BaseModel
+
+if TYPE_CHECKING:
+    from src.db.models.password_reset_token import PasswordResetToken
+    from src.db.models.refresh_token import RefreshToken
 
 
 class User(BaseModel):
@@ -27,15 +34,13 @@ class User(BaseModel):
     failed_login_attempts: Mapped[int] = mapped_column(
         Integer, nullable=False, default=0, server_default="0"
     )
-    locked_until: Mapped[datetime | None] = mapped_column(
-        DateTime(timezone=True), nullable=True
-    )
+    locked_until: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
 
     # Relationships
-    refresh_tokens: Mapped[list["RefreshToken"]] = relationship(
+    refresh_tokens: Mapped[list[RefreshToken]] = relationship(
         "RefreshToken", back_populates="user", cascade="all, delete-orphan"
     )
-    password_reset_tokens: Mapped[list["PasswordResetToken"]] = relationship(
+    password_reset_tokens: Mapped[list[PasswordResetToken]] = relationship(
         "PasswordResetToken", back_populates="user", cascade="all, delete-orphan"
     )
 

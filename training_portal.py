@@ -12,17 +12,17 @@ Run with: python training_portal.py
 Access at: http://localhost:5000
 """
 
+import json
 import os
 import subprocess
-import sys
 import threading
 import webbrowser
-from pathlib import Path
-from flask import Flask, render_template, send_from_directory, jsonify, request
-import markdown
-import json
 from datetime import datetime
+from pathlib import Path
+
+import markdown
 from dotenv import load_dotenv
+from flask import Flask, jsonify, render_template, request, send_from_directory
 
 app = Flask(__name__)
 
@@ -35,9 +35,9 @@ if ENV_FILE.exists():
     load_dotenv(ENV_FILE)
     print(f"✅ Loaded environment variables from {ENV_FILE}")
     if os.getenv('GOOGLE_API_KEY'):
-        print(f"✅ GOOGLE_API_KEY is set")
+        print("✅ GOOGLE_API_KEY is set")
     else:
-        print(f"⚠️  Warning: GOOGLE_API_KEY not found in .env file")
+        print("⚠️  Warning: GOOGLE_API_KEY not found in .env file")
 else:
     print(f"⚠️  Warning: .env file not found at {ENV_FILE}")
 RESOURCES_DIR = WORKSHOP_DIR / "resources"
@@ -62,7 +62,7 @@ visual_builder_process = None
 def load_progress():
     """Load user progress from file"""
     if PROGRESS_FILE.exists():
-        with open(PROGRESS_FILE, 'r') as f:
+        with open(PROGRESS_FILE) as f:
             return json.load(f)
     return {
         "exercises_completed": [],
@@ -81,7 +81,7 @@ def render_markdown_file(file_path):
     if not file_path.exists():
         return "<p>File not found.</p>"
 
-    with open(file_path, 'r', encoding='utf-8') as f:
+    with open(file_path, encoding='utf-8') as f:
         content = f.read()
 
     # Configure markdown with extensions
@@ -179,7 +179,7 @@ def example(example_name):
     if not file_path.exists():
         return "Example not found", 404
 
-    with open(file_path, 'r', encoding='utf-8') as f:
+    with open(file_path, encoding='utf-8') as f:
         code_content = f.read()
 
     title = example_name.replace('-', ' ').title()

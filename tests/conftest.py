@@ -4,7 +4,7 @@ import asyncio
 import os
 from collections.abc import AsyncGenerator, Generator
 from typing import Any
-from unittest.mock import MagicMock, patch
+from unittest.mock import MagicMock
 from uuid import uuid4
 
 import pytest
@@ -23,10 +23,8 @@ os.environ["DATABASE_URL"] = (
 os.environ["GOOGLE_API_KEY"] = "test-api-key"
 
 from src.api.main import app
-from src.core.config import Settings, get_settings
+from src.core.config import Settings
 from src.core.tenancy import TenantContext
-from src.db.session import get_db
-
 
 # ============================================================================
 # Test Settings

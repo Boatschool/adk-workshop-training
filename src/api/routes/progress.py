@@ -7,9 +7,9 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.api.dependencies import get_current_user, get_tenant_id, require_instructor
 from src.api.schemas.workshop import ProgressResponse, ProgressUpdate
-from src.core.exceptions import NotFoundError
 from src.core.tenancy import TenantContext
 from src.db.models.user import User
+from src.db.models.workshop import Progress
 from src.db.session import get_db
 from src.services.progress_service import ProgressService
 
@@ -23,7 +23,7 @@ async def update_progress(
     db: Annotated[AsyncSession, Depends(get_db)],
     current_user: Annotated[User, Depends(get_current_user)],
     tenant_id: Annotated[str, Depends(get_tenant_id)],
-):
+) -> Progress:
     """
     Update progress for an exercise.
 
@@ -41,9 +41,7 @@ async def update_progress(
     """
     TenantContext.set(tenant_id)
     service = ProgressService(db, tenant_id)
-    progress = await service.update_progress(
-        str(current_user.id), exercise_id, progress_data
-    )
+    progress = await service.update_progress(str(current_user.id), exercise_id, progress_data)
     return progress
 
 
@@ -53,7 +51,7 @@ async def get_progress(
     db: Annotated[AsyncSession, Depends(get_db)],
     current_user: Annotated[User, Depends(get_current_user)],
     tenant_id: Annotated[str, Depends(get_tenant_id)],
-):
+) -> Progress:
     """
     Get progress by ID.
 
@@ -88,7 +86,7 @@ async def list_progress_by_user(
     tenant_id: Annotated[str, Depends(get_tenant_id)],
     skip: Annotated[int, Query(ge=0)] = 0,
     limit: Annotated[int, Query(ge=1, le=100)] = 100,
-):
+) -> list[Progress]:
     """
     List progress records for a specific user.
 
@@ -133,7 +131,7 @@ async def list_progress_by_exercise(
     tenant_id: Annotated[str, Depends(get_tenant_id)],
     skip: Annotated[int, Query(ge=0)] = 0,
     limit: Annotated[int, Query(ge=1, le=100)] = 100,
-):
+) -> list[Progress]:
     """
     List progress records for a specific exercise.
 
@@ -152,9 +150,7 @@ async def list_progress_by_exercise(
     """
     TenantContext.set(tenant_id)
     service = ProgressService(db, tenant_id)
-    progress_list = await service.list_progress_by_exercise(
-        exercise_id, skip=skip, limit=limit
-    )
+    progress_list = await service.list_progress_by_exercise(exercise_id, skip=skip, limit=limit)
     return progress_list
 
 
@@ -165,7 +161,7 @@ async def get_my_progress(
     tenant_id: Annotated[str, Depends(get_tenant_id)],
     skip: Annotated[int, Query(ge=0)] = 0,
     limit: Annotated[int, Query(ge=1, le=100)] = 100,
-):
+) -> list[Progress]:
     """
     Get current user's progress across all exercises.
 

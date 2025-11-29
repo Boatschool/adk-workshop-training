@@ -2,7 +2,7 @@
 
 from datetime import datetime
 
-from sqlalchemy import DateTime, ForeignKey, JSON, String
+from sqlalchemy import JSON, DateTime, ForeignKey, String
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import Mapped, mapped_column
 
@@ -27,4 +27,6 @@ class Agent(BaseModel):
     last_run_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
 
     def __repr__(self) -> str:
-        return f"<Agent(id={self.id}, name={self.name}, type={self.agent_type}, status={self.status})>"
+        return (
+            f"<Agent(id={self.id}, name={self.name}, type={self.agent_type}, status={self.status})>"
+        )

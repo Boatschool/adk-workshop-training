@@ -13,7 +13,6 @@ os.environ["DATABASE_URL"] = (
 
 from src.api.main import app
 
-
 # Mark tests that require DB
 pytestmark = pytest.mark.integration
 

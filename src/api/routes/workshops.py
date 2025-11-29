@@ -10,6 +10,7 @@ from src.api.schemas.workshop import WorkshopCreate, WorkshopResponse, WorkshopU
 from src.core.exceptions import NotFoundError
 from src.core.tenancy import TenantContext
 from src.db.models.user import User
+from src.db.models.workshop import Workshop
 from src.db.session import get_db
 from src.services.workshop_service import WorkshopService
 
@@ -22,7 +23,7 @@ async def create_workshop(
     db: Annotated[AsyncSession, Depends(get_db)],
     current_user: Annotated[User, Depends(require_instructor)],
     tenant_id: Annotated[str, Depends(get_tenant_id)],
-):
+) -> Workshop:
     """
     Create a new workshop.
 
@@ -49,7 +50,7 @@ async def get_workshop(
     db: Annotated[AsyncSession, Depends(get_db)],
     current_user: Annotated[User, Depends(get_current_user)],
     tenant_id: Annotated[str, Depends(get_tenant_id)],
-):
+) -> Workshop:
     """
     Get workshop by ID.
 
@@ -83,7 +84,7 @@ async def update_workshop(
     db: Annotated[AsyncSession, Depends(get_db)],
     current_user: Annotated[User, Depends(require_instructor)],
     tenant_id: Annotated[str, Depends(get_tenant_id)],
-):
+) -> Workshop:
     """
     Update an existing workshop.
 
@@ -108,7 +109,7 @@ async def update_workshop(
         workshop = await service.update_workshop(workshop_id, workshop_data)
         return workshop
     except NotFoundError as e:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e))
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e)) from None
 
 
 @router.delete("/{workshop_id}", status_code=status.HTTP_204_NO_CONTENT)
@@ -117,7 +118,7 @@ async def delete_workshop(
     db: Annotated[AsyncSession, Depends(get_db)],
     current_user: Annotated[User, Depends(require_instructor)],
     tenant_id: Annotated[str, Depends(get_tenant_id)],
-):
+) -> None:
     """
     Delete a workshop.
 
@@ -137,7 +138,7 @@ async def delete_workshop(
         service = WorkshopService(db, tenant_id)
         await service.delete_workshop(workshop_id)
     except NotFoundError as e:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e))
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e)) from None
 
 
 @router.get("/", response_model=list[WorkshopResponse])
@@ -148,7 +149,7 @@ async def list_workshops(
     skip: Annotated[int, Query(ge=0)] = 0,
     limit: Annotated[int, Query(ge=1, le=100)] = 100,
     status: Annotated[str | None, Query()] = None,
-):
+) -> list[Workshop]:
     """
     List workshops with pagination and optional filtering.
 

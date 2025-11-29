@@ -23,14 +23,14 @@ Usage:
         return await db.get_user(user_id)
 """
 
-import asyncio
 import functools
 import hashlib
 import json
 import logging
 import time
-from dataclasses import dataclass, field
-from typing import Any, Callable, TypeVar, ParamSpec
+from collections.abc import Callable
+from dataclasses import dataclass
+from typing import Any, ParamSpec, TypeVar
 
 from src.core.config import get_settings
 
@@ -344,10 +344,7 @@ class Cache:
         if self._redis_client:
             return 0  # Redis handles expiry automatically
 
-        expired = [
-            k for k, v in self._memory_cache.items()
-            if v.is_expired()
-        ]
+        expired = [k for k, v in self._memory_cache.items() if v.is_expired()]
         for key in expired:
             del self._memory_cache[key]
 
@@ -396,6 +393,7 @@ def cached(
         async def get_user(user_id: str) -> User:
             return await db.get_user(user_id)
     """
+
     def decorator(func: Callable[P, T]) -> Callable[P, T]:
         @functools.wraps(func)
         async def wrapper(*args: P.args, **kwargs: P.kwargs) -> T:
@@ -407,7 +405,9 @@ def cached(
             else:
                 func_name = func.__name__
                 key_suffix = cache_key(*args, **kwargs)
-                key = f"{prefix}:{func_name}:{key_suffix}" if prefix else f"{func_name}:{key_suffix}"
+                key = (
+                    f"{prefix}:{func_name}:{key_suffix}" if prefix else f"{func_name}:{key_suffix}"
+                )
 
             # Try cache
             cached_value = await cache.get(key)

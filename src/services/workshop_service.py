@@ -4,7 +4,7 @@ from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.api.schemas.workshop import WorkshopCreate, WorkshopUpdate
-from src.core.exceptions import NotFoundError, ValidationError
+from src.core.exceptions import NotFoundError
 from src.db.models.workshop import Workshop
 
 
@@ -22,9 +22,7 @@ class WorkshopService:
         self.db = db
         self.tenant_id = tenant_id
 
-    async def create_workshop(
-        self, workshop_data: WorkshopCreate, creator_id: str
-    ) -> Workshop:
+    async def create_workshop(self, workshop_data: WorkshopCreate, creator_id: str) -> Workshop:
         """
         Create a new workshop.
 
@@ -59,14 +57,10 @@ class WorkshopService:
         Returns:
             Workshop or None if not found
         """
-        result = await self.db.execute(
-            select(Workshop).where(Workshop.id == workshop_id)
-        )
+        result = await self.db.execute(select(Workshop).where(Workshop.id == workshop_id))
         return result.scalar_one_or_none()
 
-    async def update_workshop(
-        self, workshop_id: str, workshop_data: WorkshopUpdate
-    ) -> Workshop:
+    async def update_workshop(self, workshop_id: str, workshop_data: WorkshopUpdate) -> Workshop:
         """
         Update an existing workshop.
 

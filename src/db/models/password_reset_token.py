@@ -1,12 +1,18 @@
 """PasswordResetToken model - stored in tenant-specific schema"""
 
+from __future__ import annotations
+
 from datetime import datetime
+from typing import TYPE_CHECKING
 from uuid import UUID
 
 from sqlalchemy import DateTime, ForeignKey, String
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from src.db.base import BaseModel
+
+if TYPE_CHECKING:
+    from src.db.models.user import User
 
 
 class PasswordResetToken(BaseModel):
@@ -23,7 +29,7 @@ class PasswordResetToken(BaseModel):
     used_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
 
     # Relationships
-    user: Mapped["User"] = relationship("User", back_populates="password_reset_tokens")
+    user: Mapped[User] = relationship("User", back_populates="password_reset_tokens")
 
     def __repr__(self) -> str:
         return f"<PasswordResetToken(id={self.id}, user_id={self.user_id}, used={self.used_at is not None})>"

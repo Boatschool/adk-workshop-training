@@ -8,9 +8,10 @@ Usage:
     python verify_setup.py
 """
 
-import sys
 import os
 import subprocess
+import sys
+
 
 def print_header(text):
     """Print formatted header"""

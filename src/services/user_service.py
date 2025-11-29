@@ -1,6 +1,6 @@
 """User service for managing user operations."""
 
-from datetime import datetime, timedelta, timezone
+from datetime import UTC, datetime, timedelta
 
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -150,16 +150,16 @@ class UserService:
             raise AuthenticationError("Invalid email or password")
 
         # Check if account is locked
-        if user.locked_until and user.locked_until > datetime.now(timezone.utc):
+        if user.locked_until and user.locked_until > datetime.now(UTC):
             # Calculate remaining lockout time
-            remaining_minutes = (user.locked_until - datetime.now(timezone.utc)).seconds // 60
+            remaining_minutes = (user.locked_until - datetime.now(UTC)).seconds // 60
             raise AccountLockedError(
                 f"Account is locked due to too many failed login attempts. "
                 f"Try again in {remaining_minutes} minute(s)."
             )
 
         # If lockout expired, reset failed attempts
-        if user.locked_until and user.locked_until <= datetime.now(timezone.utc):
+        if user.locked_until and user.locked_until <= datetime.now(UTC):
             user.failed_login_attempts = 0
             user.locked_until = None
             await self.db.commit()
@@ -175,7 +175,7 @@ class UserService:
 
             # Lock account if threshold reached
             if user.failed_login_attempts >= settings.max_login_attempts:
-                user.locked_until = datetime.now(timezone.utc) + timedelta(
+                user.locked_until = datetime.now(UTC) + timedelta(
                     minutes=settings.lockout_duration_minutes
                 )
                 await self.db.commit()

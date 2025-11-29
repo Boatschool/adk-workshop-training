@@ -1,9 +1,10 @@
 """Tests for task queue."""
 
 import asyncio
+
 import pytest
 
-from src.workers.queue import TaskQueue, TaskStatus, TaskResult
+from src.workers.queue import TaskQueue, TaskResult, TaskStatus
 
 
 class TestTaskResult:

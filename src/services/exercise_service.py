@@ -56,14 +56,10 @@ class ExerciseService:
         Returns:
             Exercise or None if not found
         """
-        result = await self.db.execute(
-            select(Exercise).where(Exercise.id == exercise_id)
-        )
+        result = await self.db.execute(select(Exercise).where(Exercise.id == exercise_id))
         return result.scalar_one_or_none()
 
-    async def update_exercise(
-        self, exercise_id: str, exercise_data: ExerciseUpdate
-    ) -> Exercise:
+    async def update_exercise(self, exercise_id: str, exercise_data: ExerciseUpdate) -> Exercise:
         """
         Update an existing exercise.
 

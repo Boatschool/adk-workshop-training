@@ -10,7 +10,7 @@ router = APIRouter()
 
 
 @router.get("/")
-async def health_check():
+async def health_check() -> dict[str, str]:
     """
     Basic health check endpoint.
 
@@ -25,7 +25,7 @@ async def health_check():
 
 
 @router.get("/ready")
-async def readiness_check(db: AsyncSession = Depends(get_db)):
+async def readiness_check(db: AsyncSession = Depends(get_db)) -> dict[str, str]:
     """
     Readiness probe that checks database connectivity.
 
@@ -52,4 +52,4 @@ async def readiness_check(db: AsyncSession = Depends(get_db)):
         raise HTTPException(
             status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
             detail=f"Database connection failed: {str(e)}",
-        )
+        ) from None

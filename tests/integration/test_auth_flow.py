@@ -1,7 +1,6 @@
 """Integration tests for authentication flow."""
 
 import os
-from unittest.mock import AsyncMock, MagicMock, patch
 from uuid import uuid4
 
 import pytest
@@ -14,8 +13,7 @@ os.environ["DATABASE_URL"] = (
 )
 
 from src.api.main import app
-from src.core.security import create_access_token, hash_password
-
+from src.core.security import create_access_token
 
 # Mark all tests in this module that require DB
 pytestmark = pytest.mark.integration

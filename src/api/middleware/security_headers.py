@@ -1,6 +1,6 @@
 """Security headers middleware for API endpoints."""
 
-from collections.abc import Callable
+from collections.abc import Awaitable, Callable
 
 from fastapi import Request, Response
 from starlette.middleware.base import BaseHTTPMiddleware
@@ -21,7 +21,9 @@ class SecurityHeadersMiddleware(BaseHTTPMiddleware):
     - Man-in-the-middle attacks (via HSTS in production)
     """
 
-    async def dispatch(self, request: Request, call_next: Callable) -> Response:
+    async def dispatch(
+        self, request: Request, call_next: Callable[[Request], Awaitable[Response]]
+    ) -> Response:
         """
         Add security headers to the response.
 
@@ -65,11 +67,7 @@ class SecurityHeadersMiddleware(BaseHTTPMiddleware):
 
         # Permissions Policy - disable unnecessary browser features
         response.headers["Permissions-Policy"] = (
-            "geolocation=(), "
-            "microphone=(), "
-            "camera=(), "
-            "payment=(), "
-            "usb=()"
+            "geolocation=(), " "microphone=(), " "camera=(), " "payment=(), " "usb=()"
         )
 
         # HSTS - only in production to enforce HTTPS
