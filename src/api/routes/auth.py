@@ -158,22 +158,35 @@ async def forgot_password(
     client_ip = http_request.client.host if http_request.client else None
     user_agent = http_request.headers.get("user-agent")
 
-    service = PasswordResetService(db, tenant_id)
-    await service.request_password_reset(request.email)
+    try:
+        service = PasswordResetService(db, tenant_id)
+        await service.request_password_reset(request.email)
 
-    # Audit log password reset request (always log, even if user not found)
-    log_audit_event(
-        AuditEvent.PASSWORD_RESET_REQUEST,
-        tenant_id=tenant_id,
-        email=request.email,
-        ip_address=client_ip,
-        user_agent=user_agent,
-        success=True,
-    )
+        # Audit log password reset request (always log, even if user not found)
+        log_audit_event(
+            AuditEvent.PASSWORD_RESET_REQUEST,
+            tenant_id=tenant_id,
+            email=request.email,
+            ip_address=client_ip,
+            user_agent=user_agent,
+            success=True,
+        )
 
-    return MessageResponse(
-        message="If an account exists with this email, a password reset link has been sent."
-    )
+        return MessageResponse(
+            message="If an account exists with this email, a password reset link has been sent."
+        )
+    except Exception as e:
+        # Audit log failure for compliance/forensics before re-raising
+        log_audit_event(
+            AuditEvent.PASSWORD_RESET_REQUEST,
+            tenant_id=tenant_id,
+            email=request.email,
+            ip_address=client_ip,
+            user_agent=user_agent,
+            success=False,
+            details={"error_type": type(e).__name__},
+        )
+        raise
 
 
 @router.post("/reset-password", response_model=MessageResponse)
@@ -247,6 +260,17 @@ async def reset_password(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail=str(e),
         ) from None
+    except Exception as e:
+        # Audit log unexpected failures (DB errors, etc.) for compliance/forensics
+        log_audit_event(
+            AuditEvent.PASSWORD_RESET_COMPLETE,
+            tenant_id=tenant_id,
+            ip_address=client_ip,
+            user_agent=user_agent,
+            success=False,
+            details={"reason": "unexpected_error", "error_type": type(e).__name__},
+        )
+        raise
 
 
 @router.post("/change-password", response_model=MessageResponse)

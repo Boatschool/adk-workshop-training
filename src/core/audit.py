@@ -106,22 +106,40 @@ def _mask_email(email: str) -> str:
     return f"{masked_local}@{domain}"
 
 
-def _filter_sensitive_data(data: dict[str, Any]) -> dict[str, Any]:
+def _filter_sensitive_data(data: Any) -> Any:
     """
-    Filter sensitive data from audit log details.
+    Recursively filter sensitive data from audit log details.
 
+    Handles dicts, lists, tuples, and string values that may contain sensitive data.
     Removes or masks fields that should not appear in logs.
     """
     sensitive_keys = {"password", "token", "secret", "api_key", "refresh_token", "access_token"}
-    filtered: dict[str, Any] = {}
 
-    for key, value in data.items():
-        key_lower = key.lower()
-        if any(sensitive in key_lower for sensitive in sensitive_keys):
-            filtered[key] = "[REDACTED]"
-        elif isinstance(value, dict):
-            filtered[key] = _filter_sensitive_data(value)
-        else:
-            filtered[key] = value
+    if isinstance(data, dict):
+        filtered: dict[str, Any] = {}
+        for key, value in data.items():
+            key_lower = key.lower()
+            if any(sensitive in key_lower for sensitive in sensitive_keys):
+                filtered[key] = "[REDACTED]"
+            else:
+                filtered[key] = _filter_sensitive_data(value)
+        return filtered
 
-    return filtered
+    elif isinstance(data, list | tuple):
+        # Recursively filter each item in sequences
+        filtered_list = [_filter_sensitive_data(item) for item in data]
+        return type(data)(filtered_list) if isinstance(data, tuple) else filtered_list
+
+    elif isinstance(data, str):
+        # Check if string looks like a token (long alphanumeric with dots for JWTs)
+        # JWTs have format: header.payload.signature (three base64 parts)
+        if len(data) > 50 and "." in data and data.count(".") >= 2:
+            return "[REDACTED_TOKEN]"
+        # Check for bearer token patterns
+        if data.lower().startswith("bearer "):
+            return "[REDACTED_BEARER]"
+        return data
+
+    else:
+        # Return other types as-is (int, float, bool, None, etc.)
+        return data
