@@ -28,15 +28,19 @@ enable_private_networking = true
 allow_unauthenticated_api = true
 
 # CORS - restrict to production domain(s) only
-# TODO: Update with actual production domain(s) when configured
 static_cors_origins = [
-  "https://adk-platform.example.com",
-  "https://www.adk-platform.example.com"
+  "https://learn.graymatterlab.ai",
+  "https://staging.learn.graymatterlab.ai"
 ]
 
 # Database authorized networks - empty by default (private VPC provides access)
 # SECURITY: Avoid direct database access in production; use Cloud SQL Proxy or VPC
 # db_authorized_networks = []
+
+# Load Balancer - Enable for frontend deployment
+enable_load_balancer = true
+frontend_domains     = ["learn.graymatterlab.ai"]
+enable_cdn           = true
 
 # Labels
 labels = {

@@ -278,11 +278,65 @@ jobs:
           echo "url=$URL" >> $GITHUB_OUTPUT
           echo "Service URL: $URL"
 
+  # Deploy frontend to GCS
+  deploy-frontend:
+    name: Deploy Frontend
+    runs-on: ubuntu-latest
+    needs: [deploy]
+    if: always() && needs.deploy.result == 'success'
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Authenticate to Google Cloud
+        uses: google-github-actions/auth@v2
+        with:
+          credentials_json: ${{ secrets.GCP_SA_KEY }}
+
+      - name: Set up Cloud SDK
+        uses: google-github-actions/setup-gcloud@v2
+        with:
+          project_id: ${{ env.PROJECT_ID }}
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+          cache-dependency-path: frontend/package-lock.json
+
+      - name: Install dependencies
+        working-directory: frontend
+        run: npm ci
+
+      - name: Build frontend
+        working-directory: frontend
+        run: npm run build
+
+      - name: Get GCS bucket name
+        id: bucket
+        run: |
+          BUCKET=$(gcloud storage buckets list --project=${{ env.PROJECT_ID }} \
+            --format="value(name)" | grep "adk-platform-production-static" | head -1)
+          echo "bucket_name=$BUCKET" >> $GITHUB_OUTPUT
+
+      - name: Deploy to GCS
+        run: |
+          gsutil -m rsync -r -d frontend/dist/ gs://${{ steps.bucket.outputs.bucket_name }}/
+          gsutil -m setmeta -h "Cache-Control:public, max-age=31536000, immutable" \
+            "gs://${{ steps.bucket.outputs.bucket_name }}/assets/**"
+          gsutil -m setmeta -h "Cache-Control:no-cache, no-store, must-revalidate" \
+            "gs://${{ steps.bucket.outputs.bucket_name }}/index.html"
+
+      - name: Invalidate CDN cache
+        run: |
+          gcloud compute url-maps invalidate-cdn-cache adk-platform-production-frontend-urlmap \
+            --path "/*" --project=${{ env.PROJECT_ID }} --async || true
+
   # Smoke tests
   smoke-test:
     name: Production Smoke Tests
     runs-on: ubuntu-latest
-    needs: [deploy]
+    needs: [deploy, deploy-frontend]
     steps:
       - name: Wait for deployment to stabilize
         run: sleep 45

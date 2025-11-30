@@ -124,3 +124,22 @@ variable "labels" {
   type        = map(string)
   default     = {}
 }
+
+# Load Balancer Configuration
+variable "enable_load_balancer" {
+  description = "Enable Global HTTPS Load Balancer for frontend + API routing"
+  type        = bool
+  default     = false
+}
+
+variable "frontend_domains" {
+  description = "Domain names for frontend SSL certificate (e.g., ['learn.graymatterlab.ai'])"
+  type        = list(string)
+  default     = []
+}
+
+variable "enable_cdn" {
+  description = "Enable Cloud CDN for frontend static assets"
+  type        = bool
+  default     = true
+}

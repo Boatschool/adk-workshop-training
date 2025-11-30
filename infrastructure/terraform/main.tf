@@ -137,3 +137,24 @@ module "cloud_run" {
 
   depends_on = [module.cloud_sql, module.secret_manager, module.networking]
 }
+
+# =============================================================================
+# Load Balancer Module (Frontend + API routing)
+# =============================================================================
+module "load_balancer" {
+  source = "./modules/load_balancer"
+
+  # Only create load balancer if enabled and domains are provided
+  count = var.enable_load_balancer ? 1 : 0
+
+  project_id             = var.project_id
+  region                 = var.region
+  name_prefix            = local.name_prefix
+  static_bucket_name     = module.storage.static_bucket_name
+  cloud_run_service_name = module.cloud_run.service_name
+  domains                = var.frontend_domains
+  enable_cdn             = var.enable_cdn
+  labels                 = local.common_labels
+
+  depends_on = [module.storage, module.cloud_run]
+}
