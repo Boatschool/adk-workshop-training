@@ -601,12 +601,12 @@ Note: Load Balancer has a minimum cost regardless of traffic. For very low traff
 ## Acceptance Criteria
 
 ### Must Have
-- [x] Frontend accessible via HTTPS at custom domain (pending DNS update)
+- [x] Frontend accessible via HTTPS at custom domain
 - [x] API requests (/api/*) routed to Cloud Run backend
 - [x] HTTP redirects to HTTPS
 - [x] CDN caching working for static assets
 - [x] SPA routing works (deep links return index.html via not_found_page)
-- [ ] SSL certificate valid and auto-renewing (pending DNS validation)
+- [x] SSL certificate valid and auto-renewing
 
 ### Should Have
 - [ ] CI/CD pipeline deploys frontend automatically
@@ -712,17 +712,6 @@ Note: Load Balancer has a minimum cost regardless of traffic. For very low traff
    - Graymatter tenant created (ID: 17d9ee0f-dfff-44a0-9f5e-75afcd44dc9c)
    - ron@graymatterlab.ai registered and promoted to super_admin
    - Used temporary bootstrap endpoint (now removed)
-
-#### Pending ⏳
-
-1. **DNS Update Required**
-   - Zone: `graymatterlab-ai` in project `graymatter-studio`
-   - Update A record: `learn.graymatterlab.ai` → `136.110.206.174`
-   - Current record points to old setup (ghs.googlehosted.com)
-
-2. **SSL Certificate Validation**
-   - Google-managed cert will auto-provision once DNS points to Load Balancer IP
-   - Typically takes 15-60 minutes after DNS update
 
 #### Files Created/Modified
 

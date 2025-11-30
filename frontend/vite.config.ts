@@ -23,11 +23,11 @@ export default defineConfig({
     port: 4000,
     proxy: {
       '/api': {
-        target: 'http://localhost:8080',  // FastAPI backend on 8080 (ADK Visual Builder uses 8000)
+        target: process.env.VITE_API_URL || 'http://localhost:8080',  // FastAPI backend
         changeOrigin: true,
       },
       '/health': {
-        target: 'http://localhost:8080',
+        target: process.env.VITE_API_URL || 'http://localhost:8080',
         changeOrigin: true,
       },
     },
