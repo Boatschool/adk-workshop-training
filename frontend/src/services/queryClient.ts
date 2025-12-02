@@ -75,4 +75,19 @@ export const queryKeys = {
     templateDetail: (type: string) =>
       [...queryKeys.agent.all, 'templates', type] as const,
   },
+
+  // Library queries
+  library: {
+    all: ['library'] as const,
+    resources: (params?: Record<string, unknown>) =>
+      [...queryKeys.library.all, 'resources', params] as const,
+    detail: (id: string) => [...queryKeys.library.all, 'detail', id] as const,
+    featured: () => [...queryKeys.library.all, 'featured'] as const,
+    bookmarks: () => [...queryKeys.library.all, 'bookmarks'] as const,
+    bookmarkStatus: (resourceId: string) =>
+      [...queryKeys.library.all, 'bookmark', resourceId] as const,
+    progress: () => [...queryKeys.library.all, 'progress'] as const,
+    resourceProgress: (resourceId: string) =>
+      [...queryKeys.library.all, 'progress', resourceId] as const,
+  },
 } as const

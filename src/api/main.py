@@ -9,7 +9,17 @@ from fastapi.middleware.cors import CORSMiddleware
 from src.api.middleware.rate_limit import RateLimitMiddleware
 from src.api.middleware.security_headers import SecurityHeadersMiddleware
 from src.api.middleware.tenant import TenantMiddleware
-from src.api.routes import agents, auth, exercises, health, progress, tenants, users, workshops
+from src.api.routes import (
+    agents,
+    auth,
+    exercises,
+    health,
+    library,
+    progress,
+    tenants,
+    users,
+    workshops,
+)
 from src.core.config import get_settings
 from src.db.session import close_db, init_db
 
@@ -63,6 +73,7 @@ app.include_router(workshops.router, prefix="/api/v1/workshops", tags=["workshop
 app.include_router(exercises.router, prefix="/api/v1/exercises", tags=["exercises"])
 app.include_router(progress.router, prefix="/api/v1/progress", tags=["progress"])
 app.include_router(agents.router, prefix="/api/v1/agents", tags=["agents"])
+app.include_router(library.router, prefix="/api/v1/library", tags=["library"])
 
 
 @app.get("/")

@@ -19,7 +19,9 @@ describe('cn', () => {
   })
 
   it('handles boolean expressions', () => {
-    expect(cn('foo', false && 'bar', true && 'baz')).toBe('foo baz')
+    const showBar = false
+    const showBaz = true
+    expect(cn('foo', showBar && 'bar', showBaz && 'baz')).toBe('foo baz')
   })
 
   it('merges Tailwind classes intelligently', () => {

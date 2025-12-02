@@ -50,9 +50,9 @@ if __name__ == "__main__":
 }
 
 export function ExercisePage() {
-  const { id: _exerciseId } = useParams<{ id: string }>()
+  useParams<{ id: string }>()
 
-  // In real app, fetch exercise by _exerciseId
+  // In real app, fetch exercise by id from useParams
   const exercise = mockExercise
 
   return (

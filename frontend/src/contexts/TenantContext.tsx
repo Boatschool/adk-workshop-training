@@ -160,6 +160,7 @@ export function TenantProvider({ children }: TenantProviderProps) {
   )
 }
 
+// eslint-disable-next-line react-refresh/only-export-components
 export function useTenant(): TenantContextType {
   const context = useContext(TenantContext)
   if (context === undefined) {

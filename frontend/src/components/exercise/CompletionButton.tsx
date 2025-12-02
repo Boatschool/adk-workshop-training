@@ -15,7 +15,6 @@ interface CompletionButtonProps {
 }
 
 export function CompletionButton({
-  exerciseId: _exerciseId,
   isCompleted: initialCompleted,
   onComplete,
   size = 'md',

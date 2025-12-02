@@ -27,7 +27,7 @@ export function ForgotPasswordPage() {
     try {
       await authService.forgotPassword(email)
       setIsSubmitted(true)
-    } catch (err) {
+    } catch {
       // Always show success message to prevent email enumeration
       setIsSubmitted(true)
     } finally {

@@ -15,14 +15,17 @@ export function SettingsPage() {
   const { user } = useAuth()
   const { settings, updateSetting, resetSettings, getHealthUrl } = useUserSettings()
   const [builderStatus, setBuilderStatus] = useState<BuilderStatus>('checking')
-  const [urlInput, setUrlInput] = useState(settings.localBuilderUrl)
+  const [urlInput, setUrlInput] = useState(() => settings.localBuilderUrl)
   const [isSaving, setIsSaving] = useState(false)
   const [showSaved, setShowSaved] = useState(false)
 
-  // Sync urlInput when settings change
-  useEffect(() => {
+  // Track if urlInput was manually changed
+  const [isUrlManuallyChanged, setIsUrlManuallyChanged] = useState(false)
+
+  // Sync urlInput when settings change (only if not manually changed)
+  if (!isUrlManuallyChanged && urlInput !== settings.localBuilderUrl) {
     setUrlInput(settings.localBuilderUrl)
-  }, [settings.localBuilderUrl])
+  }
 
   // Check builder status
   useEffect(() => {
@@ -50,6 +53,7 @@ export function SettingsPage() {
     const normalizedUrl = urlInput.replace(/\/+$/, '')
     updateSetting('localBuilderUrl', normalizedUrl)
     setUrlInput(normalizedUrl)
+    setIsUrlManuallyChanged(false)
 
     setTimeout(() => {
       setIsSaving(false)
@@ -156,7 +160,10 @@ export function SettingsPage() {
                 type="url"
                 id="builderUrl"
                 value={urlInput}
-                onChange={(e) => setUrlInput(e.target.value)}
+                onChange={(e) => {
+                  setUrlInput(e.target.value)
+                  setIsUrlManuallyChanged(true)
+                }}
                 placeholder="http://localhost:8000"
                 className="flex-1 px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-400 focus:ring-2 focus:ring-primary-500 focus:border-transparent"
               />

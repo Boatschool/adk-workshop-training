@@ -29,7 +29,7 @@ const steps: Step[] = [
 ]
 
 export function SetupWizard() {
-  const [platform, setPlatform] = useState<Platform>('unknown')
+  const [platform] = useState<Platform>(() => detectPlatform())
   const [builderConnected, setBuilderConnected] = useState(false)
   const [showCelebration, setShowCelebration] = useState(false)
   const { settings, updateSetting, earnBadge, getHealthUrl, completeSetupStep } = useUserSettings()
@@ -37,10 +37,6 @@ export function SetupWizard() {
   // Use currentSetupStep from settings, default to 'welcome'
   const currentStep = settings.currentSetupStep || 'welcome'
   const currentStepIndex = steps.findIndex(s => s.id === currentStep)
-
-  useEffect(() => {
-    setPlatform(detectPlatform())
-  }, [])
 
   // Check if Visual Builder is running
   useEffect(() => {
