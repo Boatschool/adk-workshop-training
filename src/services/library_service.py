@@ -2,11 +2,16 @@
 
 Library resources are stored in the shared schema and accessible by all tenants.
 Bookmarks and progress are tenant-scoped (per-user within tenant).
+
+NOTE: The search_path is already set by get_tenant_db_dependency to include
+both the tenant schema AND adk_platform_shared, so no explicit schema switching
+is needed. This allows tenant-scoped operations (bookmarks, progress) and
+shared schema operations (library_resources) to work in the same session.
 """
 
 from datetime import UTC, datetime
 
-from sqlalchemy import and_, func, or_, select, text
+from sqlalchemy import and_, func, or_, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.api.schemas.library import (
@@ -15,27 +20,27 @@ from src.api.schemas.library import (
     LibraryResourceUpdate,
     ResourceProgressUpdate,
 )
-from src.core.constants import SHARED_SCHEMA, ResourceProgressStatus
+from src.core.constants import ResourceProgressStatus
 from src.core.exceptions import NotFoundError
 from src.db.models.library import LibraryResource, ResourceProgress, UserBookmark
 
 
 class LibraryResourceService:
-    """Service for library resource management (shared schema operations)."""
+    """Service for library resource management (shared schema operations).
+
+    Library resources are in the shared schema (adk_platform_shared.library_resources).
+    The search_path set by get_tenant_db_dependency includes the shared schema,
+    so resources are accessible without explicit schema switching.
+    """
 
     def __init__(self, db: AsyncSession):
         """
         Initialize library resource service.
 
         Args:
-            db: Database session
+            db: Database session (should have search_path including shared schema)
         """
         self.db = db
-        self.shared_schema = SHARED_SCHEMA
-
-    async def _set_shared_schema(self) -> None:
-        """Set the search_path to the shared schema for queries."""
-        await self.db.execute(text(f"SET search_path TO {self.shared_schema}"))
 
     async def create_resource(self, resource_data: LibraryResourceCreate) -> LibraryResource:
         """
@@ -47,8 +52,6 @@ class LibraryResourceService:
         Returns:
             LibraryResource: Created resource
         """
-        await self._set_shared_schema()
-
         resource = LibraryResource(
             title=resource_data.title,
             description=resource_data.description,
@@ -81,7 +84,6 @@ class LibraryResourceService:
         Returns:
             LibraryResource or None if not found
         """
-        await self._set_shared_schema()
         result = await self.db.execute(
             select(LibraryResource).where(LibraryResource.id == resource_id)
         )
@@ -162,7 +164,6 @@ class LibraryResourceService:
         Returns:
             list[LibraryResource]: List of resources
         """
-        await self._set_shared_schema()
         query = select(LibraryResource).order_by(
             LibraryResource.featured.desc(),
             LibraryResource.created_at.desc(),
@@ -209,7 +210,6 @@ class LibraryResourceService:
         Returns:
             list[LibraryResource]: List of featured resources
         """
-        await self._set_shared_schema()
         result = await self.db.execute(
             select(LibraryResource)
             .where(LibraryResource.featured == True)  # noqa: E712

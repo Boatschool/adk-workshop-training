@@ -9,7 +9,12 @@ from typing import Annotated
 from fastapi import APIRouter, Depends, HTTPException, Query, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from src.api.dependencies import get_current_user, get_tenant_id, require_role
+from src.api.dependencies import (
+    get_current_user,
+    get_tenant_db_dependency,
+    get_tenant_id,
+    require_role,
+)
 from src.api.schemas.library import (
     BookmarkStatusResponse,
     LibraryResourceCreate,
@@ -32,7 +37,6 @@ from src.core.exceptions import NotFoundError
 from src.core.tenancy import TenantContext
 from src.db.models.library import LibraryResource, ResourceProgress, UserBookmark
 from src.db.models.user import User
-from src.db.session import get_db
 from src.services.library_service import (
     LibraryResourceService,
     ResourceProgressService,
@@ -52,7 +56,7 @@ require_super_admin = require_role(UserRole.SUPER_ADMIN)
 
 @router.get("/", response_model=list[LibraryResourceWithUserData])
 async def list_library_resources(
-    db: Annotated[AsyncSession, Depends(get_db)],
+    db: Annotated[AsyncSession, Depends(get_tenant_db_dependency)],
     current_user: Annotated[User, Depends(get_current_user)],
     tenant_id: Annotated[str, Depends(get_tenant_id)],
     skip: Annotated[int, Query(ge=0)] = 0,
@@ -135,7 +139,7 @@ async def list_library_resources(
 
 @router.get("/featured", response_model=list[LibraryResourceResponse])
 async def get_featured_resources(
-    db: Annotated[AsyncSession, Depends(get_db)],
+    db: Annotated[AsyncSession, Depends(get_tenant_db_dependency)],
     current_user: Annotated[User, Depends(get_current_user)],
     tenant_id: Annotated[str, Depends(get_tenant_id)],
     limit: Annotated[int, Query(ge=1, le=20)] = 6,
@@ -160,7 +164,7 @@ async def get_featured_resources(
 @router.get("/{resource_id}", response_model=LibraryResourceWithUserData)
 async def get_library_resource(
     resource_id: str,
-    db: Annotated[AsyncSession, Depends(get_db)],
+    db: Annotated[AsyncSession, Depends(get_tenant_db_dependency)],
     current_user: Annotated[User, Depends(get_current_user)],
     tenant_id: Annotated[str, Depends(get_tenant_id)],
 ) -> dict:
@@ -207,7 +211,7 @@ async def get_library_resource(
 @router.post("/", response_model=LibraryResourceResponse, status_code=status.HTTP_201_CREATED)
 async def create_library_resource(
     resource_data: LibraryResourceCreate,
-    db: Annotated[AsyncSession, Depends(get_db)],
+    db: Annotated[AsyncSession, Depends(get_tenant_db_dependency)],
     current_user: Annotated[User, Depends(require_super_admin)],
     tenant_id: Annotated[str, Depends(get_tenant_id)],
 ) -> LibraryResource:
@@ -234,7 +238,7 @@ async def create_library_resource(
 async def update_library_resource(
     resource_id: str,
     resource_data: LibraryResourceUpdate,
-    db: Annotated[AsyncSession, Depends(get_db)],
+    db: Annotated[AsyncSession, Depends(get_tenant_db_dependency)],
     current_user: Annotated[User, Depends(require_super_admin)],
     tenant_id: Annotated[str, Depends(get_tenant_id)],
 ) -> LibraryResource:
@@ -267,7 +271,7 @@ async def update_library_resource(
 @router.delete("/{resource_id}", status_code=status.HTTP_204_NO_CONTENT)
 async def delete_library_resource(
     resource_id: str,
-    db: Annotated[AsyncSession, Depends(get_db)],
+    db: Annotated[AsyncSession, Depends(get_tenant_db_dependency)],
     current_user: Annotated[User, Depends(require_super_admin)],
     tenant_id: Annotated[str, Depends(get_tenant_id)],
 ) -> None:
@@ -301,7 +305,7 @@ async def delete_library_resource(
 @router.post("/{resource_id}/bookmark", response_model=BookmarkStatusResponse)
 async def toggle_bookmark(
     resource_id: str,
-    db: Annotated[AsyncSession, Depends(get_db)],
+    db: Annotated[AsyncSession, Depends(get_tenant_db_dependency)],
     current_user: Annotated[User, Depends(get_current_user)],
     tenant_id: Annotated[str, Depends(get_tenant_id)],
 ) -> dict:
@@ -342,7 +346,7 @@ async def toggle_bookmark(
 @router.get("/{resource_id}/bookmark", response_model=BookmarkStatusResponse)
 async def get_bookmark_status(
     resource_id: str,
-    db: Annotated[AsyncSession, Depends(get_db)],
+    db: Annotated[AsyncSession, Depends(get_tenant_db_dependency)],
     current_user: Annotated[User, Depends(get_current_user)],
     tenant_id: Annotated[str, Depends(get_tenant_id)],
 ) -> dict:
@@ -370,7 +374,7 @@ async def get_bookmark_status(
 
 @router.get("/bookmarks/", response_model=list[UserBookmarkResponse])
 async def get_user_bookmarks(
-    db: Annotated[AsyncSession, Depends(get_db)],
+    db: Annotated[AsyncSession, Depends(get_tenant_db_dependency)],
     current_user: Annotated[User, Depends(get_current_user)],
     tenant_id: Annotated[str, Depends(get_tenant_id)],
 ) -> list[UserBookmark]:
@@ -399,7 +403,7 @@ async def get_user_bookmarks(
 async def update_resource_progress(
     resource_id: str,
     progress_data: ResourceProgressUpdate,
-    db: Annotated[AsyncSession, Depends(get_db)],
+    db: Annotated[AsyncSession, Depends(get_tenant_db_dependency)],
     current_user: Annotated[User, Depends(get_current_user)],
     tenant_id: Annotated[str, Depends(get_tenant_id)],
 ) -> ResourceProgress:
@@ -434,7 +438,7 @@ async def update_resource_progress(
 @router.get("/{resource_id}/progress", response_model=ResourceProgressResponse | None)
 async def get_resource_progress(
     resource_id: str,
-    db: Annotated[AsyncSession, Depends(get_db)],
+    db: Annotated[AsyncSession, Depends(get_tenant_db_dependency)],
     current_user: Annotated[User, Depends(get_current_user)],
     tenant_id: Annotated[str, Depends(get_tenant_id)],
 ) -> ResourceProgress | None:
@@ -457,7 +461,7 @@ async def get_resource_progress(
 
 @router.get("/progress/", response_model=list[ResourceProgressResponse])
 async def get_user_progress(
-    db: Annotated[AsyncSession, Depends(get_db)],
+    db: Annotated[AsyncSession, Depends(get_tenant_db_dependency)],
     current_user: Annotated[User, Depends(get_current_user)],
     tenant_id: Annotated[str, Depends(get_tenant_id)],
 ) -> list[ResourceProgress]:
@@ -480,7 +484,7 @@ async def get_user_progress(
 @router.post("/{resource_id}/view", response_model=ResourceProgressResponse)
 async def mark_resource_viewed(
     resource_id: str,
-    db: Annotated[AsyncSession, Depends(get_db)],
+    db: Annotated[AsyncSession, Depends(get_tenant_db_dependency)],
     current_user: Annotated[User, Depends(get_current_user)],
     tenant_id: Annotated[str, Depends(get_tenant_id)],
 ) -> ResourceProgress:
