@@ -12,6 +12,13 @@ const THEME_KEY = 'adk_theme'
 const DEFAULT_TENANT_ID = '17d9ee0f-dfff-44a0-9f5e-75afcd44dc9c'
 
 /**
+ * Get the default tenant ID
+ */
+export function getDefaultTenantId(): string {
+  return DEFAULT_TENANT_ID
+}
+
+/**
  * Get the stored access token
  */
 export function getStoredToken(): string | null {

@@ -6,11 +6,13 @@
 import { useState } from 'react'
 import { Link, useNavigate, useLocation } from 'react-router-dom'
 import { useAuth } from '@contexts/AuthContext'
+import { useTenant } from '@contexts/TenantContext'
 
 export function LoginPage() {
   const navigate = useNavigate()
   const location = useLocation()
   const { login, isLoading } = useAuth()
+  const { tenantError, isLoading: tenantLoading, resetToDefaultTenant } = useTenant()
 
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
@@ -58,7 +60,28 @@ export function LoginPage() {
         {/* Login Form */}
         <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl p-8">
           <form onSubmit={handleSubmit} className="space-y-6">
-            {/* Error Message */}
+            {/* Tenant Error Message */}
+            {tenantError && (
+              <div className="bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 text-amber-700 dark:text-amber-400 px-4 py-3 rounded-lg text-sm">
+                <div className="flex items-start gap-3">
+                  <svg className="w-5 h-5 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
+                    <path fillRule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+                  </svg>
+                  <div className="flex-1">
+                    <p>{tenantError}</p>
+                    <button
+                      type="button"
+                      onClick={resetToDefaultTenant}
+                      className="mt-2 text-sm font-medium text-amber-800 dark:text-amber-300 hover:underline"
+                    >
+                      Reset now
+                    </button>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* Login Error Message */}
             {error && (
               <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 text-red-700 dark:text-red-400 px-4 py-3 rounded-lg text-sm">
                 {error}
@@ -157,7 +180,7 @@ export function LoginPage() {
             {/* Submit Button */}
             <button
               type="submit"
-              disabled={isLoading}
+              disabled={isLoading || tenantLoading || !!tenantError}
               className="w-full py-3 px-4 bg-gradient-to-r from-primary-500 to-purple-600
                        text-white font-medium rounded-lg shadow-lg
                        hover:from-primary-600 hover:to-purple-700
