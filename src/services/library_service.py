@@ -233,7 +233,7 @@ class UserBookmarkService:
         self.db = db
         self.tenant_id = tenant_id
 
-    async def toggle_bookmark(self, user_id: str, resource_id: str) -> bool:
+    async def toggle_bookmark(self, user_id: str, resource_id: str) -> UserBookmark | None:
         """
         Toggle bookmark for a resource. Creates if not exists, deletes if exists.
 
@@ -242,7 +242,7 @@ class UserBookmarkService:
             resource_id: Library resource UUID
 
         Returns:
-            bool: True if bookmark was created, False if removed
+            UserBookmark if created (with timestamp), None if removed
         """
         # Check if bookmark exists
         result = await self.db.execute(
@@ -258,12 +258,13 @@ class UserBookmarkService:
         if existing:
             await self.db.delete(existing)
             await self.db.commit()
-            return False
+            return None
         else:
             bookmark = UserBookmark(user_id=user_id, resource_id=resource_id)
             self.db.add(bookmark)
             await self.db.commit()
-            return True
+            await self.db.refresh(bookmark)
+            return bookmark
 
     async def is_bookmarked(self, user_id: str, resource_id: str) -> bool:
         """
@@ -286,6 +287,27 @@ class UserBookmarkService:
         )
         count = result.scalar()
         return count is not None and count > 0
+
+    async def get_bookmark(self, user_id: str, resource_id: str) -> UserBookmark | None:
+        """
+        Get bookmark for a specific resource if it exists.
+
+        Args:
+            user_id: User UUID
+            resource_id: Library resource UUID
+
+        Returns:
+            UserBookmark or None if not bookmarked
+        """
+        result = await self.db.execute(
+            select(UserBookmark).where(
+                and_(
+                    UserBookmark.user_id == user_id,
+                    UserBookmark.resource_id == resource_id,
+                )
+            )
+        )
+        return result.scalar_one_or_none()
 
     async def get_user_bookmarks(self, user_id: str) -> list[UserBookmark]:
         """

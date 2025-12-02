@@ -74,6 +74,11 @@ async def list_library_resources(
 
     Includes user-specific bookmark and progress data.
 
+    Note: When filtering by `bookmarked` or `progress_status`, the filters are
+    applied after merging user data. To ensure consistent pagination, the API
+    fetches all matching resources first, then applies skip/limit to the filtered
+    result set.
+
     Args:
         db: Database session
         current_user: Current authenticated user
@@ -93,6 +98,9 @@ async def list_library_resources(
     """
     TenantContext.set(tenant_id)
 
+    # Determine if we need to filter by user-specific data (bookmarked/progress)
+    needs_user_filtering = bookmarked is not None or progress_status is not None
+
     # Get resources from shared schema
     resource_service = LibraryResourceService(db)
     filters = LibraryResourceFilters(
@@ -104,7 +112,12 @@ async def list_library_resources(
         bookmarked=bookmarked,
         progress_status=progress_status,
     )
-    resources = await resource_service.list_resources(skip=skip, limit=limit, filters=filters)
+
+    # When filtering by user data, fetch all resources first, then paginate after filtering
+    if needs_user_filtering:
+        resources = await resource_service.list_resources(skip=0, limit=1000, filters=filters)
+    else:
+        resources = await resource_service.list_resources(skip=skip, limit=limit, filters=filters)
 
     # Get user's bookmarks and progress
     bookmark_service = UserBookmarkService(db, tenant_id)
@@ -113,7 +126,7 @@ async def list_library_resources(
     bookmarked_ids = await bookmark_service.get_bookmarked_resource_ids(str(current_user.id))
     progress_map = await progress_service.get_progress_map(str(current_user.id))
 
-    # Combine data
+    # Combine data and apply user-specific filters
     result = []
     for resource in resources:
         resource_id = str(resource.id)
@@ -121,7 +134,7 @@ async def list_library_resources(
         progress = progress_map.get(resource_id)
         progress_status_value = progress.status if progress else None
 
-        # Apply client-side filters for bookmarked and progress_status
+        # Apply user-specific filters for bookmarked and progress_status
         if bookmarked is not None and is_bookmarked != bookmarked:
             continue
         if progress_status is not None:
@@ -133,6 +146,10 @@ async def list_library_resources(
             "is_bookmarked": is_bookmarked,
             "progress_status": progress_status_value,
         })
+
+    # Apply pagination after user-specific filtering
+    if needs_user_filtering:
+        result = result[skip : skip + limit]
 
     return result
 
@@ -335,11 +352,11 @@ async def toggle_bookmark(
         )
 
     bookmark_service = UserBookmarkService(db, tenant_id)
-    is_bookmarked = await bookmark_service.toggle_bookmark(str(current_user.id), resource_id)
+    bookmark = await bookmark_service.toggle_bookmark(str(current_user.id), resource_id)
 
     return {
-        "is_bookmarked": is_bookmarked,
-        "bookmarked_at": None,  # Could query for actual timestamp if needed
+        "is_bookmarked": bookmark is not None,
+        "bookmarked_at": bookmark.created_at if bookmark else None,
     }
 
 
@@ -364,11 +381,11 @@ async def get_bookmark_status(
     """
     TenantContext.set(tenant_id)
     bookmark_service = UserBookmarkService(db, tenant_id)
-    is_bookmarked = await bookmark_service.is_bookmarked(str(current_user.id), resource_id)
+    bookmark = await bookmark_service.get_bookmark(str(current_user.id), resource_id)
 
     return {
-        "is_bookmarked": is_bookmarked,
-        "bookmarked_at": None,
+        "is_bookmarked": bookmark is not None,
+        "bookmarked_at": bookmark.created_at if bookmark else None,
     }
 
 
