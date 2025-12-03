@@ -251,7 +251,7 @@ export const DEFAULT_USER_SETTINGS: UserSettings = {
  */
 export type LibraryResourceType = 'article' | 'video' | 'pdf' | 'tool' | 'course' | 'documentation'
 
-export type LibraryResourceSource = 'external' | 'embedded'
+export type LibraryResourceSource = 'external' | 'embedded' | 'uploaded'
 
 export type LibraryTopic =
   | 'agent-fundamentals'

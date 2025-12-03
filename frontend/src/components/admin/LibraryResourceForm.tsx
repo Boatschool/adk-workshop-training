@@ -3,9 +3,11 @@
  * Form for creating and editing library resources
  */
 
-import { useState } from 'react'
+import { useState, useCallback } from 'react'
 import { Modal } from './Modal'
+import { FileUpload } from './FileUpload'
 import { Button } from '@components/common'
+import { uploadLibraryDocument } from '@services/library'
 import type { LibraryResourceWithUserData, LibraryResourceType, LibraryResourceSource, LibraryTopic, LibraryDifficulty } from '@/types/models'
 import type { CreateLibraryResourceData, UpdateLibraryResourceData } from '@services/library'
 
@@ -18,9 +20,10 @@ const RESOURCE_TYPES: { value: LibraryResourceType; label: string }[] = [
   { value: 'documentation', label: 'Documentation' },
 ]
 
-const SOURCE_TYPES: { value: LibraryResourceSource; label: string }[] = [
-  { value: 'external', label: 'External Link' },
-  { value: 'embedded', label: 'Embedded Content' },
+const SOURCE_TYPES: { value: LibraryResourceSource; label: string; description: string }[] = [
+  { value: 'external', label: 'External Link', description: 'Link to an external resource' },
+  { value: 'embedded', label: 'Embedded Content', description: 'HTML/Markdown content' },
+  { value: 'uploaded', label: 'Upload File', description: 'Upload a PDF document' },
 ]
 
 const TOPICS: { value: LibraryTopic; label: string }[] = [
@@ -45,12 +48,20 @@ interface FormState {
   source: LibraryResourceSource
   externalUrl: string
   contentHtml: string
+  contentPath: string
   topics: LibraryTopic[]
   difficulty: LibraryDifficulty
   author: string
   estimatedMinutes: string
   thumbnailUrl: string
   featured: boolean
+}
+
+interface UploadState {
+  isUploading: boolean
+  progress: number
+  uploadedFile: { filePath: string; fileName: string } | null
+  error: string | null
 }
 
 const DEFAULT_FORM_STATE: FormState = {
@@ -60,12 +71,20 @@ const DEFAULT_FORM_STATE: FormState = {
   source: 'external',
   externalUrl: '',
   contentHtml: '',
+  contentPath: '',
   topics: [],
   difficulty: 'beginner',
   author: '',
   estimatedMinutes: '',
   thumbnailUrl: '',
   featured: false,
+}
+
+const DEFAULT_UPLOAD_STATE: UploadState = {
+  isUploading: false,
+  progress: 0,
+  uploadedFile: null,
+  error: null,
 }
 
 function getInitialState(mode: 'create' | 'edit', resource?: LibraryResourceWithUserData | null): FormState {
@@ -77,6 +96,7 @@ function getInitialState(mode: 'create' | 'edit', resource?: LibraryResourceWith
       source: resource.source,
       externalUrl: resource.externalUrl || '',
       contentHtml: resource.contentHtml || '',
+      contentPath: resource.contentPath || '',
       topics: [...resource.topics],
       difficulty: resource.difficulty,
       author: resource.author || '',
@@ -86,6 +106,23 @@ function getInitialState(mode: 'create' | 'edit', resource?: LibraryResourceWith
     }
   }
   return { ...DEFAULT_FORM_STATE, topics: [] }
+}
+
+function getInitialUploadState(mode: 'create' | 'edit', resource?: LibraryResourceWithUserData | null): UploadState {
+  if (mode === 'edit' && resource && resource.source === 'uploaded' && resource.contentPath) {
+    // Extract filename from path
+    const pathParts = resource.contentPath.split('/')
+    let fileName = pathParts[pathParts.length - 1]
+    // Remove unique prefix if present
+    if (fileName.length > 13 && fileName[12] === '_') {
+      fileName = fileName.substring(13)
+    }
+    return {
+      ...DEFAULT_UPLOAD_STATE,
+      uploadedFile: { filePath: resource.contentPath, fileName },
+    }
+  }
+  return { ...DEFAULT_UPLOAD_STATE }
 }
 
 interface LibraryResourceFormProps {
@@ -107,6 +144,7 @@ export function LibraryResourceForm({
 }: LibraryResourceFormProps) {
   // Form state initialized from props - parent should use key prop to reset
   const [form, setForm] = useState<FormState>(() => getInitialState(mode, resource))
+  const [upload, setUpload] = useState<UploadState>(() => getInitialUploadState(mode, resource))
 
   // Helper to update individual form fields
   const updateField = <K extends keyof FormState>(field: K, value: FormState[K]) => {
@@ -122,6 +160,63 @@ export function LibraryResourceForm({
     }))
   }
 
+  // Handle source change - reset source-specific fields
+  const handleSourceChange = (newSource: LibraryResourceSource) => {
+    updateField('source', newSource)
+    // Clear upload state when switching away from uploaded
+    if (newSource !== 'uploaded') {
+      setUpload(DEFAULT_UPLOAD_STATE)
+      updateField('contentPath', '')
+    }
+    // Clear other source-specific fields
+    if (newSource !== 'external') {
+      updateField('externalUrl', '')
+    }
+    if (newSource !== 'embedded') {
+      updateField('contentHtml', '')
+    }
+  }
+
+  // Handle file selection and upload
+  const handleFileSelect = useCallback(async (file: File) => {
+    setUpload(prev => ({
+      ...prev,
+      isUploading: true,
+      progress: 0,
+      error: null,
+    }))
+
+    try {
+      const result = await uploadLibraryDocument(file, (progress) => {
+        setUpload(prev => ({ ...prev, progress }))
+      })
+
+      setUpload({
+        isUploading: false,
+        progress: 100,
+        uploadedFile: { filePath: result.filePath, fileName: result.fileName },
+        error: null,
+      })
+
+      // Update form with the file path
+      updateField('contentPath', result.filePath)
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : 'Upload failed'
+      setUpload(prev => ({
+        ...prev,
+        isUploading: false,
+        progress: 0,
+        error: errorMessage,
+      }))
+    }
+  }, [])
+
+  // Handle clearing uploaded file
+  const handleClearUpload = useCallback(() => {
+    setUpload(DEFAULT_UPLOAD_STATE)
+    updateField('contentPath', '')
+  }, [])
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
 
@@ -132,6 +227,7 @@ export function LibraryResourceForm({
       source: form.source,
       external_url: form.source === 'external' ? form.externalUrl : undefined,
       content_html: form.source === 'embedded' ? form.contentHtml : undefined,
+      content_path: form.source === 'uploaded' ? form.contentPath : undefined,
       topics: form.topics,
       difficulty: form.difficulty,
       author: form.author || undefined,
@@ -143,6 +239,34 @@ export function LibraryResourceForm({
     await onSubmit(data)
   }
 
+  // Get available source types based on resource type
+  const getAvailableSourceTypes = () => {
+    // Only show "Upload File" option for PDF resource type
+    if (form.resourceType === 'pdf') {
+      return SOURCE_TYPES
+    }
+    // For other types, exclude upload option
+    return SOURCE_TYPES.filter(s => s.value !== 'uploaded')
+  }
+
+  // When resource type changes, reset source if necessary
+  const handleResourceTypeChange = (newType: LibraryResourceType) => {
+    updateField('resourceType', newType)
+    // If switching away from PDF and source is uploaded, reset to external
+    if (newType !== 'pdf' && form.source === 'uploaded') {
+      handleSourceChange('external')
+    }
+  }
+
+  // Validation for submit button
+  const isFormValid = () => {
+    if (!form.title || !form.description) return false
+    if (form.source === 'external' && !form.externalUrl) return false
+    if (form.source === 'embedded' && !form.contentHtml) return false
+    if (form.source === 'uploaded' && !form.contentPath) return false
+    return true
+  }
+
   return (
     <Modal
       isOpen={isOpen}
@@ -152,10 +276,14 @@ export function LibraryResourceForm({
       size="lg"
       footer={
         <div className="flex justify-end gap-3">
-          <Button variant="ghost" onClick={onClose} disabled={isLoading}>
+          <Button variant="ghost" onClick={onClose} disabled={isLoading || upload.isUploading}>
             Cancel
           </Button>
-          <Button onClick={handleSubmit} isLoading={isLoading}>
+          <Button
+            onClick={handleSubmit}
+            isLoading={isLoading}
+            disabled={!isFormValid() || upload.isUploading}
+          >
             {mode === 'create' ? 'Create Resource' : 'Save Changes'}
           </Button>
         </div>
@@ -200,7 +328,7 @@ export function LibraryResourceForm({
             </label>
             <select
               value={form.resourceType}
-              onChange={(e) => updateField('resourceType', e.target.value as LibraryResourceType)}
+              onChange={(e) => handleResourceTypeChange(e.target.value as LibraryResourceType)}
               className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
             >
               {RESOURCE_TYPES.map((type) => (
@@ -217,10 +345,10 @@ export function LibraryResourceForm({
             </label>
             <select
               value={form.source}
-              onChange={(e) => updateField('source', e.target.value as LibraryResourceSource)}
+              onChange={(e) => handleSourceChange(e.target.value as LibraryResourceSource)}
               className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
             >
-              {SOURCE_TYPES.map((s) => (
+              {getAvailableSourceTypes().map((s) => (
                 <option key={s.value} value={s.value}>
                   {s.label}
                 </option>
@@ -263,6 +391,26 @@ export function LibraryResourceForm({
             <p className="mt-1 text-xs text-gray-500">
               Enter HTML content that will be rendered for this resource.
             </p>
+          </div>
+        )}
+
+        {/* File Upload (shown when source is uploaded) */}
+        {form.source === 'uploaded' && (
+          <div>
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+              PDF Document *
+            </label>
+            <FileUpload
+              onFileSelect={handleFileSelect}
+              onClear={handleClearUpload}
+              uploadProgress={upload.progress}
+              isUploading={upload.isUploading}
+              uploadedFile={upload.uploadedFile}
+              error={upload.error}
+              accept="application/pdf"
+              maxSizeMB={50}
+              disabled={isLoading}
+            />
           </div>
         )}
 

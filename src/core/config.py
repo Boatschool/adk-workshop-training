@@ -91,6 +91,16 @@ class Settings(BaseSettings):
     enable_registration: bool = Field(default=True, alias="ENABLE_REGISTRATION")
     enable_visual_builder: bool = Field(default=True, alias="ENABLE_VISUAL_BUILDER")
 
+    # Google Cloud Storage (for file uploads)
+    gcs_bucket_name: str | None = Field(default=None, alias="GCS_BUCKET_NAME")
+    gcs_library_path_prefix: str = Field(
+        default="library/documents/", alias="GCS_LIBRARY_PATH_PREFIX"
+    )
+    max_upload_size_mb: int = Field(default=50, alias="MAX_UPLOAD_SIZE_MB")
+    upload_signed_url_expiration_minutes: int = Field(
+        default=60, alias="UPLOAD_SIGNED_URL_EXPIRATION_MINUTES"
+    )
+
     def get_cors_origins_list(self) -> list[str]:
         """Get CORS origins as a list"""
         return [origin.strip() for origin in self.cors_origins.split(",") if origin.strip()]

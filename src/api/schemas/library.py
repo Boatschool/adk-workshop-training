@@ -138,6 +138,30 @@ class ResourceProgressResponse(BaseModel):
 
 
 # ============================================================================
+# File Upload Schemas
+# ============================================================================
+
+
+class FileUploadResponse(BaseModel):
+    """Schema for file upload responses."""
+
+    file_path: str = Field(..., description="Path to the file in GCS")
+    file_url: str = Field(..., description="GCS URL (gs://bucket/path)")
+    file_name: str = Field(..., description="Original filename")
+    file_size: int = Field(..., description="File size in bytes")
+    content_type: str = Field(..., description="MIME type of the file")
+
+
+class FileDownloadResponse(BaseModel):
+    """Schema for file download responses."""
+
+    download_url: str = Field(..., description="Signed URL for downloading the file")
+    expires_in_minutes: int = Field(..., description="URL expiration time in minutes")
+    file_name: str = Field(..., description="Original filename")
+    content_type: str = Field(..., description="MIME type of the file")
+
+
+# ============================================================================
 # Query Parameter Schemas
 # ============================================================================
 

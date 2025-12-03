@@ -12,6 +12,7 @@ from src.core.exceptions import AuthenticationError
 from src.core.security import decode_access_token
 from src.db.models.user import User
 from src.db.session import TenantNotFoundError, get_tenant_db
+from src.services.storage_service import StorageService, get_storage_service
 from src.services.user_service import UserService
 
 security = HTTPBearer()
@@ -192,3 +193,13 @@ async def get_shared_db_dependency() -> AsyncGenerator[AsyncSession, None]:
             raise
         finally:
             await session.close()
+
+
+def get_storage_service_dependency() -> StorageService:
+    """
+    Get the storage service for file uploads.
+
+    Returns:
+        StorageService: The storage service singleton
+    """
+    return get_storage_service()
