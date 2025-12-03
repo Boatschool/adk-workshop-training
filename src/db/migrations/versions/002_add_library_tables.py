@@ -1,7 +1,7 @@
 """Add library tables
 
 Revision ID: 002_add_library_tables
-Revises: 69b9c231e4cb
+Revises: 06da01720794
 Create Date: 2025-12-02 12:00:00.000000
 
 This migration creates:
