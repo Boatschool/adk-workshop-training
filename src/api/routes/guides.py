@@ -12,7 +12,6 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.api.dependencies import (
     get_shared_db_dependency,
-    get_tenant_db_dependency,
     require_role,
 )
 from src.api.schemas.guide import (
@@ -132,8 +131,8 @@ async def get_guide(
 @router.post("/", response_model=GuideResponse, status_code=status.HTTP_201_CREATED)
 async def create_guide(
     guide_data: GuideCreate,
-    db: Annotated[AsyncSession, Depends(get_tenant_db_dependency)],
-    current_user: Annotated[User, Depends(require_super_admin)],
+    db: Annotated[AsyncSession, Depends(get_shared_db_dependency)],
+    _current_user: Annotated[User, Depends(require_super_admin)],
 ) -> GuideResponse:
     """
     Create a new guide.
@@ -179,8 +178,8 @@ async def create_guide(
 async def update_guide(
     slug: str,
     guide_data: GuideUpdate,
-    db: Annotated[AsyncSession, Depends(get_tenant_db_dependency)],
-    current_user: Annotated[User, Depends(require_super_admin)],
+    db: Annotated[AsyncSession, Depends(get_shared_db_dependency)],
+    _current_user: Annotated[User, Depends(require_super_admin)],
 ) -> GuideResponse:
     """
     Update an existing guide.
@@ -232,8 +231,8 @@ async def update_guide(
 @router.delete("/{slug}", status_code=status.HTTP_204_NO_CONTENT)
 async def delete_guide(
     slug: str,
-    db: Annotated[AsyncSession, Depends(get_tenant_db_dependency)],
-    current_user: Annotated[User, Depends(require_super_admin)],
+    db: Annotated[AsyncSession, Depends(get_shared_db_dependency)],
+    _current_user: Annotated[User, Depends(require_super_admin)],
 ) -> None:
     """
     Delete a guide.

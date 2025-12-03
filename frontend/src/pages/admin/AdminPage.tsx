@@ -26,7 +26,7 @@ const tabs = [
         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
       </svg>
     ),
-    requiredRole: 'tenant_admin' as const,
+    requiredRole: 'super_admin' as const, // Stats include cross-tenant data
   },
   {
     id: 'users',
@@ -82,15 +82,17 @@ export function AdminPage() {
   const { user } = useAuth()
   const [searchParams, setSearchParams] = useSearchParams()
 
-  // Get active tab from URL or default to 'dashboard'
-  const activeTab = searchParams.get('tab') || 'dashboard'
-
   // Filter tabs based on user role
   const availableTabs = useMemo(() => {
     if (!user?.role) return []
     const userRoleLevel = roleHierarchy[user.role] || 0
     return tabs.filter(tab => userRoleLevel >= roleHierarchy[tab.requiredRole])
   }, [user?.role])
+
+  // Get active tab from URL or default to first available tab
+  // For super_admin: dashboard, for tenant_admin: users
+  const defaultTab = availableTabs.length > 0 ? availableTabs[0].id : 'users'
+  const activeTab = searchParams.get('tab') || defaultTab
 
   // Check if user has any admin access
   const hasAdminAccess = user?.role === 'tenant_admin' || user?.role === 'super_admin'
@@ -119,7 +121,7 @@ export function AdminPage() {
   const renderTabContent = () => {
     switch (activeTab) {
       case 'dashboard':
-        return <AdminDashboardTab />
+        return user?.role === 'super_admin' ? <AdminDashboardTab /> : null
       case 'users':
         return <AdminUsersTab />
       case 'organizations':
@@ -129,7 +131,7 @@ export function AdminPage() {
       case 'library':
         return user?.role === 'super_admin' ? <AdminLibraryTab /> : null
       default:
-        return <AdminDashboardTab />
+        return <AdminUsersTab />
     }
   }
 

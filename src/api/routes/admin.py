@@ -10,7 +10,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from src.api.dependencies import (
     get_shared_db_dependency,
     get_tenant_db_dependency,
-    require_admin,
+    require_role,
 )
 from src.api.schemas.admin import (
     ActivityStats,
@@ -20,26 +20,31 @@ from src.api.schemas.admin import (
     OrganizationStats,
     UserStats,
 )
+from src.core.constants import UserRole
 from src.db.models.user import User
 
 router = APIRouter()
+
+# Dependency for super_admin only - stats include cross-tenant data
+require_super_admin = require_role(UserRole.SUPER_ADMIN)
 
 
 @router.get("/stats", response_model=AdminStatsResponse)
 async def get_admin_stats(
     db: Annotated[AsyncSession, Depends(get_tenant_db_dependency)],
     shared_db: Annotated[AsyncSession, Depends(get_shared_db_dependency)],
-    _current_user: Annotated[User, Depends(require_admin)],
+    _current_user: Annotated[User, Depends(require_super_admin)],
 ) -> AdminStatsResponse:
     """
     Get platform statistics for admin dashboard.
 
     Returns aggregated counts for users, content, activity, and health status.
+    Requires super_admin role since stats include cross-tenant data from shared schema.
 
     Args:
         db: Tenant database session
         shared_db: Shared database session for guides/library
-        _current_user: Current admin user (for authorization)
+        _current_user: Current super_admin user (for authorization)
 
     Returns:
         AdminStatsResponse: Platform statistics
