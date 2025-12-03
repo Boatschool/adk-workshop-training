@@ -571,13 +571,44 @@ async def upload_library_document(
 
     Raises:
         HTTPException 400: If file validation fails
+        HTTPException 413: If file size exceeds limit
         HTTPException 500: If upload fails
     """
     TenantContext.set(tenant_id)
 
-    # Read file content
+    # Validate file metadata before reading content
+    filename = file.filename or "document.pdf"
+    content_type = file.content_type or "application/octet-stream"
+
+    is_valid, error_message = storage.validate_file_metadata(content_type, filename)
+    if not is_valid:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=error_message,
+        )
+
+    # Read file content in chunks with size limit enforcement
+    # This prevents clients from exhausting memory with arbitrarily large payloads
+    max_size_bytes = storage.settings.max_upload_size_mb * 1024 * 1024
+    chunk_size = 64 * 1024  # 64KB chunks
+    chunks: list[bytes] = []
+    total_size = 0
+
     try:
-        file_content = await file.read()
+        while True:
+            chunk = await file.read(chunk_size)
+            if not chunk:
+                break
+            total_size += len(chunk)
+            if total_size > max_size_bytes:
+                raise HTTPException(
+                    status_code=status.HTTP_413_REQUEST_ENTITY_TOO_LARGE,
+                    detail=f"File size exceeds maximum allowed size of {storage.settings.max_upload_size_mb}MB",
+                )
+            chunks.append(chunk)
+        file_content = b"".join(chunks)
+    except HTTPException:
+        raise
     except Exception as e:
         logger.error(f"Failed to read uploaded file: {e}")
         raise HTTPException(
@@ -585,21 +616,20 @@ async def upload_library_document(
             detail="Failed to read uploaded file",
         ) from None
 
-    # Validate file
-    filename = file.filename or "document.pdf"
-    content_type = file.content_type or "application/octet-stream"
-
-    is_valid, error_message = storage.validate_file(file_content, content_type, filename)
+    # Validate file content (PDF magic bytes)
+    is_valid, error_message = storage.validate_file_content(file_content)
     if not is_valid:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail=error_message,
         )
 
-    # Generate unique path and upload
+    # Generate unique path and upload asynchronously (non-blocking)
     try:
         destination_path = storage.generate_file_path(filename)
-        result = storage.upload_file(file_content, destination_path, content_type, filename)
+        result = await storage.upload_file_async(
+            file_content, destination_path, content_type, filename
+        )
 
         logger.info(f"User {current_user.id} uploaded file: {destination_path}")
 

@@ -1,14 +1,20 @@
 """Google Cloud Storage service for file uploads."""
 
+import asyncio
 import logging
 import uuid
+from concurrent.futures import ThreadPoolExecutor
 from datetime import timedelta
+from functools import partial
 from typing import BinaryIO
 
 from google.cloud import storage
 from google.cloud.exceptions import NotFound
 
 from src.core.config import get_settings
+
+# Thread pool for blocking GCS operations
+_executor = ThreadPoolExecutor(max_workers=4, thread_name_prefix="gcs_upload")
 
 logger = logging.getLogger(__name__)
 
@@ -59,17 +65,15 @@ class StorageService:
             self._bucket = self.client.bucket(bucket_name)
         return self._bucket
 
-    def validate_file(
+    def validate_file_metadata(
         self,
-        file_content: bytes,
         content_type: str,
         filename: str,
     ) -> tuple[bool, str]:
         """
-        Validate file type and content.
+        Validate file metadata before reading content.
 
         Args:
-            file_content: The file bytes to validate
             content_type: The declared content type
             filename: The original filename
 
@@ -80,6 +84,25 @@ class StorageService:
         if content_type not in ALLOWED_DOCUMENT_TYPES:
             return False, f"File type '{content_type}' is not allowed. Only PDF files are accepted."
 
+        # Check file extension
+        if not filename.lower().endswith(".pdf"):
+            return False, "File must have a .pdf extension"
+
+        return True, ""
+
+    def validate_file_content(
+        self,
+        file_content: bytes,
+    ) -> tuple[bool, str]:
+        """
+        Validate file content after reading.
+
+        Args:
+            file_content: The file bytes to validate
+
+        Returns:
+            Tuple of (is_valid, error_message)
+        """
         # Check file size
         max_size_bytes = self.settings.max_upload_size_mb * 1024 * 1024
         if len(file_content) > max_size_bytes:
@@ -88,15 +111,36 @@ class StorageService:
                 f"File size exceeds maximum allowed size of {self.settings.max_upload_size_mb}MB",
             )
 
-        # Check file extension
-        if not filename.lower().endswith(".pdf"):
-            return False, "File must have a .pdf extension"
-
         # Validate PDF magic bytes
         if not file_content.startswith(PDF_MAGIC_BYTES):
             return False, "File content does not appear to be a valid PDF"
 
         return True, ""
+
+    def validate_file(
+        self,
+        file_content: bytes,
+        content_type: str,
+        filename: str,
+    ) -> tuple[bool, str]:
+        """
+        Validate file type and content (legacy method for backwards compatibility).
+
+        Args:
+            file_content: The file bytes to validate
+            content_type: The declared content type
+            filename: The original filename
+
+        Returns:
+            Tuple of (is_valid, error_message)
+        """
+        # Validate metadata first
+        is_valid, error = self.validate_file_metadata(content_type, filename)
+        if not is_valid:
+            return False, error
+
+        # Then validate content
+        return self.validate_file_content(file_content)
 
     def generate_file_path(self, filename: str) -> str:
         """
@@ -125,7 +169,7 @@ class StorageService:
         filename: str,
     ) -> dict:
         """
-        Upload a file to GCS.
+        Upload a file to GCS (blocking).
 
         Args:
             file_content: The file bytes to upload
@@ -154,6 +198,40 @@ class StorageService:
             "file_size": len(file_content),
             "content_type": content_type,
         }
+
+    async def upload_file_async(
+        self,
+        file_content: bytes,
+        destination_path: str,
+        content_type: str,
+        filename: str,
+    ) -> dict:
+        """
+        Upload a file to GCS asynchronously using a thread pool.
+
+        This method runs the blocking GCS upload in a thread pool executor
+        to avoid blocking the async event loop.
+
+        Args:
+            file_content: The file bytes to upload
+            destination_path: The path within the bucket
+            content_type: The MIME type of the file
+            filename: The original filename (for Content-Disposition)
+
+        Returns:
+            Dict with file_path, file_url, file_name, file_size, content_type
+        """
+        loop = asyncio.get_event_loop()
+        return await loop.run_in_executor(
+            _executor,
+            partial(
+                self.upload_file,
+                file_content,
+                destination_path,
+                content_type,
+                filename,
+            ),
+        )
 
     def upload_file_stream(
         self,
