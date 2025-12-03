@@ -56,9 +56,9 @@ const mockExercises: Exercise[] = [
 const completedExercises = ['exercise-1-basic-agent']
 
 export function WorkshopDetailPage() {
-  const { id: _workshopId } = useParams<{ id: string }>()
+  useParams<{ id: string }>()
 
-  // In real app, fetch workshop by _workshopId
+  // In real app, fetch workshop by id from useParams
   const workshop = mockWorkshop
   const exercises = mockExercises
   const completedCount = completedExercises.length

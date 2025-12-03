@@ -45,6 +45,32 @@ async def create_tenant(
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e)) from None
 
 
+@router.get("/{tenant_id}/exists")
+async def check_tenant_exists(
+    tenant_id: str,
+    db: Annotated[AsyncSession, Depends(get_db)],
+) -> dict:
+    """
+    Check if a tenant exists (public endpoint).
+
+    This is a public endpoint that allows the frontend to validate
+    a tenant ID without requiring authentication. It only returns
+    whether the tenant exists and its name, not sensitive details.
+
+    Args:
+        tenant_id: Tenant UUID
+        db: Database session
+
+    Returns:
+        dict: {"exists": bool, "name": str | None}
+    """
+    service = TenantService(db)
+    tenant = await service.get_tenant_by_id(tenant_id)
+    if not tenant:
+        return {"exists": False, "name": None}
+    return {"exists": True, "name": tenant.name}
+
+
 @router.get("/{tenant_id}", response_model=TenantResponse)
 async def get_tenant(
     tenant_id: str,

@@ -10,25 +10,6 @@
 
 import { test, expect, Page } from '@playwright/test'
 
-// Test data
-const TEST_USERS = {
-  participant: {
-    email: 'participant@test.com',
-    password: 'TestPass123!',
-    name: 'Test Participant',
-  },
-  instructor: {
-    email: 'instructor@test.com',
-    password: 'TestPass123!',
-    name: 'Test Instructor',
-  },
-  admin: {
-    email: 'admin@test.com',
-    password: 'AdminPass123!',
-    name: 'Test Admin',
-  },
-}
-
 // Helper functions
 async function mockLogin(page: Page, role: string = 'participant') {
   // Set mock authentication state

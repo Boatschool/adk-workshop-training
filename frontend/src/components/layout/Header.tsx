@@ -16,6 +16,7 @@ const navLinks = [
   { name: 'Dashboard', path: '/', external: false },
   { name: 'Workshops', path: '/workshops', external: false },
   { name: 'Guides', path: '/guides', external: false },
+  { name: 'Library', path: '/library', external: false },
 ]
 
 // GraymatterStudio - Production agent platform (stub URL for now)
@@ -118,7 +119,7 @@ export function Header() {
                   GraymatterLab
                 </span>
                 <span className="text-xs text-gray-500 dark:text-gray-400">
-                  Agent Development Workshop
+                  Agent Hub
                 </span>
               </div>
             </Link>

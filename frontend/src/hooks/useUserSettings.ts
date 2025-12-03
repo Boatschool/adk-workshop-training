@@ -3,7 +3,7 @@
  * Manages user settings with localStorage persistence
  */
 
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useCallback } from 'react'
 import type { UserSettings, BadgeType, SetupStep } from '@/types'
 import { DEFAULT_USER_SETTINGS } from '@/types/models'
 
@@ -41,14 +41,8 @@ function saveSettings(settings: UserSettings): void {
  * Hook to manage user settings
  */
 export function useUserSettings() {
-  const [settings, setSettingsState] = useState<UserSettings>(loadSettings)
-  const [isLoaded, setIsLoaded] = useState(false)
-
-  // Load settings on mount
-  useEffect(() => {
-    setSettingsState(loadSettings())
-    setIsLoaded(true)
-  }, [])
+  const [settings, setSettingsState] = useState<UserSettings>(() => loadSettings())
+  const isLoaded = true
 
   // Update a single setting
   const updateSetting = useCallback(<K extends keyof UserSettings>(

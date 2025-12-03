@@ -8,8 +8,15 @@ const TENANT_KEY = 'adk_tenant_id'
 const THEME_KEY = 'adk_theme'
 
 // Default tenant ID for the application
-// This is the "Graymatter" tenant created for production
-const DEFAULT_TENANT_ID = '17d9ee0f-dfff-44a0-9f5e-75afcd44dc9c'
+// This is the "Default Tenant" created for local development
+const DEFAULT_TENANT_ID = 'bb869643-8cdd-441a-b991-fb1fcd089aa0'
+
+/**
+ * Get the default tenant ID
+ */
+export function getDefaultTenantId(): string {
+  return DEFAULT_TENANT_ID
+}
 
 /**
  * Get the stored access token
@@ -98,10 +105,11 @@ export function setStoredTheme(theme: 'light' | 'dark'): void {
 }
 
 /**
- * Clear all stored auth data
+ * Clear all stored auth data (tokens only, preserves tenant selection)
  */
 export function clearAuthStorage(): void {
   removeStoredToken()
   removeStoredRefreshToken()
-  removeStoredTenantId()
+  // Note: Tenant ID is intentionally NOT cleared on logout
+  // The tenant selection should persist across login/logout cycles
 }

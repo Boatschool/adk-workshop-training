@@ -59,6 +59,7 @@ export function StatusBadge({
 }
 
 // Helper function to map common status values to variants
+// eslint-disable-next-line react-refresh/only-export-components
 export function getStatusVariant(status: string): StatusVariant {
   const statusMap: Record<string, StatusVariant> = {
     // User statuses
@@ -81,6 +82,7 @@ export function getStatusVariant(status: string): StatusVariant {
 }
 
 // Helper function to map role values to variants
+// eslint-disable-next-line react-refresh/only-export-components
 export function getRoleVariant(role: string): StatusVariant {
   const roleMap: Record<string, StatusVariant> = {
     super_admin: 'error',

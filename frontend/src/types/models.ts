@@ -245,3 +245,102 @@ export const DEFAULT_USER_SETTINGS: UserSettings = {
   theme: 'system',
   emailNotifications: true,
 }
+
+/**
+ * Library Resource Types
+ */
+export type LibraryResourceType = 'article' | 'video' | 'pdf' | 'tool' | 'course' | 'documentation'
+
+export type LibraryResourceSource = 'external' | 'embedded'
+
+export type LibraryTopic =
+  | 'agent-fundamentals'
+  | 'prompt-engineering'
+  | 'multi-agent-systems'
+  | 'tools-integrations'
+  | 'deployment'
+  | 'best-practices'
+
+export type LibraryDifficulty = 'beginner' | 'intermediate' | 'advanced'
+
+// Resource progress status (for library)
+export type ResourceProgressStatus = 'not_started' | 'in_progress' | 'completed'
+
+/**
+ * Library Resource model
+ */
+export interface LibraryResource {
+  id: string
+  title: string
+  description: string
+  type: LibraryResourceType
+  source: LibraryResourceSource
+  externalUrl?: string
+  contentPath?: string
+  contentHtml?: string
+  topics: LibraryTopic[]
+  difficulty: LibraryDifficulty
+  author?: string
+  estimatedMinutes?: number
+  thumbnailUrl?: string
+  featured?: boolean
+  createdAt: string
+  updatedAt: string
+}
+
+/**
+ * Library Resource with user-specific data (from API, transformed to camelCase)
+ */
+export interface LibraryResourceWithUserData extends LibraryResource {
+  isBookmarked: boolean
+  progressStatus: ResourceProgressStatus | null
+  isFeatured: boolean
+}
+
+/**
+ * User Bookmark model
+ */
+export interface UserBookmark {
+  id: string
+  user_id: string
+  resource_id: string
+  created_at: string
+}
+
+/**
+ * Resource Progress model
+ */
+export interface ResourceProgress {
+  id: string
+  user_id: string
+  resource_id: string
+  status: ResourceProgressStatus
+  last_viewed_at: string | null
+  completed_at: string | null
+  time_spent_seconds: number
+  created_at: string
+  updated_at: string
+}
+
+/**
+ * Bookmark status response
+ */
+export interface BookmarkStatusResponse {
+  is_bookmarked: boolean
+  bookmarked_at: string | null
+}
+
+/**
+ * Library query parameters (frontend uses camelCase, transformed to snake_case for API)
+ */
+export interface LibraryQueryParams {
+  skip?: number
+  limit?: number
+  search?: string
+  type?: LibraryResourceType
+  topic?: LibraryTopic
+  difficulty?: LibraryDifficulty
+  featured?: boolean
+  bookmarked?: boolean
+  progressStatus?: ResourceProgressStatus
+}

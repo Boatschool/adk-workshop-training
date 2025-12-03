@@ -18,6 +18,7 @@ import { DashboardPage } from '@pages/dashboard'
 import { WorkshopsPage, WorkshopDetailPage } from '@pages/workshops'
 import { ExercisePage } from '@pages/exercises'
 import { GuidePage, GuidesListPage } from '@pages/guides'
+import { LibraryListPage, LibraryResourcePage } from '@pages/library'
 import { ExamplePage } from '@pages/examples'
 import { AdminUsersPage, AdminTenantsPage } from '@pages/admin'
 import { SettingsPage } from '@pages/profile'
@@ -135,6 +136,28 @@ function App() {
                     <ProtectedRoute>
                       <RootLayout>
                         <GuidePage />
+                      </RootLayout>
+                    </ProtectedRoute>
+                  }
+                />
+
+                {/* Library */}
+                <Route
+                  path="/library"
+                  element={
+                    <ProtectedRoute>
+                      <RootLayout>
+                        <LibraryListPage />
+                      </RootLayout>
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="/library/:id"
+                  element={
+                    <ProtectedRoute>
+                      <RootLayout>
+                        <LibraryResourcePage />
                       </RootLayout>
                     </ProtectedRoute>
                   }

@@ -179,6 +179,42 @@ async def create_tenant_schema_and_tables(db: AsyncSession, schema_name: str) ->
         )
     )
 
+    # Create user_bookmarks table (for library resources)
+    await db.execute(
+        text(
+            f"""
+        CREATE TABLE {schema_name}.user_bookmarks (
+            id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+            user_id UUID NOT NULL REFERENCES {schema_name}.users(id) ON DELETE CASCADE,
+            resource_id UUID NOT NULL,
+            created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+            updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+            UNIQUE(user_id, resource_id)
+        )
+        """
+        )
+    )
+
+    # Create resource_progress table (for library resources)
+    await db.execute(
+        text(
+            f"""
+        CREATE TABLE {schema_name}.resource_progress (
+            id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+            user_id UUID NOT NULL REFERENCES {schema_name}.users(id) ON DELETE CASCADE,
+            resource_id UUID NOT NULL,
+            status VARCHAR(50) NOT NULL DEFAULT 'not_started',
+            last_viewed_at TIMESTAMPTZ,
+            completed_at TIMESTAMPTZ,
+            time_spent_seconds INTEGER NOT NULL DEFAULT 0,
+            created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+            updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+            UNIQUE(user_id, resource_id)
+        )
+        """
+        )
+    )
+
     # Create updated_at trigger function (if it doesn't exist)
     await db.execute(
         text(
@@ -203,6 +239,8 @@ async def create_tenant_schema_and_tables(db: AsyncSession, schema_name: str) ->
         "exercises",
         "progress",
         "agents",
+        "user_bookmarks",
+        "resource_progress",
     ]:
         await db.execute(
             text(

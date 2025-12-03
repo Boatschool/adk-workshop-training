@@ -12,16 +12,30 @@ import {
   type ReactNode,
 } from 'react'
 import type { Tenant } from '@/types'
-import { getStoredTenantId, setStoredTenantId } from '@utils/storage'
+import {
+  getStoredTenantId,
+  setStoredTenantId,
+  removeStoredTenantId,
+  getDefaultTenantId,
+} from '@utils/storage'
 import { apiGet } from '@services/api'
+
+// Response from the public tenant validation endpoint
+interface TenantExistsResponse {
+  exists: boolean
+  name: string | null
+}
 
 interface TenantContextType {
   tenant: Tenant | null
   tenantId: string | null
+  tenantName: string | null
+  tenantError: string | null
   isLoading: boolean
   setTenantId: (tenantId: string) => void
   clearTenant: () => void
   refreshTenant: () => Promise<void>
+  resetToDefaultTenant: () => void
 }
 
 const TenantContext = createContext<TenantContextType | undefined>(undefined)
@@ -32,34 +46,77 @@ interface TenantProviderProps {
 
 export function TenantProvider({ children }: TenantProviderProps) {
   const [tenant, setTenant] = useState<Tenant | null>(null)
+  const [tenantName, setTenantName] = useState<string | null>(null)
   const [tenantId, setTenantIdState] = useState<string | null>(() =>
     getStoredTenantId()
   )
-  const [isLoading, setIsLoading] = useState(false)
+  const [tenantError, setTenantError] = useState<string | null>(null)
+  const [isLoading, setIsLoading] = useState(true) // Start as loading to validate on mount
 
-  // Fetch tenant details when tenantId changes
+  // Reset to default tenant
+  const resetToDefaultTenant = useCallback(() => {
+    const defaultId = getDefaultTenantId()
+    removeStoredTenantId() // Clear invalid stored value
+    setStoredTenantId(defaultId) // Set to default
+    setTenantIdState(defaultId)
+    setTenantError(null)
+  }, [])
+
+  // Validate tenant on startup using public endpoint (no auth required)
   useEffect(() => {
-    const fetchTenant = async () => {
+    const validateTenant = async () => {
       if (!tenantId) {
         setTenant(null)
+        setTenantName(null)
+        setIsLoading(false)
         return
       }
 
       setIsLoading(true)
+      setTenantError(null)
       try {
-        const tenantData = await apiGet<Tenant>(`/tenants/${tenantId}`)
-        setTenant(tenantData)
-      } catch {
-        // If tenant fetch fails, clear it
-        setTenant(null)
-        setTenantIdState(null)
+        // Use public endpoint that doesn't require authentication
+        const response = await apiGet<TenantExistsResponse>(
+          `/tenants/${tenantId}/exists`
+        )
+
+        if (response.exists) {
+          setTenantName(response.name)
+          setTenantError(null)
+        } else {
+          // Tenant doesn't exist - reset to default
+          const storedId = tenantId
+          const defaultId = getDefaultTenantId()
+
+          if (storedId !== defaultId) {
+            setTenantError(
+              `Tenant '${storedId.substring(0, 8)}...' not found. Resetting to default tenant.`
+            )
+            setTimeout(() => {
+              resetToDefaultTenant()
+            }, 3000)
+          } else {
+            setTenantError(
+              'Default tenant not found. Please contact support.'
+            )
+          }
+          setTenantName(null)
+        }
+      } catch (error) {
+        // Network error or API issue
+        const errorMessage =
+          error instanceof Error ? error.message : 'Connection error'
+        setTenantError(
+          `Unable to validate tenant. Please check your connection. (${errorMessage})`
+        )
+        setTenantName(null)
       } finally {
         setIsLoading(false)
       }
     }
 
-    fetchTenant()
-  }, [tenantId])
+    validateTenant()
+  }, [tenantId, resetToDefaultTenant])
 
   const setTenantIdCallback = useCallback((newTenantId: string) => {
     setTenantIdState(newTenantId)
@@ -89,10 +146,13 @@ export function TenantProvider({ children }: TenantProviderProps) {
   const value: TenantContextType = {
     tenant,
     tenantId,
+    tenantName,
+    tenantError,
     isLoading,
     setTenantId: setTenantIdCallback,
     clearTenant,
     refreshTenant,
+    resetToDefaultTenant,
   }
 
   return (
@@ -100,6 +160,7 @@ export function TenantProvider({ children }: TenantProviderProps) {
   )
 }
 
+// eslint-disable-next-line react-refresh/only-export-components
 export function useTenant(): TenantContextType {
   const context = useContext(TenantContext)
   if (context === undefined) {
