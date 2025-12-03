@@ -90,4 +90,12 @@ export const queryKeys = {
     resourceProgress: (resourceId: string) =>
       [...queryKeys.library.all, 'progress', resourceId] as const,
   },
+
+  // Guide queries
+  guides: {
+    all: ['guides'] as const,
+    list: (publishedOnly?: boolean) =>
+      [...queryKeys.guides.all, 'list', { publishedOnly }] as const,
+    detail: (slug: string) => [...queryKeys.guides.all, 'detail', slug] as const,
+  },
 } as const

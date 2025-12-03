@@ -344,3 +344,49 @@ export interface LibraryQueryParams {
   bookmarked?: boolean
   progressStatus?: ResourceProgressStatus
 }
+
+/**
+ * Guide Types
+ */
+export type GuideIcon = 'book' | 'rocket' | 'terminal' | 'wrench' | 'play'
+
+/**
+ * Guide model (list item without full content)
+ */
+export interface GuideListItem {
+  id: string
+  slug: string
+  title: string
+  description: string
+  icon: GuideIcon
+  displayOrder: number
+  published: boolean
+  createdAt: string
+  updatedAt: string
+}
+
+/**
+ * Guide model (full with content)
+ */
+export interface Guide extends GuideListItem {
+  contentHtml: string
+}
+
+/**
+ * API Response types for guides (snake_case from backend)
+ */
+export interface ApiGuideListItem {
+  id: string
+  slug: string
+  title: string
+  description: string
+  icon: string
+  display_order: number
+  published: boolean
+  created_at: string
+  updated_at: string
+}
+
+export interface ApiGuide extends ApiGuideListItem {
+  content_html: string
+}

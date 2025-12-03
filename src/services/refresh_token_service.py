@@ -63,7 +63,8 @@ class RefreshTokenService:
 
         self.db.add(refresh_token)
         await self.db.commit()
-        await self.db.refresh(refresh_token)
+        # Note: We skip db.refresh() here because after commit, the search_path
+        # may be reset and we already have all the data we need from the insert.
 
         # Return plain token to client (override the hash temporarily for response)
         # The caller will use refresh_token.token which now contains plain value

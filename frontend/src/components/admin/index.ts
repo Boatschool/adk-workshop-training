@@ -13,3 +13,5 @@ export {
   type StatusVariant,
   type StatusBadgeProps,
 } from './StatusBadge'
+export { LibraryResourceForm } from './LibraryResourceForm'
+export { GuideForm } from './GuideForm'

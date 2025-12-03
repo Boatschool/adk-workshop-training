@@ -39,6 +39,10 @@ class RateLimitMiddleware(BaseHTTPMiddleware):
         Returns:
             Response from the next handler
         """
+        # Skip rate limiting for CORS preflight requests
+        if request.method == "OPTIONS":
+            return await call_next(request)
+
         # Get client identifier (IP address)
         client_ip = request.client.host if request.client else "unknown"
 

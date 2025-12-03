@@ -3,7 +3,7 @@
  * Handles all library-related API calls including resources, bookmarks, and progress
  */
 
-import { apiGet, apiPost } from './api'
+import { apiGet, apiPost, apiPatch, apiDelete } from './api'
 import type {
   LibraryResourceWithUserData,
   LibraryQueryParams,
@@ -177,4 +177,68 @@ export async function markResourceViewed(resourceId: string): Promise<ResourcePr
  */
 export async function markResourceCompleted(resourceId: string): Promise<ResourceProgress> {
   return updateResourceProgress(resourceId, 'completed')
+}
+
+// ============================================================================
+// Admin CRUD Operations (requires super_admin role)
+// ============================================================================
+
+/**
+ * Create a new library resource (admin only)
+ */
+export interface CreateLibraryResourceData {
+  title: string
+  description: string
+  resource_type: string
+  source: string
+  external_url?: string
+  content_path?: string
+  content_html?: string
+  topics: string[]
+  difficulty: string
+  author?: string
+  estimated_minutes?: number
+  thumbnail_url?: string
+  featured?: boolean
+}
+
+export async function createLibraryResource(
+  data: CreateLibraryResourceData
+): Promise<LibraryResourceWithUserData> {
+  const resource = await apiPost<ApiLibraryResource>('/library/', data)
+  return transformResource(resource)
+}
+
+/**
+ * Update an existing library resource (admin only)
+ */
+export interface UpdateLibraryResourceData {
+  title?: string
+  description?: string
+  resource_type?: string
+  source?: string
+  external_url?: string | null
+  content_path?: string | null
+  content_html?: string | null
+  topics?: string[]
+  difficulty?: string
+  author?: string | null
+  estimated_minutes?: number | null
+  thumbnail_url?: string | null
+  featured?: boolean
+}
+
+export async function updateLibraryResource(
+  id: string,
+  data: UpdateLibraryResourceData
+): Promise<LibraryResourceWithUserData> {
+  const resource = await apiPatch<ApiLibraryResource>(`/library/${id}`, data)
+  return transformResource(resource)
+}
+
+/**
+ * Delete a library resource (admin only)
+ */
+export async function deleteLibraryResource(id: string): Promise<void> {
+  await apiDelete<void>(`/library/${id}`)
 }

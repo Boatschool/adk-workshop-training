@@ -16,3 +16,10 @@ export * from './useTenants'
 
 // Settings hooks
 export * from './useUserSettings'
+
+// Admin hooks
+export * from './useAdminLibrary'
+export * from './useAdminStats'
+
+// Guides hooks
+export * from './useGuides'

@@ -46,7 +46,7 @@ export function useTenants(filters: TenantFilters = {}) {
   return useQuery({
     queryKey: tenantKeys.list(filters),
     queryFn: () =>
-      apiGet<Tenant[]>('/tenants', {
+      apiGet<Tenant[]>('/tenants/', {
         skip: filters.skip ?? 0,
         limit: filters.limit ?? 100,
       }),
@@ -71,7 +71,7 @@ export function useCreateTenant() {
   const queryClient = useQueryClient()
 
   return useMutation({
-    mutationFn: (data: TenantCreateData) => apiPost<Tenant>('/tenants', data),
+    mutationFn: (data: TenantCreateData) => apiPost<Tenant>('/tenants/', data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: tenantKeys.lists() })
     },

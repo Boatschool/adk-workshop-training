@@ -20,7 +20,7 @@ import { ExercisePage } from '@pages/exercises'
 import { GuidePage, GuidesListPage } from '@pages/guides'
 import { LibraryListPage, LibraryResourcePage } from '@pages/library'
 import { ExamplePage } from '@pages/examples'
-import { AdminUsersPage, AdminTenantsPage } from '@pages/admin'
+import { AdminPage, AdminUsersPage, AdminTenantsPage, AdminLibraryPage, AdminGuidesPage } from '@pages/admin'
 import { SettingsPage } from '@pages/profile'
 import { SetupWizard } from '@pages/getting-started'
 import {
@@ -213,7 +213,18 @@ function App() {
                   }
                 />
 
-                {/* Admin Routes */}
+                {/* Admin Routes - Unified Admin Console */}
+                <Route
+                  path="/admin"
+                  element={
+                    <ProtectedRoute requiredRole="tenant_admin">
+                      <RootLayout>
+                        <AdminPage />
+                      </RootLayout>
+                    </ProtectedRoute>
+                  }
+                />
+                {/* Legacy admin routes - redirect to unified admin */}
                 <Route
                   path="/admin/users"
                   element={
@@ -230,6 +241,26 @@ function App() {
                     <ProtectedRoute requiredRole="super_admin">
                       <RootLayout>
                         <AdminTenantsPage />
+                      </RootLayout>
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="/admin/library"
+                  element={
+                    <ProtectedRoute requiredRole="super_admin">
+                      <RootLayout>
+                        <AdminLibraryPage />
+                      </RootLayout>
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="/admin/guides"
+                  element={
+                    <ProtectedRoute requiredRole="super_admin">
+                      <RootLayout>
+                        <AdminGuidesPage />
                       </RootLayout>
                     </ProtectedRoute>
                   }

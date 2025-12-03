@@ -71,3 +71,10 @@ class DatabaseError(ADKPlatformException):
 
     def __init__(self, message: str):
         super().__init__(f"Database error: {message}", status_code=500)
+
+
+class ConflictError(ADKPlatformException):
+    """Raised when there is a conflict (e.g., duplicate resource)"""
+
+    def __init__(self, message: str):
+        super().__init__(message, status_code=409)

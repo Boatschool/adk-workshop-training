@@ -164,3 +164,31 @@ def require_role(
 # Convenience dependencies for common role checks
 require_admin = require_role(UserRole.SUPER_ADMIN, UserRole.TENANT_ADMIN)
 require_instructor = require_role(UserRole.SUPER_ADMIN, UserRole.TENANT_ADMIN, UserRole.INSTRUCTOR)
+
+
+async def get_shared_db_dependency() -> AsyncGenerator[AsyncSession, None]:
+    """
+    Get database session with only shared schema access.
+
+    This is for routes that only need access to shared schema tables
+    (like guides, library resources) without tenant context.
+
+    Yields:
+        AsyncSession: Database session with search_path set to shared schema
+    """
+    from sqlalchemy import text
+
+    from src.db.session import get_session_factory
+
+    session_factory = get_session_factory()
+    async with session_factory() as session:
+        try:
+            # Set search_path to shared schema only
+            await session.execute(text("SET search_path TO adk_platform_shared, public"))
+            yield session
+            await session.commit()
+        except Exception:
+            await session.rollback()
+            raise
+        finally:
+            await session.close()

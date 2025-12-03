@@ -92,5 +92,15 @@ class ResourceProgressStatus(str, Enum):
     COMPLETED = "completed"
 
 
+class GuideIcon(str, Enum):
+    """Guide icon types"""
+
+    BOOK = "book"
+    ROCKET = "rocket"
+    TERMINAL = "terminal"
+    WRENCH = "wrench"
+    PLAY = "play"
+
+
 # Shared schema name for multi-tenant architecture
 SHARED_SCHEMA = "adk_platform_shared"
