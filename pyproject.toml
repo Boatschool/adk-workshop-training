@@ -28,7 +28,7 @@ email-validator = "^2.3.0"
 pyjwt = "^2.10.1"
 bcrypt = "^5.0.0"
 greenlet = "^3.2.4"
-google-cloud-storage = "^2.14.0"
+google-cloud-storage = "^3.0.0"
 
 [tool.poetry.group.dev.dependencies]
 pytest = "^7.4.4"
