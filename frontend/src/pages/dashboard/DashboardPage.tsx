@@ -4,6 +4,7 @@
  * Balanced content: Workshops (40%), Guides (30%), Library (30%)
  */
 
+import { useMemo } from 'react'
 import {
   AchievementsSection,
   ContentPillarCard,
@@ -68,11 +69,53 @@ export function DashboardPage() {
   const libraryCount = libraryResources?.length || 50
   const bookmarkCount = bookmarks?.length || 0
 
-  // Calculate recent activity
-  const recentProgress = progressData?.slice(0, 5) || []
-  const topicsExplored = new Set(
-    progressData?.map(p => p.resource_id?.split('-')[0]).filter(Boolean) || []
-  ).size
+  // Calculate recent activity with enriched resource data
+  // Join progress data with library resources to get titles and topics
+  const recentlyViewedResources = useMemo(() => {
+    if (!progressData || !libraryResources) return []
+
+    // Create a map of resource_id -> resource for quick lookup
+    const resourceMap = new Map(libraryResources.map(r => [r.id, r]))
+
+    // Sort by last_viewed_at (most recent first) and enrich with resource data
+    return progressData
+      .filter(p => p.last_viewed_at) // Only include actually viewed items
+      .sort((a, b) => {
+        const dateA = a.last_viewed_at ? new Date(a.last_viewed_at).getTime() : 0
+        const dateB = b.last_viewed_at ? new Date(b.last_viewed_at).getTime() : 0
+        return dateB - dateA
+      })
+      .slice(0, 5)
+      .map(p => {
+        const resource = resourceMap.get(p.resource_id)
+        return {
+          id: p.id,
+          resourceId: p.resource_id,
+          title: resource?.title || 'Unknown Resource',
+          type: resource?.type,
+          href: `/library/${p.resource_id}`,
+        }
+      })
+  }, [progressData, libraryResources])
+
+  // Count unique topics from resources the user has viewed
+  const topicsExplored = useMemo(() => {
+    if (!progressData || !libraryResources) return 0
+
+    const resourceMap = new Map(libraryResources.map(r => [r.id, r]))
+    const viewedResourceIds = new Set(progressData.map(p => p.resource_id))
+
+    // Collect all unique topics from viewed resources
+    const uniqueTopics = new Set<string>()
+    viewedResourceIds.forEach(resourceId => {
+      const resource = resourceMap.get(resourceId)
+      if (resource?.topics) {
+        resource.topics.forEach(topic => uniqueTopics.add(topic))
+      }
+    })
+
+    return uniqueTopics.size
+  }, [progressData, libraryResources])
 
   // Get preview items for each pillar
   const workshopPreviews = workshopsData?.items?.slice(0, 3).map(w => ({
@@ -187,12 +230,17 @@ export function DashboardPage() {
               </div>
               <h3 className="font-semibold text-gray-900 dark:text-white">Recently Viewed</h3>
             </div>
-            {recentProgress.length > 0 ? (
+            {recentlyViewedResources.length > 0 ? (
               <ul className="space-y-2">
-                {recentProgress.slice(0, 3).map((progress, index) => (
-                  <li key={progress.id || index} className="text-sm text-gray-600 dark:text-gray-300 truncate">
-                    <span className="w-1.5 h-1.5 rounded-full bg-gray-300 dark:bg-gray-600 inline-block mr-2" />
-                    Resource {index + 1}
+                {recentlyViewedResources.slice(0, 3).map((item) => (
+                  <li key={item.id}>
+                    <Link
+                      to={item.href}
+                      className="text-sm text-gray-600 dark:text-gray-300 hover:text-primary-600 dark:hover:text-primary-400 truncate block"
+                    >
+                      <span className="w-1.5 h-1.5 rounded-full bg-primary-400 dark:bg-primary-500 inline-block mr-2" />
+                      {item.title}
+                    </Link>
                   </li>
                 ))}
               </ul>

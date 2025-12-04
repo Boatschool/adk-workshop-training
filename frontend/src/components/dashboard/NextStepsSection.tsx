@@ -6,7 +6,7 @@
 import { useMemo } from 'react'
 import { Link } from 'react-router-dom'
 import { useUserSettings } from '@hooks/useUserSettings'
-import { useUserProgress, useUserBookmarks } from '@hooks/useLibrary'
+import { useUserBookmarks } from '@hooks/useLibrary'
 import { useGuides } from '@hooks/useGuides'
 import { cn } from '@utils/cn'
 
@@ -63,7 +63,6 @@ interface NextStepsSectionProps {
 
 export function NextStepsSection({ className }: NextStepsSectionProps) {
   const { settings, getBuilderUrl } = useUserSettings()
-  const { data: progressData } = useUserProgress()
   const { data: bookmarks } = useUserBookmarks()
   const { data: guides } = useGuides(true) // published only
 
@@ -81,22 +80,9 @@ export function NextStepsSection({ className }: NextStepsSectionProps) {
       })
     }
 
-    // Priority 2: Start a workshop if none started
-    const hasStartedWorkshops = progressData && progressData.length > 0
-    if (!hasStartedWorkshops && steps.length < 3) {
-      steps.push({
-        id: 'start-workshop',
-        title: 'Start Your First Workshop',
-        description: 'Follow a structured learning path to build AI agents step by step.',
-        href: '/workshops',
-        icon: <WorkshopIcon />,
-      })
-    }
-
-    // Priority 3: Explore guides if not many viewed
-    const guidesViewed = progressData?.filter(p => p.status !== 'not_started').length || 0
-    if (guidesViewed < 2 && steps.length < 3) {
-      // Suggest a specific guide if available
+    // Priority 2: Suggest a guide for learning
+    // Always suggest the getting-started guide or first available guide
+    if (steps.length < 3) {
       const suggestedGuide = guides?.find(g => g.slug === 'getting-started') || guides?.[0]
       if (suggestedGuide) {
         steps.push({
@@ -107,6 +93,17 @@ export function NextStepsSection({ className }: NextStepsSectionProps) {
           icon: <GuideIcon />,
         })
       }
+    }
+
+    // Priority 3: Explore workshops
+    if (steps.length < 3) {
+      steps.push({
+        id: 'explore-workshops',
+        title: 'Explore Workshops',
+        description: 'Follow structured learning paths to build AI agents step by step.',
+        href: '/workshops',
+        icon: <WorkshopIcon />,
+      })
     }
 
     // Priority 4: Try the Visual Builder (if setup completed)
@@ -145,7 +142,7 @@ export function NextStepsSection({ className }: NextStepsSectionProps) {
 
     // Return max 3 steps
     return steps.slice(0, 3)
-  }, [settings.setupCompleted, progressData, bookmarks, guides, getBuilderUrl])
+  }, [settings.setupCompleted, bookmarks, guides, getBuilderUrl])
 
   // Don't render if no steps
   if (nextSteps.length === 0) {
