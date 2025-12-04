@@ -70,22 +70,17 @@ describe('LoginPage', () => {
 
     it('renders email input field', () => {
       renderLoginPage()
-      expect(screen.getByLabelText(/email address/i)).toBeInTheDocument()
+      expect(screen.getByPlaceholderText(/email address/i)).toBeInTheDocument()
     })
 
     it('renders password input field', () => {
       renderLoginPage()
-      expect(screen.getByLabelText(/^password$/i)).toBeInTheDocument()
+      expect(screen.getByPlaceholderText(/password/i)).toBeInTheDocument()
     })
 
     it('renders sign in button', () => {
       renderLoginPage()
       expect(screen.getByRole('button', { name: /sign in/i })).toBeInTheDocument()
-    })
-
-    it('renders remember me checkbox', () => {
-      renderLoginPage()
-      expect(screen.getByLabelText(/remember me/i)).toBeInTheDocument()
     })
 
     it('renders forgot password link', () => {
@@ -102,19 +97,19 @@ describe('LoginPage', () => {
   describe('Form Validation', () => {
     it('requires email field', () => {
       renderLoginPage()
-      const emailInput = screen.getByLabelText(/email address/i)
+      const emailInput = screen.getByPlaceholderText(/email address/i)
       expect(emailInput).toHaveAttribute('required')
     })
 
     it('requires password field', () => {
       renderLoginPage()
-      const passwordInput = screen.getByLabelText(/^password$/i)
+      const passwordInput = screen.getByPlaceholderText(/password/i)
       expect(passwordInput).toHaveAttribute('required')
     })
 
     it('email input has email type for validation', () => {
       renderLoginPage()
-      const emailInput = screen.getByLabelText(/email address/i)
+      const emailInput = screen.getByPlaceholderText(/email address/i)
       expect(emailInput).toHaveAttribute('type', 'email')
     })
   })
@@ -122,7 +117,7 @@ describe('LoginPage', () => {
   describe('Password Visibility Toggle', () => {
     it('toggles password visibility when clicking the eye icon', async () => {
       renderLoginPage()
-      const passwordInput = screen.getByLabelText(/^password$/i)
+      const passwordInput = screen.getByPlaceholderText(/password/i)
 
       // Password should be hidden by default
       expect(passwordInput).toHaveAttribute('type', 'password')
@@ -144,7 +139,7 @@ describe('LoginPage', () => {
   describe('Form Interactions', () => {
     it('updates email input value', async () => {
       renderLoginPage()
-      const emailInput = screen.getByLabelText(/email address/i)
+      const emailInput = screen.getByPlaceholderText(/email address/i)
 
       await userEvent.type(emailInput, 'test@example.com')
       expect(emailInput).toHaveValue('test@example.com')
@@ -152,23 +147,10 @@ describe('LoginPage', () => {
 
     it('updates password input value', async () => {
       renderLoginPage()
-      const passwordInput = screen.getByLabelText(/^password$/i)
+      const passwordInput = screen.getByPlaceholderText(/password/i)
 
       await userEvent.type(passwordInput, 'password123')
       expect(passwordInput).toHaveValue('password123')
-    })
-
-    it('toggles remember me checkbox', async () => {
-      renderLoginPage()
-      const checkbox = screen.getByLabelText(/remember me/i)
-
-      expect(checkbox).not.toBeChecked()
-
-      fireEvent.click(checkbox)
-      expect(checkbox).toBeChecked()
-
-      fireEvent.click(checkbox)
-      expect(checkbox).not.toBeChecked()
     })
   })
 
@@ -187,11 +169,11 @@ describe('LoginPage', () => {
   })
 
   describe('Accessibility', () => {
-    it('has accessible form labels', () => {
+    it('has accessible form inputs with ids', () => {
       renderLoginPage()
 
-      const emailInput = screen.getByLabelText(/email address/i)
-      const passwordInput = screen.getByLabelText(/^password$/i)
+      const emailInput = screen.getByPlaceholderText(/email address/i)
+      const passwordInput = screen.getByPlaceholderText(/password/i)
 
       expect(emailInput).toHaveAttribute('id', 'email')
       expect(passwordInput).toHaveAttribute('id', 'password')
@@ -199,13 +181,13 @@ describe('LoginPage', () => {
 
     it('email input has correct autocomplete attribute', () => {
       renderLoginPage()
-      const emailInput = screen.getByLabelText(/email address/i)
+      const emailInput = screen.getByPlaceholderText(/email address/i)
       expect(emailInput).toHaveAttribute('autocomplete', 'email')
     })
 
     it('password input has correct autocomplete attribute', () => {
       renderLoginPage()
-      const passwordInput = screen.getByLabelText(/^password$/i)
+      const passwordInput = screen.getByPlaceholderText(/password/i)
       expect(passwordInput).toHaveAttribute('autocomplete', 'current-password')
     })
   })

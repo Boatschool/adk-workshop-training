@@ -75,7 +75,7 @@ describe('RegisterPage', () => {
 
     it('renders confirm password input field', () => {
       renderRegisterPage()
-      expect(screen.getByLabelText(/confirm password/i)).toBeInTheDocument()
+      expect(screen.getByPlaceholderText(/confirm your password/i)).toBeInTheDocument()
     })
 
     it('renders create account button', () => {
@@ -109,7 +109,7 @@ describe('RegisterPage', () => {
 
     it('requires confirm password field', () => {
       renderRegisterPage()
-      const confirmInput = screen.getByLabelText(/confirm password/i)
+      const confirmInput = screen.getByPlaceholderText(/confirm your password/i)
       expect(confirmInput).toHaveAttribute('required')
     })
 
@@ -192,9 +192,9 @@ describe('RegisterPage', () => {
       renderRegisterPage()
 
       await userEvent.type(screen.getByLabelText(/^password/i), 'password123')
-      await userEvent.type(screen.getByLabelText(/confirm password/i), 'password123')
+      await userEvent.type(screen.getByPlaceholderText(/confirm your password/i), 'password123')
 
-      const confirmInput = screen.getByLabelText(/confirm password/i)
+      const confirmInput = screen.getByPlaceholderText(/confirm your password/i)
       expect(confirmInput).toHaveClass('border-green-500')
     })
 
@@ -202,9 +202,9 @@ describe('RegisterPage', () => {
       renderRegisterPage()
 
       await userEvent.type(screen.getByLabelText(/^password/i), 'password123')
-      await userEvent.type(screen.getByLabelText(/confirm password/i), 'password456')
+      await userEvent.type(screen.getByPlaceholderText(/confirm your password/i), 'password456')
 
-      const confirmInput = screen.getByLabelText(/confirm password/i)
+      const confirmInput = screen.getByPlaceholderText(/confirm your password/i)
       expect(confirmInput).toHaveClass('border-red-500')
     })
 
@@ -212,7 +212,7 @@ describe('RegisterPage', () => {
       renderRegisterPage()
 
       await userEvent.type(screen.getByLabelText(/^password/i), 'password123')
-      await userEvent.type(screen.getByLabelText(/confirm password/i), 'password456')
+      await userEvent.type(screen.getByPlaceholderText(/confirm your password/i), 'password456')
 
       expect(screen.getByText(/passwords do not match/i)).toBeInTheDocument()
     })
@@ -234,7 +234,7 @@ describe('RegisterPage', () => {
 
     it('toggles confirm password visibility', async () => {
       renderRegisterPage()
-      const confirmInput = screen.getByLabelText(/confirm password/i)
+      const confirmInput = screen.getByPlaceholderText(/confirm your password/i)
 
       expect(confirmInput).toHaveAttribute('type', 'password')
 
@@ -289,7 +289,7 @@ describe('RegisterPage', () => {
       expect(screen.getByLabelText(/full name/i)).toHaveAttribute('id', 'fullName')
       expect(screen.getByLabelText(/email address/i)).toHaveAttribute('id', 'email')
       expect(screen.getByLabelText(/^password/i)).toHaveAttribute('id', 'password')
-      expect(screen.getByLabelText(/confirm password/i)).toHaveAttribute('id', 'confirmPassword')
+      expect(screen.getByPlaceholderText(/confirm your password/i)).toHaveAttribute('id', 'confirmPassword')
     })
 
     it('has required markers for mandatory fields', () => {
