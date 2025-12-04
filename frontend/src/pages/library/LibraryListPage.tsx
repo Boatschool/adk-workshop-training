@@ -52,8 +52,10 @@ export function LibraryListPage() {
   const searchQuery = searchParams.get('search') || ''
   const showBookmarkedOnly = searchParams.get('bookmarked') === 'true'
 
-  // Helper to update URL params (pushes to history so back/forward works)
-  const updateParams = useCallback((updates: Record<string, string | null>) => {
+  // Helper to update URL params
+  // - Discrete filter changes (dropdowns, toggles) push to history for back/forward navigation
+  // - Typing-driven changes (search input) use replace to avoid flooding history with keystrokes
+  const updateParams = useCallback((updates: Record<string, string | null>, replace = false) => {
     const newParams = new URLSearchParams(searchParams)
 
     Object.entries(updates).forEach(([key, value]) => {
@@ -64,8 +66,7 @@ export function LibraryListPage() {
       }
     })
 
-    // Push to history (not replace) so users can navigate back through filter states
-    setSearchParams(newParams)
+    setSearchParams(newParams, { replace })
   }, [searchParams, setSearchParams])
 
   // Filter setters that update URL params
@@ -82,7 +83,8 @@ export function LibraryListPage() {
   }, [updateParams])
 
   const setSearchQuery = useCallback((search: string) => {
-    updateParams({ search: search || null })
+    // Use replace:true for search to avoid flooding history with each keystroke
+    updateParams({ search: search || null }, true)
   }, [updateParams])
 
   const setShowBookmarkedOnly = useCallback((bookmarked: boolean) => {
