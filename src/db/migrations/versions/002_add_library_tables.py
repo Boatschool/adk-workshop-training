@@ -63,24 +63,25 @@ def upgrade() -> None:
     )
 
     # Create trigger for updated_at on shared library_resources
-    op.execute("""
+    op.execute(
+        """
         CREATE TRIGGER update_library_resources_updated_at
         BEFORE UPDATE ON adk_platform_shared.library_resources
         FOR EACH ROW
         EXECUTE FUNCTION update_updated_at_column()
-    """)
+    """
+    )
 
     # 2. Add tables to existing tenant schemas
     # Get all tenant schemas from the database
     connection = op.get_bind()
-    result = connection.execute(
-        sa.text("SELECT database_schema FROM adk_platform_shared.tenants")
-    )
+    result = connection.execute(sa.text("SELECT database_schema FROM adk_platform_shared.tenants"))
     tenant_schemas = [row[0] for row in result.fetchall()]
 
     for schema_name in tenant_schemas:
         # Create user_bookmarks table
-        op.execute(f"""
+        op.execute(
+            f"""
             CREATE TABLE IF NOT EXISTS {schema_name}.user_bookmarks (
                 id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
                 user_id UUID NOT NULL REFERENCES {schema_name}.users(id) ON DELETE CASCADE,
@@ -89,10 +90,12 @@ def upgrade() -> None:
                 updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
                 UNIQUE(user_id, resource_id)
             )
-        """)
+        """
+        )
 
         # Create resource_progress table
-        op.execute(f"""
+        op.execute(
+            f"""
             CREATE TABLE IF NOT EXISTS {schema_name}.resource_progress (
                 id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
                 user_id UUID NOT NULL REFERENCES {schema_name}.users(id) ON DELETE CASCADE,
@@ -105,22 +108,27 @@ def upgrade() -> None:
                 updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
                 UNIQUE(user_id, resource_id)
             )
-        """)
+        """
+        )
 
         # Add triggers for updated_at
-        op.execute(f"""
+        op.execute(
+            f"""
             CREATE TRIGGER update_{schema_name}_user_bookmarks_updated_at
             BEFORE UPDATE ON {schema_name}.user_bookmarks
             FOR EACH ROW
             EXECUTE FUNCTION update_updated_at_column()
-        """)
+        """
+        )
 
-        op.execute(f"""
+        op.execute(
+            f"""
             CREATE TRIGGER update_{schema_name}_resource_progress_updated_at
             BEFORE UPDATE ON {schema_name}.resource_progress
             FOR EACH ROW
             EXECUTE FUNCTION update_updated_at_column()
-        """)
+        """
+        )
 
 
 def downgrade() -> None:
@@ -128,18 +136,22 @@ def downgrade() -> None:
 
     # Get all tenant schemas from the database
     connection = op.get_bind()
-    result = connection.execute(
-        sa.text("SELECT database_schema FROM adk_platform_shared.tenants")
-    )
+    result = connection.execute(sa.text("SELECT database_schema FROM adk_platform_shared.tenants"))
     tenant_schemas = [row[0] for row in result.fetchall()]
 
     # Remove tables from tenant schemas
     for schema_name in tenant_schemas:
-        op.execute(f"DROP TRIGGER IF EXISTS update_{schema_name}_user_bookmarks_updated_at ON {schema_name}.user_bookmarks")
-        op.execute(f"DROP TRIGGER IF EXISTS update_{schema_name}_resource_progress_updated_at ON {schema_name}.resource_progress")
+        op.execute(
+            f"DROP TRIGGER IF EXISTS update_{schema_name}_user_bookmarks_updated_at ON {schema_name}.user_bookmarks"
+        )
+        op.execute(
+            f"DROP TRIGGER IF EXISTS update_{schema_name}_resource_progress_updated_at ON {schema_name}.resource_progress"
+        )
         op.execute(f"DROP TABLE IF EXISTS {schema_name}.user_bookmarks")
         op.execute(f"DROP TABLE IF EXISTS {schema_name}.resource_progress")
 
     # Remove shared library_resources table
-    op.execute("DROP TRIGGER IF EXISTS update_library_resources_updated_at ON adk_platform_shared.library_resources")
+    op.execute(
+        "DROP TRIGGER IF EXISTS update_library_resources_updated_at ON adk_platform_shared.library_resources"
+    )
     op.drop_table("library_resources", schema="adk_platform_shared")

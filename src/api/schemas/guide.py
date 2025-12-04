@@ -26,7 +26,9 @@ class GuideBase(BaseModel):
 class GuideCreate(GuideBase):
     """Schema for creating a new guide."""
 
-    slug: str = Field(..., min_length=1, max_length=100, pattern=r"^[a-z0-9-]+$", description="URL-friendly slug")
+    slug: str = Field(
+        ..., min_length=1, max_length=100, pattern=r"^[a-z0-9-]+$", description="URL-friendly slug"
+    )
 
 
 class GuideUpdate(BaseModel):

@@ -3,7 +3,7 @@
  * Handles all library-related API calls including resources, bookmarks, and progress
  */
 
-import { apiGet, apiPost, apiPatch, apiDelete } from './api'
+import { api, apiGet, apiPost, apiPatch, apiDelete } from './api'
 import type {
   LibraryResourceWithUserData,
   LibraryQueryParams,
@@ -241,4 +241,88 @@ export async function updateLibraryResource(
  */
 export async function deleteLibraryResource(id: string): Promise<void> {
   await apiDelete<void>(`/library/${id}`)
+}
+
+// ============================================================================
+// File Upload/Download (requires super_admin role)
+// ============================================================================
+
+/**
+ * Response from file upload
+ */
+export interface FileUploadResponse {
+  filePath: string
+  fileUrl: string
+  fileName: string
+  fileSize: number
+  contentType: string
+}
+
+/**
+ * Response from file download request
+ */
+export interface FileDownloadResponse {
+  downloadUrl: string
+  expiresInMinutes: number
+  fileName: string
+  contentType: string
+}
+
+/**
+ * Upload a PDF document to the library (admin only)
+ * @param file The PDF file to upload
+ * @param onProgress Optional callback for upload progress (0-100)
+ */
+export async function uploadLibraryDocument(
+  file: File,
+  onProgress?: (progress: number) => void
+): Promise<FileUploadResponse> {
+  const formData = new FormData()
+  formData.append('file', file)
+
+  const response = await api.post<{
+    file_path: string
+    file_url: string
+    file_name: string
+    file_size: number
+    content_type: string
+  }>('/library/upload', formData, {
+    headers: {
+      'Content-Type': 'multipart/form-data',
+    },
+    onUploadProgress: (progressEvent) => {
+      if (onProgress && progressEvent.total) {
+        const percentCompleted = Math.round((progressEvent.loaded * 100) / progressEvent.total)
+        onProgress(percentCompleted)
+      }
+    },
+  })
+
+  // Transform snake_case to camelCase
+  return {
+    filePath: response.data.file_path,
+    fileUrl: response.data.file_url,
+    fileName: response.data.file_name,
+    fileSize: response.data.file_size,
+    contentType: response.data.content_type,
+  }
+}
+
+/**
+ * Get a signed download URL for an uploaded resource
+ */
+export async function getResourceDownloadUrl(resourceId: string): Promise<FileDownloadResponse> {
+  const response = await apiGet<{
+    download_url: string
+    expires_in_minutes: number
+    file_name: string
+    content_type: string
+  }>(`/library/${resourceId}/download`)
+
+  return {
+    downloadUrl: response.download_url,
+    expiresInMinutes: response.expires_in_minutes,
+    fileName: response.file_name,
+    contentType: response.content_type,
+  }
 }

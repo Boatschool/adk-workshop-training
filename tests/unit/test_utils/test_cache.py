@@ -172,11 +172,13 @@ class TestCache:
     @pytest.mark.asyncio
     async def test_set_many(self, fresh_cache):
         """Test setting multiple keys."""
-        count = await fresh_cache.set_many({
-            "batch1": "value1",
-            "batch2": "value2",
-            "batch3": "value3",
-        })
+        count = await fresh_cache.set_many(
+            {
+                "batch1": "value1",
+                "batch2": "value2",
+                "batch3": "value3",
+            }
+        )
 
         assert count == 3
         assert await fresh_cache.get("batch1") == "value1"
@@ -276,6 +278,7 @@ class TestCachedDecorator:
     @pytest.mark.asyncio
     async def test_cached_with_prefix(self):
         """Test caching with prefix."""
+
         @cached(ttl=300, prefix="user")
         async def get_user(user_id: str) -> dict:
             return {"id": user_id, "name": f"User {user_id}"}

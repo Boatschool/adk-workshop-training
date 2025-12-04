@@ -448,14 +448,16 @@ async def seed_library_resources() -> None:
             topics_array = "{" + ",".join(f'"{t}"' for t in resource.get("topics", [])) + "}"
 
             await session.execute(
-                text("""
+                text(
+                    """
                     INSERT INTO library_resources
                     (title, description, resource_type, source, external_url, content_html,
                      topics, difficulty, author, estimated_minutes, featured)
                     VALUES
                     (:title, :description, :resource_type, :source, :external_url, :content_html,
                      :topics::text[], :difficulty, :author, :estimated_minutes, :featured)
-                """),
+                """
+                ),
                 {
                     "title": resource["title"],
                     "description": resource["description"],

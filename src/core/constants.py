@@ -63,6 +63,7 @@ class LibraryResourceSource(str, Enum):
 
     EXTERNAL = "external"
     EMBEDDED = "embedded"
+    UPLOADED = "uploaded"  # For files uploaded to GCS
 
 
 class LibraryTopic(str, Enum):

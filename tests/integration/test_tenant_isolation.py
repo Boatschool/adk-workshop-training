@@ -85,7 +85,7 @@ class TestSchemaNameGeneration:
         dangerous_ids = [
             "tenant; DROP TABLE users;--",
             "tenant'OR'1'='1",
-            "tenant\"; DELETE FROM tenants; --",
+            'tenant"; DELETE FROM tenants; --',
             "tenant<script>alert('xss')</script>",
         ]
 

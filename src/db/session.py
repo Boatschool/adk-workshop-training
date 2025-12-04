@@ -106,9 +106,7 @@ async def set_tenant_schema(session: AsyncSession, schema_name: str) -> None:
     """
     # SECURITY: Validate schema name before interpolation to prevent SQL injection
     safe_schema = _validate_identifier(schema_name)
-    await session.execute(
-        text(f"SET search_path TO {safe_schema}, adk_platform_shared, public")
-    )
+    await session.execute(text(f"SET search_path TO {safe_schema}, adk_platform_shared, public"))
 
 
 async def get_db() -> AsyncGenerator[AsyncSession, None]:

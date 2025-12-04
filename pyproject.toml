@@ -28,6 +28,7 @@ email-validator = "^2.3.0"
 pyjwt = "^2.10.1"
 bcrypt = "^5.0.0"
 greenlet = "^3.2.4"
+google-cloud-storage = "^3.0.0"
 
 [tool.poetry.group.dev.dependencies]
 pytest = "^7.4.4"
@@ -106,6 +107,7 @@ show_error_codes = true
 [[tool.mypy.overrides]]
 module = [
     "google.adk.*",
+    "google.cloud.*",
     "markdown.*",
     "redis.*",
     "aiosmtplib.*",
@@ -116,9 +118,10 @@ ignore_missing_imports = true
 module = [
     "src.utils.cache",
     "src.services.email_service",
+    "src.services.storage_service",
 ]
 # These modules have complex conditional imports and fallbacks
-# that are difficult to type correctly without major refactoring
+# or third-party library type issues
 ignore_errors = true
 
 [tool.pytest.ini_options]

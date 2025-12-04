@@ -50,9 +50,7 @@ class TestAuthenticationSecurity:
         response = client.get("/api/v1/users/me")
         assert response.status_code in [401, 403]
 
-    def test_invalid_token_format_rejected(
-        self, client: TestClient, tenant_id: str
-    ) -> None:
+    def test_invalid_token_format_rejected(self, client: TestClient, tenant_id: str) -> None:
         """Test that invalid token formats are rejected."""
         invalid_tokens = [
             "invalid",
@@ -70,9 +68,7 @@ class TestAuthenticationSecurity:
             )
             assert response.status_code in [401, 403, 500], f"Token '{token}' was not rejected"
 
-    def test_expired_token_rejected(
-        self, client: TestClient, tenant_id: str
-    ) -> None:
+    def test_expired_token_rejected(self, client: TestClient, tenant_id: str) -> None:
         """Test that expired tokens are rejected."""
         from datetime import datetime, timedelta
 
@@ -102,9 +98,7 @@ class TestAuthenticationSecurity:
         )
         assert response.status_code in [401, 403]
 
-    def test_tampered_token_rejected(
-        self, client: TestClient, tenant_id: str
-    ) -> None:
+    def test_tampered_token_rejected(self, client: TestClient, tenant_id: str) -> None:
         """Test that tampered tokens are rejected."""
         # Create a valid token
         valid_token = create_access_token(
@@ -127,9 +121,7 @@ class TestAuthenticationSecurity:
         )
         assert response.status_code in [401, 403, 500]
 
-    def test_wrong_signing_key_rejected(
-        self, client: TestClient, tenant_id: str
-    ) -> None:
+    def test_wrong_signing_key_rejected(self, client: TestClient, tenant_id: str) -> None:
         """Test that tokens signed with wrong key are rejected."""
         from datetime import datetime, timedelta
 
@@ -208,11 +200,14 @@ class TestAuthorizationSecurity:
                     },
                 )
             # Should be forbidden or validation error, not success
-            assert response.status_code in [401, 403, 422, 500], f"Endpoint {endpoint} accessible to participant"
+            assert response.status_code in [
+                401,
+                403,
+                422,
+                500,
+            ], f"Endpoint {endpoint} accessible to participant"
 
-    def test_participant_cannot_create_admin_user(
-        self, client: TestClient, tenant_id: str
-    ) -> None:
+    def test_participant_cannot_create_admin_user(self, client: TestClient, tenant_id: str) -> None:
         """Test that participants cannot create users with elevated roles."""
         token = self.create_token(tenant_id, "participant")
 
@@ -232,9 +227,7 @@ class TestAuthorizationSecurity:
         # Should not allow privilege escalation
         assert response.status_code in [401, 403, 422, 500]
 
-    def test_token_tenant_mismatch_rejected(
-        self, client: TestClient
-    ) -> None:
+    def test_token_tenant_mismatch_rejected(self, client: TestClient) -> None:
         """Test that tokens for one tenant cannot be used for another."""
         tenant_a = str(uuid4())
         tenant_b = str(uuid4())
@@ -267,14 +260,12 @@ class TestInjectionPrevention:
     def tenant_id(self) -> str:
         return str(uuid4())
 
-    def test_sql_injection_in_email(
-        self, client: TestClient, tenant_id: str
-    ) -> None:
+    def test_sql_injection_in_email(self, client: TestClient, tenant_id: str) -> None:
         """Test SQL injection prevention in email field."""
         sql_payloads = [
             "'; DROP TABLE users; --",
             "' OR '1'='1",
-            "\" OR \"\"=\"",
+            '" OR ""="',
             "'; DELETE FROM users WHERE '1'='1",
             "admin@example.com'; INSERT INTO users VALUES('hack');--",
         ]
@@ -292,9 +283,7 @@ class TestInjectionPrevention:
                 assert "syntax error" not in response.text.lower()
                 assert "postgresql" not in response.text.lower()
 
-    def test_sql_injection_in_search(
-        self, client: TestClient, tenant_id: str
-    ) -> None:
+    def test_sql_injection_in_search(self, client: TestClient, tenant_id: str) -> None:
         """Test SQL injection prevention in search/filter parameters."""
         token = create_access_token(
             data={
@@ -322,9 +311,7 @@ class TestInjectionPrevention:
             # Should handle gracefully
             assert response.status_code in [200, 422, 500]
 
-    def test_xss_in_user_registration(
-        self, client: TestClient, tenant_id: str
-    ) -> None:
+    def test_xss_in_user_registration(self, client: TestClient, tenant_id: str) -> None:
         """Test XSS prevention in user registration."""
         xss_payloads = [
             "<script>alert('XSS')</script>",
@@ -352,9 +339,7 @@ class TestInjectionPrevention:
                     # Should be stored as-is (not interpreted as HTML)
                     assert data["full_name"] == payload or "<script>" not in str(data)
 
-    def test_command_injection_prevention(
-        self, client: TestClient, tenant_id: str
-    ) -> None:
+    def test_command_injection_prevention(self, client: TestClient, tenant_id: str) -> None:
         """Test command injection prevention."""
         cmd_payloads = [
             "; ls -la",
@@ -411,9 +396,7 @@ class TestErrorMessageSanitization:
     def tenant_id(self) -> str:
         return str(uuid4())
 
-    def test_no_stack_traces_in_errors(
-        self, client: TestClient, tenant_id: str
-    ) -> None:
+    def test_no_stack_traces_in_errors(self, client: TestClient, tenant_id: str) -> None:
         """Test that stack traces are not exposed in error responses."""
         # Try to trigger an error
         response = client.post(
@@ -426,13 +409,11 @@ class TestErrorMessageSanitization:
             text = response.text.lower()
             # Should not contain Python traceback indicators
             assert "traceback" not in text
-            assert "file \"" not in text
+            assert 'file "' not in text
             assert "line " not in text or "error" in text
-            assert ".py\"" not in text
+            assert '.py"' not in text
 
-    def test_no_database_errors_exposed(
-        self, client: TestClient, tenant_id: str
-    ) -> None:
+    def test_no_database_errors_exposed(self, client: TestClient, tenant_id: str) -> None:
         """Test that database error details are not exposed."""
         response = client.post(
             "/api/v1/users/login",
@@ -460,9 +441,7 @@ class TestPasswordSecurity:
     def tenant_id(self) -> str:
         return str(uuid4())
 
-    def test_weak_password_rejected(
-        self, client: TestClient, tenant_id: str
-    ) -> None:
+    def test_weak_password_rejected(self, client: TestClient, tenant_id: str) -> None:
         """Test that weak passwords are rejected (if validation exists)."""
         weak_passwords = [
             "123",
@@ -485,9 +464,7 @@ class TestPasswordSecurity:
             # At minimum, should not cause server error
             assert response.status_code in [201, 400, 422, 500]
 
-    def test_password_not_in_response(
-        self, client: TestClient, tenant_id: str
-    ) -> None:
+    def test_password_not_in_response(self, client: TestClient, tenant_id: str) -> None:
         """Test that passwords are not returned in API responses."""
         response = client.post(
             "/api/v1/users/register",
@@ -519,9 +496,7 @@ class TestRateLimitingBehavior:
     def tenant_id(self) -> str:
         return str(uuid4())
 
-    def test_multiple_rapid_requests(
-        self, client: TestClient, tenant_id: str
-    ) -> None:
+    def test_multiple_rapid_requests(self, client: TestClient, tenant_id: str) -> None:
         """Test handling of multiple rapid requests."""
         # Make multiple rapid requests
         responses = []
@@ -533,9 +508,7 @@ class TestRateLimitingBehavior:
         success_count = sum(1 for r in responses if r == 200)
         assert success_count > 0, "All requests failed"
 
-    def test_brute_force_login_handling(
-        self, client: TestClient, tenant_id: str
-    ) -> None:
+    def test_brute_force_login_handling(self, client: TestClient, tenant_id: str) -> None:
         """Test that brute force login attempts are handled."""
         # Make multiple failed login attempts
         for i in range(10):

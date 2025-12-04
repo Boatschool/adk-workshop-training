@@ -24,8 +24,7 @@ os.environ["SECRET_KEY"] = "test-secret-key-for-testing-only-not-for-production"
 
 # Use test database URL from environment or default
 TEST_DATABASE_URL = os.environ.get(
-    "DATABASE_URL",
-    "postgresql+asyncpg://adk_user:adk_password@localhost:5433/adk_platform_test"
+    "DATABASE_URL", "postgresql+asyncpg://adk_user:adk_password@localhost:5433/adk_platform_test"
 )
 os.environ["DATABASE_URL"] = TEST_DATABASE_URL
 
@@ -113,9 +112,7 @@ class TestAuthenticationIntegration:
         """Generate test user ID."""
         return str(uuid4())
 
-    def test_protected_endpoint_without_token_returns_401(
-        self, client: TestClient
-    ) -> None:
+    def test_protected_endpoint_without_token_returns_401(self, client: TestClient) -> None:
         """Test that protected endpoints require authentication."""
         response = client.get("/api/v1/users/me")
         assert response.status_code in [401, 403]
@@ -149,9 +146,7 @@ class TestAuthenticationIntegration:
         parts = token.split(".")
         assert len(parts) == 3
 
-    def test_login_endpoint_requires_tenant_header(
-        self, client: TestClient
-    ) -> None:
+    def test_login_endpoint_requires_tenant_header(self, client: TestClient) -> None:
         """Test that login requires X-Tenant-ID header."""
         response = client.post(
             "/api/v1/users/login",
@@ -160,9 +155,7 @@ class TestAuthenticationIntegration:
         # Should fail without tenant header (400 or 422)
         assert response.status_code in [400, 422, 500]
 
-    def test_registration_validates_email_format(
-        self, client: TestClient, tenant_id: str
-    ) -> None:
+    def test_registration_validates_email_format(self, client: TestClient, tenant_id: str) -> None:
         """Test that registration validates email format."""
         response = client.post(
             "/api/v1/users/register",
@@ -176,9 +169,7 @@ class TestAuthenticationIntegration:
         # Should return validation error
         assert response.status_code in [422, 500]
 
-    def test_registration_requires_password(
-        self, client: TestClient, tenant_id: str
-    ) -> None:
+    def test_registration_requires_password(self, client: TestClient, tenant_id: str) -> None:
         """Test that registration requires password field."""
         response = client.post(
             "/api/v1/users/register",
@@ -200,9 +191,7 @@ class TestTenantHeaderPropagation:
         """Create a test client."""
         return TestClient(app)
 
-    def test_tenant_scoped_endpoints_require_header(
-        self, client: TestClient
-    ) -> None:
+    def test_tenant_scoped_endpoints_require_header(self, client: TestClient) -> None:
         """Test that tenant-scoped endpoints require X-Tenant-ID header."""
         # Create a valid token
         token = create_access_token(
@@ -220,9 +209,7 @@ class TestTenantHeaderPropagation:
         # Should fail without tenant header
         assert response.status_code in [400, 422, 500]
 
-    def test_tenant_header_accepted_in_request(
-        self, client: TestClient
-    ) -> None:
+    def test_tenant_header_accepted_in_request(self, client: TestClient) -> None:
         """Test that X-Tenant-ID header is accepted in requests."""
         tenant_id = str(uuid4())
         token = create_access_token(
@@ -289,9 +276,7 @@ class TestRoleBasedAccessControl:
         decoded = decode_access_token(token)
         assert decoded["role"] == "tenant_admin"
 
-    def test_participant_can_access_workshops(
-        self, client: TestClient, tenant_id: str
-    ) -> None:
+    def test_participant_can_access_workshops(self, client: TestClient, tenant_id: str) -> None:
         """Test that participants can list workshops."""
         token = self.create_token_for_role(tenant_id, "participant")
         response = client.get(

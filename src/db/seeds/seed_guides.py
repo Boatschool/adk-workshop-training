@@ -445,7 +445,9 @@ async def seed_guides(session: AsyncSession) -> None:
             description=str(guide_data["description"]),
             content_html=content_html.strip(),
             icon=str(guide_data["icon"]),
-            display_order=int(display_order_val) if isinstance(display_order_val, int | float) else 0,
+            display_order=(
+                int(display_order_val) if isinstance(display_order_val, int | float) else 0
+            ),
             published=bool(guide_data.get("published", True)),
         )
         session.add(guide)

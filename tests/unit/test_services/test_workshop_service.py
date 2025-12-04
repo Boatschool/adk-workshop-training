@@ -221,9 +221,7 @@ class TestWorkshopServiceListWorkshops:
         return WorkshopService(db=mock_db, tenant_id="test-tenant")
 
     @pytest.mark.asyncio
-    async def test_list_workshops_empty(
-        self, service: WorkshopService, mock_db: AsyncMock
-    ) -> None:
+    async def test_list_workshops_empty(self, service: WorkshopService, mock_db: AsyncMock) -> None:
         """Test listing workshops when none exist."""
         mock_scalars = MagicMock()
         mock_scalars.all.return_value = []

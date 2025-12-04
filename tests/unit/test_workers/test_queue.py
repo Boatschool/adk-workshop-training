@@ -81,6 +81,7 @@ class TestTaskQueue:
 
     def test_register_handler(self, fresh_queue):
         """Test registering a handler."""
+
         @fresh_queue.register("test_task")
         async def handler(x: int) -> int:
             return x * 2
@@ -96,6 +97,7 @@ class TestTaskQueue:
     @pytest.mark.asyncio
     async def test_enqueue_and_execute(self, fresh_queue):
         """Test enqueueing and executing a task."""
+
         @fresh_queue.register("double")
         async def double(x: int) -> int:
             return x * 2
@@ -112,6 +114,7 @@ class TestTaskQueue:
     @pytest.mark.asyncio
     async def test_task_failure(self, fresh_queue):
         """Test task failure handling."""
+
         @fresh_queue.register("failing")
         async def failing():
             raise ValueError("Test error")
@@ -126,6 +129,7 @@ class TestTaskQueue:
     @pytest.mark.asyncio
     async def test_task_delay(self, fresh_queue):
         """Test delayed task execution."""
+
         @fresh_queue.register("delayed")
         async def delayed() -> str:
             return "done"
@@ -142,6 +146,7 @@ class TestTaskQueue:
     @pytest.mark.asyncio
     async def test_get_task_status(self, fresh_queue):
         """Test getting task status."""
+
         @fresh_queue.register("simple")
         async def simple() -> str:
             return "ok"
@@ -166,6 +171,7 @@ class TestTaskQueue:
     @pytest.mark.asyncio
     async def test_list_tasks(self, fresh_queue):
         """Test listing tasks."""
+
         @fresh_queue.register("list_test")
         async def list_test() -> str:
             return "done"
@@ -186,6 +192,7 @@ class TestTaskQueue:
     @pytest.mark.asyncio
     async def test_cleanup_completed(self, fresh_queue):
         """Test cleaning up completed tasks."""
+
         @fresh_queue.register("cleanup_test")
         async def cleanup_test() -> str:
             return "done"

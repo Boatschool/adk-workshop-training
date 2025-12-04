@@ -4,19 +4,23 @@ Library resources are stored in the shared schema and accessible by all tenants.
 Bookmarks and progress are tenant-scoped (per-user within tenant).
 """
 
+import logging
 from typing import Annotated
 
-from fastapi import APIRouter, Depends, HTTPException, Query, status
+from fastapi import APIRouter, Depends, File, HTTPException, Query, UploadFile, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.api.dependencies import (
     get_current_user,
+    get_storage_service_dependency,
     get_tenant_db_dependency,
     get_tenant_id,
     require_role,
 )
 from src.api.schemas.library import (
     BookmarkStatusResponse,
+    FileDownloadResponse,
+    FileUploadResponse,
     LibraryResourceCreate,
     LibraryResourceFilters,
     LibraryResourceResponse,
@@ -42,6 +46,9 @@ from src.services.library_service import (
     ResourceProgressService,
     UserBookmarkService,
 )
+from src.services.storage_service import StorageError, StorageService
+
+logger = logging.getLogger(__name__)
 
 router = APIRouter()
 
@@ -141,11 +148,13 @@ async def list_library_resources(
             if progress_status_value != progress_status.value:
                 continue
 
-        result.append({
-            **resource.to_dict(),
-            "is_bookmarked": is_bookmarked,
-            "progress_status": progress_status_value,
-        })
+        result.append(
+            {
+                **resource.to_dict(),
+                "is_bookmarked": is_bookmarked,
+                "progress_status": progress_status_value,
+            }
+        )
 
     # Apply pagination after user-specific filtering
     if needs_user_filtering:
@@ -532,3 +541,202 @@ async def mark_resource_viewed(
 
     progress_service = ResourceProgressService(db, tenant_id)
     return await progress_service.mark_as_viewed(str(current_user.id), resource_id)
+
+
+# ============================================================================
+# File Upload/Download Endpoints
+# ============================================================================
+
+
+@router.post("/upload", response_model=FileUploadResponse)
+async def upload_library_document(
+    file: Annotated[UploadFile, File(description="PDF document to upload")],
+    current_user: Annotated[User, Depends(require_super_admin)],
+    tenant_id: Annotated[str, Depends(get_tenant_id)],
+    storage: Annotated[StorageService, Depends(get_storage_service_dependency)],
+) -> dict:
+    """
+    Upload a PDF document for library resources.
+
+    Requires super_admin role. The uploaded file is stored in Google Cloud Storage
+    and the returned file_path can be used in the content_path field when creating
+    or updating a library resource with source='uploaded'.
+
+    Args:
+        file: PDF file to upload (max 50MB)
+        current_user: Current authenticated user (super_admin)
+        tenant_id: Tenant ID from header
+        storage: Storage service for GCS operations
+
+    Returns:
+        FileUploadResponse: Upload result with file path and metadata
+
+    Raises:
+        HTTPException 400: If file validation fails
+        HTTPException 413: If file size exceeds limit
+        HTTPException 500: If upload fails
+    """
+    TenantContext.set(tenant_id)
+
+    # Validate file metadata before reading content
+    filename = file.filename or "document.pdf"
+    content_type = file.content_type or "application/octet-stream"
+
+    is_valid, error_message = storage.validate_file_metadata(content_type, filename)
+    if not is_valid:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=error_message,
+        )
+
+    # Read file content in chunks with size limit enforcement
+    # This prevents clients from exhausting memory with arbitrarily large payloads
+    max_size_bytes = storage.settings.max_upload_size_mb * 1024 * 1024
+    chunk_size = 64 * 1024  # 64KB chunks
+    chunks: list[bytes] = []
+    total_size = 0
+
+    try:
+        while True:
+            chunk = await file.read(chunk_size)
+            if not chunk:
+                break
+            total_size += len(chunk)
+            if total_size > max_size_bytes:
+                raise HTTPException(
+                    status_code=status.HTTP_413_REQUEST_ENTITY_TOO_LARGE,
+                    detail=f"File size exceeds maximum allowed size of {storage.settings.max_upload_size_mb}MB",
+                )
+            chunks.append(chunk)
+        file_content = b"".join(chunks)
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Failed to read uploaded file: {e}")
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Failed to read uploaded file",
+        ) from None
+
+    # Validate file content (PDF magic bytes)
+    is_valid, error_message = storage.validate_file_content(file_content)
+    if not is_valid:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=error_message,
+        )
+
+    # Generate unique path and upload asynchronously (non-blocking)
+    try:
+        destination_path = storage.generate_file_path(filename)
+        result = await storage.upload_file_async(
+            file_content, destination_path, content_type, filename
+        )
+
+        logger.info(f"User {current_user.id} uploaded file: {destination_path}")
+
+        return result
+
+    except StorageError as e:
+        logger.error(f"Storage error during upload: {e}")
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Failed to upload file: {str(e)}",
+        ) from None
+    except Exception as e:
+        logger.error(f"Unexpected error during upload: {e}")
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="An unexpected error occurred during file upload",
+        ) from None
+
+
+@router.get("/{resource_id}/download", response_model=FileDownloadResponse)
+async def get_resource_download_url(
+    resource_id: str,
+    db: Annotated[AsyncSession, Depends(get_tenant_db_dependency)],
+    current_user: Annotated[User, Depends(get_current_user)],
+    tenant_id: Annotated[str, Depends(get_tenant_id)],
+    storage: Annotated[StorageService, Depends(get_storage_service_dependency)],
+) -> dict:
+    """
+    Get a signed download URL for an uploaded library resource.
+
+    Only works for resources with source='uploaded' that have a content_path.
+    The signed URL expires after the configured time (default 60 minutes).
+
+    Args:
+        resource_id: Resource UUID
+        db: Database session
+        current_user: Current authenticated user
+        tenant_id: Tenant ID from header
+        storage: Storage service for GCS operations
+
+    Returns:
+        FileDownloadResponse: Signed download URL and metadata
+
+    Raises:
+        HTTPException 404: If resource not found
+        HTTPException 400: If resource is not an uploaded file
+    """
+    TenantContext.set(tenant_id)
+
+    # Get the resource
+    resource_service = LibraryResourceService(db)
+    resource = await resource_service.get_resource_by_id(resource_id)
+
+    if not resource:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f"Library resource with ID '{resource_id}' not found",
+        )
+
+    # Verify it's an uploaded resource with a content_path
+    if resource.source != "uploaded":
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="This resource is not an uploaded file",
+        )
+
+    if not resource.content_path:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="This resource does not have an associated file",
+        )
+
+    # Generate signed URL
+    try:
+        from src.core.config import get_settings
+
+        settings = get_settings()
+        expiration_minutes = settings.upload_signed_url_expiration_minutes
+
+        signed_url = storage.generate_signed_url(resource.content_path, expiration_minutes)
+
+        # Extract filename from path
+        filename = resource.content_path.split("/")[-1]
+        # Remove the unique prefix (first 13 chars: 12 hex + underscore)
+        if len(filename) > 13 and filename[12] == "_":
+            filename = filename[13:]
+
+        logger.info(f"User {current_user.id} requested download for resource {resource_id}")
+
+        return {
+            "download_url": signed_url,
+            "expires_in_minutes": expiration_minutes,
+            "file_name": filename,
+            "content_type": "application/pdf",
+        }
+
+    except StorageError as e:
+        logger.error(f"Storage error generating signed URL: {e}")
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Failed to generate download URL: {str(e)}",
+        ) from None
+    except Exception as e:
+        logger.error(f"Unexpected error generating signed URL: {e}")
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="An unexpected error occurred",
+        ) from None

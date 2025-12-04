@@ -15,3 +15,4 @@ export {
 } from './StatusBadge'
 export { LibraryResourceForm } from './LibraryResourceForm'
 export { GuideForm } from './GuideForm'
+export { FileUpload, type FileUploadProps } from './FileUpload'
