@@ -52,7 +52,7 @@ export function LibraryListPage() {
   const searchQuery = searchParams.get('search') || ''
   const showBookmarkedOnly = searchParams.get('bookmarked') === 'true'
 
-  // Helper to update URL params (replaces setState calls)
+  // Helper to update URL params (pushes to history so back/forward works)
   const updateParams = useCallback((updates: Record<string, string | null>) => {
     const newParams = new URLSearchParams(searchParams)
 
@@ -64,7 +64,8 @@ export function LibraryListPage() {
       }
     })
 
-    setSearchParams(newParams, { replace: true })
+    // Push to history (not replace) so users can navigate back through filter states
+    setSearchParams(newParams)
   }, [searchParams, setSearchParams])
 
   // Filter setters that update URL params
