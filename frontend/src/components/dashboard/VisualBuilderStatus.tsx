@@ -1,9 +1,10 @@
 /**
  * Visual Builder Status Component
- * Shows a welcome message with the user's name
+ * Shows a welcome message with the user's name and search bar
  */
 
 import { useAuth } from '@contexts/AuthContext'
+import { SearchBar } from './SearchBar'
 
 export function VisualBuilderStatus() {
   const { user } = useAuth()
@@ -14,9 +15,10 @@ export function VisualBuilderStatus() {
       <h1 className="text-2xl font-bold text-gray-900 dark:text-white">
         Welcome back, {firstName}!
       </h1>
-      <p className="text-gray-500 dark:text-gray-400 mt-1">
-        Build AI agents for healthcare automation using Google's Agent Development Kit
+      <p className="text-gray-500 dark:text-gray-400 mt-1 mb-4">
+        Your AI Agent Knowledge Hub
       </p>
+      <SearchBar />
     </div>
   )
 }
