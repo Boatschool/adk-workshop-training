@@ -232,9 +232,7 @@ class TestEmailServiceProviders:
     @pytest.mark.asyncio
     async def test_sendgrid_send(self):
         """Test SendGrid sending (mocked)."""
-        with patch.object(
-            EmailService, "_detect_provider", return_value=EmailProvider.SENDGRID
-        ):
+        with patch.object(EmailService, "_detect_provider", return_value=EmailProvider.SENDGRID):
             service = EmailService(provider=EmailProvider.SENDGRID)
             service.settings = MagicMock(sendgrid_api_key="test_key")
 
@@ -261,9 +259,7 @@ class TestEmailServiceProviders:
     @pytest.mark.asyncio
     async def test_sendgrid_send_failure(self):
         """Test SendGrid error handling."""
-        with patch.object(
-            EmailService, "_detect_provider", return_value=EmailProvider.SENDGRID
-        ):
+        with patch.object(EmailService, "_detect_provider", return_value=EmailProvider.SENDGRID):
             service = EmailService(provider=EmailProvider.SENDGRID)
             service.settings = MagicMock(sendgrid_api_key="test_key")
 

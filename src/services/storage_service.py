@@ -155,9 +155,7 @@ class StorageService:
         # Generate unique ID to prevent overwrites
         unique_id = uuid.uuid4().hex[:12]
         # Sanitize filename - keep only alphanumeric, dash, underscore, and dot
-        safe_name = "".join(
-            c if c.isalnum() or c in "-_." else "_" for c in filename
-        )
+        safe_name = "".join(c if c.isalnum() or c in "-_." else "_" for c in filename)
         # Combine with prefix
         return f"{self.settings.gcs_library_path_prefix}{unique_id}_{safe_name}"
 

@@ -80,9 +80,7 @@ async def db_session(db_engine: Any) -> AsyncGenerator[AsyncSession, None]:
 
     async with async_session_factory() as session:
         # Set search path to shared schema for tests
-        await session.execute(
-            text("SET search_path TO adk_platform_shared, public")
-        )
+        await session.execute(text("SET search_path TO adk_platform_shared, public"))
         yield session
         # Rollback any changes made during the test
         await session.rollback()

@@ -105,9 +105,7 @@ class TestUserServiceGetUser:
         return UserService(db=mock_db, tenant_id="test-tenant")
 
     @pytest.mark.asyncio
-    async def test_get_user_by_id_found(
-        self, service: UserService, mock_db: AsyncMock
-    ) -> None:
+    async def test_get_user_by_id_found(self, service: UserService, mock_db: AsyncMock) -> None:
         """Test getting user by ID when user exists."""
         mock_user = MagicMock()
         mock_user.id = str(uuid4())
@@ -122,9 +120,7 @@ class TestUserServiceGetUser:
         assert result is mock_user
 
     @pytest.mark.asyncio
-    async def test_get_user_by_id_not_found(
-        self, service: UserService, mock_db: AsyncMock
-    ) -> None:
+    async def test_get_user_by_id_not_found(self, service: UserService, mock_db: AsyncMock) -> None:
         """Test getting user by ID when user doesn't exist."""
         mock_result = MagicMock()
         mock_result.scalar_one_or_none.return_value = None
@@ -135,9 +131,7 @@ class TestUserServiceGetUser:
         assert result is None
 
     @pytest.mark.asyncio
-    async def test_get_user_by_email_found(
-        self, service: UserService, mock_db: AsyncMock
-    ) -> None:
+    async def test_get_user_by_email_found(self, service: UserService, mock_db: AsyncMock) -> None:
         """Test getting user by email when user exists."""
         mock_user = MagicMock()
         mock_user.email = "test@example.com"
@@ -236,9 +230,7 @@ class TestUserServiceAuthenticate:
         assert "Invalid email or password" in str(exc_info.value)
 
     @pytest.mark.asyncio
-    async def test_authenticate_success(
-        self, service: UserService, mock_db: AsyncMock
-    ) -> None:
+    async def test_authenticate_success(self, service: UserService, mock_db: AsyncMock) -> None:
         """Test successful authentication."""
         from src.core.security import hash_password
 
@@ -276,9 +268,7 @@ class TestUserServiceUpdateUser:
         return UserService(db=mock_db, tenant_id="test-tenant")
 
     @pytest.mark.asyncio
-    async def test_update_user_not_found(
-        self, service: UserService, mock_db: AsyncMock
-    ) -> None:
+    async def test_update_user_not_found(self, service: UserService, mock_db: AsyncMock) -> None:
         """Test updating nonexistent user raises NotFoundError."""
         mock_result = MagicMock()
         mock_result.scalar_one_or_none.return_value = None
@@ -292,9 +282,7 @@ class TestUserServiceUpdateUser:
         assert "not found" in str(exc_info.value)
 
     @pytest.mark.asyncio
-    async def test_update_user_success(
-        self, service: UserService, mock_db: AsyncMock
-    ) -> None:
+    async def test_update_user_success(self, service: UserService, mock_db: AsyncMock) -> None:
         """Test successful user update."""
         mock_user = MagicMock()
         mock_user.id = str(uuid4())
@@ -327,9 +315,7 @@ class TestUserServiceListUsers:
         return UserService(db=mock_db, tenant_id="test-tenant")
 
     @pytest.mark.asyncio
-    async def test_list_users_empty(
-        self, service: UserService, mock_db: AsyncMock
-    ) -> None:
+    async def test_list_users_empty(self, service: UserService, mock_db: AsyncMock) -> None:
         """Test listing users when none exist."""
         mock_scalars = MagicMock()
         mock_scalars.all.return_value = []

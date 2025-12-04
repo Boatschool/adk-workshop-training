@@ -1,8 +1,6 @@
 """Unit tests for configuration management."""
 
 
-
-
 class TestSettings:
     """Tests for Settings class."""
 

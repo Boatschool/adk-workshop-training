@@ -65,9 +65,7 @@ class TestTenantServiceCreateTenant:
         mock_db.execute.return_value = mock_result
 
         # Mock schema creation
-        with patch(
-            "src.db.tenant_schema.create_tenant_schema_and_tables", new_callable=AsyncMock
-        ):
+        with patch("src.db.tenant_schema.create_tenant_schema_and_tables", new_callable=AsyncMock):
             result = await service.create_tenant(tenant_create_data)
 
         # Verify db operations
@@ -141,9 +139,7 @@ class TestTenantServiceGetTenant:
         return TenantService(db=mock_db)
 
     @pytest.mark.asyncio
-    async def test_get_tenant_by_id_found(
-        self, service: TenantService, mock_db: AsyncMock
-    ) -> None:
+    async def test_get_tenant_by_id_found(self, service: TenantService, mock_db: AsyncMock) -> None:
         """Test getting tenant by ID when tenant exists."""
         mock_tenant = MagicMock()
         mock_tenant.id = str(uuid4())
@@ -237,9 +233,7 @@ class TestTenantServiceUpdateTenant:
         assert "not found" in str(exc_info.value)
 
     @pytest.mark.asyncio
-    async def test_update_tenant_success(
-        self, service: TenantService, mock_db: AsyncMock
-    ) -> None:
+    async def test_update_tenant_success(self, service: TenantService, mock_db: AsyncMock) -> None:
         """Test successful tenant update."""
         mock_tenant = MagicMock()
         mock_tenant.id = str(uuid4())
@@ -257,9 +251,7 @@ class TestTenantServiceUpdateTenant:
         assert mock_db.refresh.called
 
     @pytest.mark.asyncio
-    async def test_update_tenant_partial(
-        self, service: TenantService, mock_db: AsyncMock
-    ) -> None:
+    async def test_update_tenant_partial(self, service: TenantService, mock_db: AsyncMock) -> None:
         """Test partial tenant update."""
         mock_tenant = MagicMock()
         mock_tenant.id = str(uuid4())
@@ -294,9 +286,7 @@ class TestTenantServiceListTenants:
         return TenantService(db=mock_db)
 
     @pytest.mark.asyncio
-    async def test_list_tenants_empty(
-        self, service: TenantService, mock_db: AsyncMock
-    ) -> None:
+    async def test_list_tenants_empty(self, service: TenantService, mock_db: AsyncMock) -> None:
         """Test listing tenants when none exist."""
         mock_scalars = MagicMock()
         mock_scalars.all.return_value = []

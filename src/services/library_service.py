@@ -401,7 +401,9 @@ class ResourceProgressService:
                 status=progress_data.status.value,
                 last_viewed_at=now,
                 time_spent_seconds=progress_data.time_spent_seconds or 0,
-                completed_at=now if progress_data.status == ResourceProgressStatus.COMPLETED else None,
+                completed_at=(
+                    now if progress_data.status == ResourceProgressStatus.COMPLETED else None
+                ),
             )
             self.db.add(progress)
 
@@ -484,5 +486,7 @@ class ResourceProgressService:
         return await self.update_progress(
             user_id,
             resource_id,
-            ResourceProgressUpdate(status=ResourceProgressStatus.IN_PROGRESS, time_spent_seconds=None),
+            ResourceProgressUpdate(
+                status=ResourceProgressStatus.IN_PROGRESS, time_spent_seconds=None
+            ),
         )

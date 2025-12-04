@@ -62,12 +62,14 @@ def upgrade() -> None:
     )
 
     # Create trigger for updated_at
-    op.execute("""
+    op.execute(
+        """
         CREATE TRIGGER update_guides_updated_at
         BEFORE UPDATE ON adk_platform_shared.guides
         FOR EACH ROW
         EXECUTE FUNCTION update_updated_at_column()
-    """)
+    """
+    )
 
 
 def downgrade() -> None:

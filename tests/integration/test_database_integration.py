@@ -25,8 +25,7 @@ os.environ["SECRET_KEY"] = "test-secret-key-for-testing-only-not-for-production"
 
 # Use test database URL from environment or default
 TEST_DATABASE_URL = os.environ.get(
-    "DATABASE_URL",
-    "postgresql+asyncpg://adk_user:adk_password@localhost:5433/adk_platform_test"
+    "DATABASE_URL", "postgresql+asyncpg://adk_user:adk_password@localhost:5433/adk_platform_test"
 )
 os.environ["DATABASE_URL"] = TEST_DATABASE_URL
 
@@ -137,9 +136,7 @@ def _check_migrations_applied() -> bool:
             )
             async with engine.connect() as conn:
                 # Check if alembic_version table exists and has entries
-                result = await conn.execute(
-                    text("SELECT version_num FROM alembic_version LIMIT 1")
-                )
+                result = await conn.execute(text("SELECT version_num FROM alembic_version LIMIT 1"))
                 version = result.scalar()
                 await engine.dispose()
                 return version is not None
@@ -163,14 +160,14 @@ pytestmark = [
             f"Test database not available at {TEST_DATABASE_URL}. "
             "Run: docker-compose up -d postgres && "
             "createdb -h localhost -p 5433 -U adk_user adk_platform_test"
-        )
+        ),
     ),
     pytest.mark.skipif(
         _check_database_available() and not _check_migrations_applied(),
         reason=(
             "Database migrations not applied. "
             f"Run: DATABASE_URL='{TEST_DATABASE_URL}' poetry run alembic upgrade head"
-        )
+        ),
     ),
 ]
 

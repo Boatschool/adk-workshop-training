@@ -25,8 +25,7 @@ os.environ["SECRET_KEY"] = "test-secret-key-for-testing-only-not-for-production"
 
 # Use test database URL from environment or default
 TEST_DATABASE_URL = os.environ.get(
-    "DATABASE_URL",
-    "postgresql+asyncpg://adk_user:adk_password@localhost:5433/adk_platform_test"
+    "DATABASE_URL", "postgresql+asyncpg://adk_user:adk_password@localhost:5433/adk_platform_test"
 )
 os.environ["DATABASE_URL"] = TEST_DATABASE_URL
 
@@ -98,8 +97,7 @@ class TestTenantSchemaIsolation:
         """Verify tenants table is in shared schema."""
         result = await session.execute(
             text(
-                "SELECT table_schema FROM information_schema.tables "
-                "WHERE table_name = 'tenants'"
+                "SELECT table_schema FROM information_schema.tables " "WHERE table_name = 'tenants'"
             )
         )
         schema = result.scalar()

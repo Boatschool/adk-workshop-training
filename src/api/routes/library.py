@@ -148,11 +148,13 @@ async def list_library_resources(
             if progress_status_value != progress_status.value:
                 continue
 
-        result.append({
-            **resource.to_dict(),
-            "is_bookmarked": is_bookmarked,
-            "progress_status": progress_status_value,
-        })
+        result.append(
+            {
+                **resource.to_dict(),
+                "is_bookmarked": is_bookmarked,
+                "progress_status": progress_status_value,
+            }
+        )
 
     # Apply pagination after user-specific filtering
     if needs_user_filtering:

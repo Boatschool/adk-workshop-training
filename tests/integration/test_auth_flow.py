@@ -103,9 +103,7 @@ class TestTokenValidation:
         """Generate test user ID."""
         return str(uuid4())
 
-    def test_valid_token_structure(
-        self, test_user_id: str, test_tenant_id: str
-    ) -> None:
+    def test_valid_token_structure(self, test_user_id: str, test_tenant_id: str) -> None:
         """Test that created tokens have correct structure."""
         token = create_access_token(
             data={
@@ -119,9 +117,7 @@ class TestTokenValidation:
         parts = token.split(".")
         assert len(parts) == 3
 
-    def test_token_contains_required_claims(
-        self, test_user_id: str, test_tenant_id: str
-    ) -> None:
+    def test_token_contains_required_claims(self, test_user_id: str, test_tenant_id: str) -> None:
         """Test that tokens contain required claims."""
         from src.core.security import decode_access_token
 
@@ -155,9 +151,7 @@ class TestRegistrationFlow:
         """Generate test tenant ID."""
         return str(uuid4())
 
-    def test_registration_endpoint_exists(
-        self, client: TestClient, test_tenant_id: str
-    ) -> None:
+    def test_registration_endpoint_exists(self, client: TestClient, test_tenant_id: str) -> None:
         """Test that registration endpoint exists."""
         response = client.post(
             "/api/v1/users/register",
@@ -173,9 +167,7 @@ class TestRegistrationFlow:
         # May return 500 if DB not available
         assert response.status_code not in [404, 405]
 
-    def test_registration_validates_email(
-        self, client: TestClient, test_tenant_id: str
-    ) -> None:
+    def test_registration_validates_email(self, client: TestClient, test_tenant_id: str) -> None:
         """Test that registration validates email format."""
         response = client.post(
             "/api/v1/users/register",
@@ -190,9 +182,7 @@ class TestRegistrationFlow:
         # Should fail with validation error (422 or 500 if DB issue)
         assert response.status_code in [422, 500]
 
-    def test_registration_requires_password(
-        self, client: TestClient, test_tenant_id: str
-    ) -> None:
+    def test_registration_requires_password(self, client: TestClient, test_tenant_id: str) -> None:
         """Test that registration requires password."""
         response = client.post(
             "/api/v1/users/register",
@@ -242,9 +232,7 @@ class TestRoleBasedAccess:
             }
         )
 
-    def test_tenant_list_requires_admin(
-        self, client: TestClient, participant_token: str
-    ) -> None:
+    def test_tenant_list_requires_admin(self, client: TestClient, participant_token: str) -> None:
         """Test that listing tenants requires admin role."""
         response = client.get(
             "/api/v1/tenants/",

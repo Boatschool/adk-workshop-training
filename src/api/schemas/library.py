@@ -24,10 +24,16 @@ class LibraryResourceBase(BaseModel):
     title: str = Field(..., min_length=1, max_length=255, description="Resource title")
     description: str = Field(..., min_length=1, description="Resource description")
     resource_type: LibraryResourceType = Field(..., description="Type of resource")
-    source: LibraryResourceSource = Field(..., description="Whether resource is external or embedded")
-    external_url: str | None = Field(None, max_length=1000, description="External URL for external resources")
+    source: LibraryResourceSource = Field(
+        ..., description="Whether resource is external or embedded"
+    )
+    external_url: str | None = Field(
+        None, max_length=1000, description="External URL for external resources"
+    )
     content_path: str | None = Field(None, max_length=500, description="Path to embedded content")
-    content_html: str | None = Field(None, description="HTML/Markdown content for embedded resources")
+    content_html: str | None = Field(
+        None, description="HTML/Markdown content for embedded resources"
+    )
     topics: list[LibraryTopic] = Field(default_factory=list, description="Resource topics")
     difficulty: LibraryDifficulty = Field(..., description="Difficulty level")
     author: str | None = Field(None, max_length=255, description="Author or source name")
@@ -175,4 +181,6 @@ class LibraryResourceFilters(BaseModel):
     difficulty: LibraryDifficulty | None = Field(None, description="Filter by difficulty")
     featured: bool | None = Field(None, description="Filter by featured status")
     bookmarked: bool | None = Field(None, description="Filter to only bookmarked resources")
-    progress_status: ResourceProgressStatus | None = Field(None, description="Filter by progress status")
+    progress_status: ResourceProgressStatus | None = Field(
+        None, description="Filter by progress status"
+    )

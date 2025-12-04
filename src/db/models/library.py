@@ -24,13 +24,19 @@ class LibraryResource(BaseModel):
 
     title: Mapped[str] = mapped_column(String(255), nullable=False)
     description: Mapped[str] = mapped_column(Text, nullable=False)
-    resource_type: Mapped[str] = mapped_column(String(50), nullable=False)  # article, video, pdf, tool, course, documentation
+    resource_type: Mapped[str] = mapped_column(
+        String(50), nullable=False
+    )  # article, video, pdf, tool, course, documentation
     source: Mapped[str] = mapped_column(String(20), nullable=False)  # external, embedded
     external_url: Mapped[str | None] = mapped_column(String(1000), nullable=True)
     content_path: Mapped[str | None] = mapped_column(String(500), nullable=True)
-    content_html: Mapped[str | None] = mapped_column(Text, nullable=True)  # For embedded markdown/HTML content
+    content_html: Mapped[str | None] = mapped_column(
+        Text, nullable=True
+    )  # For embedded markdown/HTML content
     topics: Mapped[list[str]] = mapped_column(ARRAY(String(50)), nullable=False, default=list)
-    difficulty: Mapped[str] = mapped_column(String(20), nullable=False)  # beginner, intermediate, advanced
+    difficulty: Mapped[str] = mapped_column(
+        String(20), nullable=False
+    )  # beginner, intermediate, advanced
     author: Mapped[str | None] = mapped_column(String(255), nullable=True)
     estimated_minutes: Mapped[int | None] = mapped_column(Integer, nullable=True)
     thumbnail_url: Mapped[str | None] = mapped_column(String(500), nullable=True)
@@ -77,7 +83,9 @@ class ResourceProgress(BaseModel):
     resource_id: Mapped[UUID] = mapped_column(
         UUID(as_uuid=True), nullable=False  # References shared schema, no FK constraint
     )
-    status: Mapped[str] = mapped_column(String(50), nullable=False, default="not_started")  # not_started, in_progress, completed
+    status: Mapped[str] = mapped_column(
+        String(50), nullable=False, default="not_started"
+    )  # not_started, in_progress, completed
     last_viewed_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
     completed_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
     time_spent_seconds: Mapped[int] = mapped_column(Integer, nullable=False, default=0)
