@@ -6,7 +6,7 @@
  * This ensures browser history navigation and external URL changes work correctly.
  */
 
-import { useMemo, useCallback } from 'react'
+import { useMemo, useCallback, useRef } from 'react'
 import { useSearchParams } from 'react-router-dom'
 import { LibraryResourceCard, LibraryFilters } from '@components/library'
 import { useLibraryResources } from '@hooks/useLibrary'
@@ -52,10 +52,16 @@ export function LibraryListPage() {
   const searchQuery = searchParams.get('search') || ''
   const showBookmarkedOnly = searchParams.get('bookmarked') === 'true'
 
+  // Track if the last URL update was from search input
+  // Used to determine whether to push or replace history entries
+  const lastActionWasSearchRef = useRef(false)
+
   // Helper to update URL params
-  // - Discrete filter changes (dropdowns, toggles) push to history for back/forward navigation
-  // - Typing-driven changes (search input) use replace to avoid flooding history with keystrokes
-  const updateParams = useCallback((updates: Record<string, string | null>, replace = false) => {
+  const updateParams = useCallback((
+    updates: Record<string, string | null>,
+    options: { isSearchChange?: boolean } = {}
+  ) => {
+    const { isSearchChange = false } = options
     const newParams = new URLSearchParams(searchParams)
 
     Object.entries(updates).forEach(([key, value]) => {
@@ -66,10 +72,16 @@ export function LibraryListPage() {
       }
     })
 
-    setSearchParams(newParams, { replace })
+    // For search changes: replace only if the previous action was also a search change
+    // This avoids flooding history with keystrokes while preserving filter entries
+    // For discrete filter changes: always push to enable back/forward navigation
+    const shouldReplace = isSearchChange && lastActionWasSearchRef.current
+
+    setSearchParams(newParams, { replace: shouldReplace })
+    lastActionWasSearchRef.current = isSearchChange
   }, [searchParams, setSearchParams])
 
-  // Filter setters that update URL params
+  // Filter setters that update URL params (discrete changes push to history)
   const setSelectedType = useCallback((type: LibraryResourceType | 'all') => {
     updateParams({ type: type === 'all' ? null : type })
   }, [updateParams])
@@ -83,8 +95,8 @@ export function LibraryListPage() {
   }, [updateParams])
 
   const setSearchQuery = useCallback((search: string) => {
-    // Use replace:true for search to avoid flooding history with each keystroke
-    updateParams({ search: search || null }, true)
+    // Mark as search change - will replace only if previous action was also search
+    updateParams({ search: search || null }, { isSearchChange: true })
   }, [updateParams])
 
   const setShowBookmarkedOnly = useCallback((bookmarked: boolean) => {
