@@ -20,6 +20,7 @@ from src.api.schemas.user import (
     UserWithToken,
 )
 from src.core.audit import AuditEvent, log_audit_event
+from src.core.constants import UserRole
 from src.core.config import get_settings
 from src.core.exceptions import (
     AccountLockedError,
@@ -103,7 +104,7 @@ async def register_user(
             id=user.id,
             email=user.email,
             full_name=user.full_name,
-            role=user.role,
+            role=UserRole(user.role),
             is_active=user.is_active,
             created_at=user.created_at,
             updated_at=user.updated_at,
@@ -219,7 +220,7 @@ async def login_user(
             id=user.id,
             email=user.email,
             full_name=user.full_name,
-            role=user.role,
+            role=UserRole(user.role),
             is_active=user.is_active,
             created_at=user.created_at,
             updated_at=user.updated_at,

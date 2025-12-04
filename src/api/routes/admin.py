@@ -1,7 +1,7 @@
 """Admin API routes for dashboard statistics."""
 
 from datetime import UTC, datetime, timedelta
-from typing import Annotated
+from typing import Annotated, Literal
 
 from fastapi import APIRouter, Depends
 from sqlalchemy import func, select
@@ -132,10 +132,10 @@ async def get_admin_stats(
     except Exception:
         logins_today = 0
 
-    # Health checks
-    api_health = "healthy"
-    db_health = "healthy"
-    external_health = "healthy"
+    # Health checks - typed as Literal for mypy
+    api_health: Literal["healthy", "degraded", "unhealthy", "unknown"] = "healthy"
+    db_health: Literal["healthy", "degraded", "unhealthy", "unknown"] = "healthy"
+    external_health: Literal["healthy", "degraded", "unhealthy", "unknown"] = "healthy"
 
     # Simple database health check
     try:
