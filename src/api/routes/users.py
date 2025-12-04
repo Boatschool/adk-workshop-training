@@ -20,8 +20,8 @@ from src.api.schemas.user import (
     UserWithToken,
 )
 from src.core.audit import AuditEvent, log_audit_event
-from src.core.constants import UserRole
 from src.core.config import get_settings
+from src.core.constants import UserRole
 from src.core.exceptions import (
     AccountLockedError,
     AuthenticationError,
