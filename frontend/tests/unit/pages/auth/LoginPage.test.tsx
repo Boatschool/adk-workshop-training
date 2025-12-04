@@ -8,6 +8,7 @@ import userEvent from '@testing-library/user-event'
 import { BrowserRouter } from 'react-router-dom'
 import { LoginPage } from '@pages/auth/LoginPage'
 import { AuthProvider } from '@contexts/AuthContext'
+import { TenantProvider } from '@contexts/TenantContext'
 
 // Mock the auth service
 vi.mock('@services/auth', () => ({
@@ -24,6 +25,13 @@ vi.mock('@utils/storage', () => ({
   getStoredRefreshToken: vi.fn(() => null),
   setStoredRefreshToken: vi.fn(),
   clearAuthStorage: vi.fn(),
+  getStoredTenantId: vi.fn(() => null),
+  setStoredTenantId: vi.fn(),
+}))
+
+// Mock tenant service
+vi.mock('@services/tenants', () => ({
+  validateTenant: vi.fn().mockResolvedValue({ is_valid: true }),
 }))
 
 // Mock navigate
@@ -40,9 +48,11 @@ vi.mock('react-router-dom', async () => {
 function renderLoginPage() {
   return render(
     <BrowserRouter>
-      <AuthProvider>
-        <LoginPage />
-      </AuthProvider>
+      <TenantProvider>
+        <AuthProvider>
+          <LoginPage />
+        </AuthProvider>
+      </TenantProvider>
     </BrowserRouter>
   )
 }
@@ -65,7 +75,7 @@ describe('LoginPage', () => {
 
     it('renders password input field', () => {
       renderLoginPage()
-      expect(screen.getByLabelText(/password/i)).toBeInTheDocument()
+      expect(screen.getByLabelText(/^password$/i)).toBeInTheDocument()
     })
 
     it('renders sign in button', () => {
@@ -98,7 +108,7 @@ describe('LoginPage', () => {
 
     it('requires password field', () => {
       renderLoginPage()
-      const passwordInput = screen.getByLabelText(/password/i)
+      const passwordInput = screen.getByLabelText(/^password$/i)
       expect(passwordInput).toHaveAttribute('required')
     })
 
@@ -112,7 +122,7 @@ describe('LoginPage', () => {
   describe('Password Visibility Toggle', () => {
     it('toggles password visibility when clicking the eye icon', async () => {
       renderLoginPage()
-      const passwordInput = screen.getByLabelText(/password/i)
+      const passwordInput = screen.getByLabelText(/^password$/i)
 
       // Password should be hidden by default
       expect(passwordInput).toHaveAttribute('type', 'password')
@@ -142,7 +152,7 @@ describe('LoginPage', () => {
 
     it('updates password input value', async () => {
       renderLoginPage()
-      const passwordInput = screen.getByLabelText(/password/i)
+      const passwordInput = screen.getByLabelText(/^password$/i)
 
       await userEvent.type(passwordInput, 'password123')
       expect(passwordInput).toHaveValue('password123')
@@ -181,7 +191,7 @@ describe('LoginPage', () => {
       renderLoginPage()
 
       const emailInput = screen.getByLabelText(/email address/i)
-      const passwordInput = screen.getByLabelText(/password/i)
+      const passwordInput = screen.getByLabelText(/^password$/i)
 
       expect(emailInput).toHaveAttribute('id', 'email')
       expect(passwordInput).toHaveAttribute('id', 'password')
@@ -195,7 +205,7 @@ describe('LoginPage', () => {
 
     it('password input has correct autocomplete attribute', () => {
       renderLoginPage()
-      const passwordInput = screen.getByLabelText(/password/i)
+      const passwordInput = screen.getByLabelText(/^password$/i)
       expect(passwordInput).toHaveAttribute('autocomplete', 'current-password')
     })
   })
