@@ -1,12 +1,21 @@
 /**
  * Login Page Component
- * Handles user authentication with email/password
+ * Two-column layout with marketing panel and login form
+ * Matches GraymatterLab design system
  */
 
 import { useState } from 'react'
 import { Link, useNavigate, useLocation } from 'react-router-dom'
 import { useAuth } from '@contexts/AuthContext'
 import { useTenant } from '@contexts/TenantContext'
+import agentHubLogo from '../../assets/graymatterlab_agent_hub.png'
+
+function getGreeting(): string {
+  const hour = new Date().getHours()
+  if (hour < 12) return 'Good morning'
+  if (hour < 18) return 'Good afternoon'
+  return 'Good evening'
+}
 
 export function LoginPage() {
   const navigate = useNavigate()
@@ -18,7 +27,6 @@ export function LoginPage() {
   const [password, setPassword] = useState('')
   const [showPassword, setShowPassword] = useState(false)
   const [error, setError] = useState<string | null>(null)
-  const [rememberMe, setRememberMe] = useState(false)
 
   // Get redirect path from location state or default to dashboard
   const from = (location.state as { from?: string })?.from || '/'
@@ -42,24 +50,62 @@ export function LoginPage() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800 px-4 py-12">
-      <div className="max-w-md w-full">
-        {/* Logo and Header */}
-        <div className="text-center mb-8">
-          <div className="w-16 h-16 bg-gradient-to-br from-primary-500 to-purple-600 rounded-xl mx-auto mb-4 flex items-center justify-center shadow-lg">
-            <span className="text-white font-bold text-2xl">A</span>
-          </div>
-          <h1 className="text-2xl font-bold text-gray-900 dark:text-white">
-            Welcome back
+    <div className="min-h-screen flex">
+      {/* Left Panel - Marketing/Branding */}
+      <div className="hidden lg:flex lg:w-1/2 bg-gray-50 dark:bg-gray-900 items-center justify-end pr-16 xl:pr-24">
+        <div className="max-w-md">
+          {/* Logo */}
+          <img
+            src={agentHubLogo}
+            alt="GraymatterLab Agent Hub"
+            className="h-28 w-auto mb-8 dark:invert -ml-4"
+          />
+
+          {/* Greeting */}
+          <p className="text-gray-500 dark:text-gray-400 text-lg mb-4">
+            {getGreeting()}
+          </p>
+
+          {/* Hero Headline */}
+          <h1 className="text-3xl xl:text-4xl font-bold text-gray-900 dark:text-white leading-tight mb-6">
+            Learn to Build{' '}
+            <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-500 to-cyan-500">
+              AI Agents
+            </span>
           </h1>
-          <p className="text-gray-500 dark:text-gray-400 mt-2">
-            Sign in to your ADK Platform account
+
+          {/* Value Proposition */}
+          <p className="text-gray-600 dark:text-gray-300 text-lg leading-relaxed">
+            Your hub for learning how to design, build, and deploy intelligent AI agents.
+            Explore workshops, guides, and resources to master agent development.
           </p>
         </div>
+      </div>
 
-        {/* Login Form */}
-        <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl p-8">
-          <form onSubmit={handleSubmit} className="space-y-6">
+      {/* Right Panel - Login Form */}
+      <div className="w-full lg:w-1/2 flex items-center justify-start pl-16 xl:pl-24 px-6 py-12 bg-white dark:bg-gray-800">
+        <div className="w-full max-w-sm">
+          {/* Mobile Logo - Only shown on smaller screens */}
+          <div className="lg:hidden mb-8">
+            <img
+              src={agentHubLogo}
+              alt="GraymatterLab Agent Hub"
+              className="h-12 mx-auto dark:invert"
+            />
+          </div>
+
+          {/* Header */}
+          <div className="mb-8">
+            <h2 className="text-2xl font-bold text-gray-900 dark:text-white">
+              Welcome back
+            </h2>
+            <p className="text-gray-500 dark:text-gray-400 mt-2">
+              Sign in to continue building
+            </p>
+          </div>
+
+          {/* Login Form */}
+          <form onSubmit={handleSubmit} className="space-y-5">
             {/* Tenant Error Message */}
             {tenantError && (
               <div className="bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 text-amber-700 dark:text-amber-400 px-4 py-3 rounded-lg text-sm">
@@ -90,12 +136,6 @@ export function LoginPage() {
 
             {/* Email Field */}
             <div>
-              <label
-                htmlFor="email"
-                className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
-              >
-                Email address
-              </label>
               <input
                 id="email"
                 type="email"
@@ -106,72 +146,52 @@ export function LoginPage() {
                 className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg
                          bg-white dark:bg-gray-700 text-gray-900 dark:text-white
                          placeholder-gray-400 dark:placeholder-gray-500
-                         focus:ring-2 focus:ring-primary-500 focus:border-transparent
+                         focus:ring-2 focus:ring-blue-500 focus:border-transparent
                          transition-colors"
-                placeholder="you@example.com"
+                placeholder="Email address"
               />
             </div>
 
             {/* Password Field */}
-            <div>
-              <label
-                htmlFor="password"
-                className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
+            <div className="relative">
+              <input
+                id="password"
+                type={showPassword ? 'text' : 'password'}
+                autoComplete="current-password"
+                required
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg
+                         bg-white dark:bg-gray-700 text-gray-900 dark:text-white
+                         placeholder-gray-400 dark:placeholder-gray-500
+                         focus:ring-2 focus:ring-blue-500 focus:border-transparent
+                         transition-colors pr-12"
+                placeholder="Password"
+              />
+              <button
+                type="button"
+                onClick={() => setShowPassword(!showPassword)}
+                aria-label={showPassword ? 'Hide password' : 'Show password'}
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
               >
-                Password
-              </label>
-              <div className="relative">
-                <input
-                  id="password"
-                  type={showPassword ? 'text' : 'password'}
-                  autoComplete="current-password"
-                  required
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg
-                           bg-white dark:bg-gray-700 text-gray-900 dark:text-white
-                           placeholder-gray-400 dark:placeholder-gray-500
-                           focus:ring-2 focus:ring-primary-500 focus:border-transparent
-                           transition-colors pr-12"
-                  placeholder="Enter your password"
-                />
-                <button
-                  type="button"
-                  onClick={() => setShowPassword(!showPassword)}
-                  aria-label={showPassword ? 'Hide password' : 'Show password'}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
-                >
-                  {showPassword ? (
-                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21" />
-                    </svg>
-                  ) : (
-                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
-                    </svg>
-                  )}
-                </button>
-              </div>
+                {showPassword ? (
+                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21" />
+                  </svg>
+                ) : (
+                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                  </svg>
+                )}
+              </button>
             </div>
 
-            {/* Remember Me & Forgot Password */}
-            <div className="flex items-center justify-between">
-              <label className="flex items-center">
-                <input
-                  type="checkbox"
-                  checked={rememberMe}
-                  onChange={(e) => setRememberMe(e.target.checked)}
-                  className="w-4 h-4 text-primary-600 border-gray-300 rounded
-                           focus:ring-primary-500 dark:border-gray-600 dark:bg-gray-700"
-                />
-                <span className="ml-2 text-sm text-gray-600 dark:text-gray-400">
-                  Remember me
-                </span>
-              </label>
+            {/* Forgot Password Link */}
+            <div className="text-right">
               <Link
                 to="/forgot-password"
-                className="text-sm font-medium text-primary-700 hover:text-primary-600 dark:text-primary-400"
+                className="text-sm text-blue-600 hover:text-blue-500 dark:text-blue-400 dark:hover:text-blue-300"
               >
                 Forgot password?
               </Link>
@@ -181,10 +201,12 @@ export function LoginPage() {
             <button
               type="submit"
               disabled={isLoading || tenantLoading || !!tenantError}
-              className="w-full py-3 px-4 bg-gradient-to-r from-primary-500 to-purple-600
-                       text-white font-medium rounded-lg shadow-lg
-                       hover:from-primary-600 hover:to-purple-700
-                       focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2
+              className="w-full py-3 px-4 bg-gradient-to-r from-gray-800 to-gray-900
+                       dark:from-gray-700 dark:to-gray-800
+                       text-white font-medium rounded-lg
+                       hover:from-gray-700 hover:to-gray-800
+                       dark:hover:from-gray-600 dark:hover:to-gray-700
+                       focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2
                        disabled:opacity-50 disabled:cursor-not-allowed
                        transition-all duration-200"
             >
@@ -197,51 +219,22 @@ export function LoginPage() {
                   Signing in...
                 </span>
               ) : (
-                'Sign in'
+                'Sign In'
               )}
             </button>
           </form>
 
-          {/* Divider */}
-          <div className="mt-6">
-            <div className="relative">
-              <div className="absolute inset-0 flex items-center">
-                <div className="w-full border-t border-gray-200 dark:border-gray-700" />
-              </div>
-              <div className="relative flex justify-center text-sm">
-                <span className="px-4 bg-white dark:bg-gray-800 text-gray-500 dark:text-gray-400">
-                  New to ADK Platform?
-                </span>
-              </div>
-            </div>
-          </div>
-
           {/* Register Link */}
-          <div className="mt-6">
+          <p className="mt-8 text-center text-gray-600 dark:text-gray-400">
+            New to GraymatterLab?{' '}
             <Link
               to="/register"
-              className="w-full flex justify-center py-3 px-4 border-2 border-gray-200 dark:border-gray-600
-                       text-gray-700 dark:text-gray-300 font-medium rounded-lg
-                       hover:bg-gray-50 dark:hover:bg-gray-700
-                       focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2
-                       transition-all duration-200"
+              className="text-blue-600 hover:text-blue-500 dark:text-blue-400 dark:hover:text-blue-300 font-medium"
             >
               Create an account
             </Link>
-          </div>
+          </p>
         </div>
-
-        {/* Footer */}
-        <p className="mt-8 text-center text-sm text-gray-500 dark:text-gray-400">
-          By signing in, you agree to our{' '}
-          <a href="#" className="text-primary-700 hover:text-primary-600 dark:text-primary-400">
-            Terms of Service
-          </a>{' '}
-          and{' '}
-          <a href="#" className="text-primary-700 hover:text-primary-600 dark:text-primary-400">
-            Privacy Policy
-          </a>
-        </p>
       </div>
     </div>
   )
