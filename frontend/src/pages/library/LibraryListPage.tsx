@@ -3,18 +3,73 @@
  * Main library page with filtering, search, and resource grid
  */
 
-import { useState, useMemo, useCallback } from 'react'
+import { useState, useMemo, useCallback, useEffect } from 'react'
+import { useSearchParams } from 'react-router-dom'
 import { LibraryResourceCard, LibraryFilters } from '@components/library'
 import { useLibraryResources } from '@hooks/useLibrary'
 import type { LibraryResourceType, LibraryTopic, LibraryDifficulty, LibraryResourceWithUserData } from '@/types/models'
 
+// Valid filter values for type checking URL params
+const VALID_TYPES: LibraryResourceType[] = ['article', 'video', 'pdf', 'tool', 'course', 'documentation']
+const VALID_TOPICS: LibraryTopic[] = [
+  'agent-fundamentals',
+  'prompt-engineering',
+  'multi-agent-systems',
+  'tools-integrations',
+  'deployment',
+  'best-practices',
+]
+const VALID_DIFFICULTIES: LibraryDifficulty[] = ['beginner', 'intermediate', 'advanced']
+
 export function LibraryListPage() {
-  // Filter state
-  const [selectedType, setSelectedType] = useState<LibraryResourceType | 'all'>('all')
-  const [selectedTopic, setSelectedTopic] = useState<LibraryTopic | 'all'>('all')
-  const [selectedDifficulty, setSelectedDifficulty] = useState<LibraryDifficulty | 'all'>('all')
-  const [searchQuery, setSearchQuery] = useState('')
-  const [showBookmarkedOnly, setShowBookmarkedOnly] = useState(false)
+  const [searchParams, setSearchParams] = useSearchParams()
+
+  // Initialize filter state from URL params
+  const getInitialType = (): LibraryResourceType | 'all' => {
+    const type = searchParams.get('type')
+    return type && VALID_TYPES.includes(type as LibraryResourceType)
+      ? (type as LibraryResourceType)
+      : 'all'
+  }
+
+  const getInitialTopic = (): LibraryTopic | 'all' => {
+    const topic = searchParams.get('topic')
+    return topic && VALID_TOPICS.includes(topic as LibraryTopic)
+      ? (topic as LibraryTopic)
+      : 'all'
+  }
+
+  const getInitialDifficulty = (): LibraryDifficulty | 'all' => {
+    const difficulty = searchParams.get('difficulty')
+    return difficulty && VALID_DIFFICULTIES.includes(difficulty as LibraryDifficulty)
+      ? (difficulty as LibraryDifficulty)
+      : 'all'
+  }
+
+  // Filter state - initialized from URL params
+  const [selectedType, setSelectedType] = useState<LibraryResourceType | 'all'>(getInitialType)
+  const [selectedTopic, setSelectedTopic] = useState<LibraryTopic | 'all'>(getInitialTopic)
+  const [selectedDifficulty, setSelectedDifficulty] = useState<LibraryDifficulty | 'all'>(getInitialDifficulty)
+  const [searchQuery, setSearchQuery] = useState(searchParams.get('search') || '')
+  const [showBookmarkedOnly, setShowBookmarkedOnly] = useState(searchParams.get('bookmarked') === 'true')
+
+  // Sync URL params when filters change
+  useEffect(() => {
+    const params = new URLSearchParams()
+
+    if (selectedType !== 'all') params.set('type', selectedType)
+    if (selectedTopic !== 'all') params.set('topic', selectedTopic)
+    if (selectedDifficulty !== 'all') params.set('difficulty', selectedDifficulty)
+    if (searchQuery) params.set('search', searchQuery)
+    if (showBookmarkedOnly) params.set('bookmarked', 'true')
+
+    // Only update if params actually changed to avoid unnecessary history entries
+    const currentParams = searchParams.toString()
+    const newParams = params.toString()
+    if (currentParams !== newParams) {
+      setSearchParams(params, { replace: true })
+    }
+  }, [selectedType, selectedTopic, selectedDifficulty, searchQuery, showBookmarkedOnly, searchParams, setSearchParams])
 
   // Fetch resources from API
   const { data: resources = [], isLoading, error } = useLibraryResources({
@@ -48,7 +103,7 @@ export function LibraryListPage() {
     return resources.filter((resource: LibraryResourceWithUserData) => resource.isFeatured)
   }, [resources, hasActiveFilters])
 
-  // Clear all filters
+  // Clear all filters (URL will be synced by the useEffect)
   const handleClearFilters = useCallback(() => {
     setSelectedType('all')
     setSelectedTopic('all')
