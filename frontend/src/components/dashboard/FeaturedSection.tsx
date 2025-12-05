@@ -1,12 +1,22 @@
 /**
  * Featured Section Component
  * Displays admin-curated featured resources in a horizontal scrollable layout
+ * Updated to match Agent Architect dashboard styling with NEW badges
  */
 
 import { Link } from 'react-router-dom'
 import { useFeaturedResources } from '@hooks/useLibrary'
 import { cn } from '@utils/cn'
 import type { LibraryResourceType } from '@/types/models'
+
+// Check if resource was created within the last 7 days
+function isNewResource(createdAt: string | undefined): boolean {
+  if (!createdAt) return false
+  const created = new Date(createdAt)
+  const now = new Date()
+  const diffDays = (now.getTime() - created.getTime()) / (1000 * 60 * 60 * 24)
+  return diffDays <= 7
+}
 
 // Icons for different resource types
 function getTypeIcon(type: LibraryResourceType) {
@@ -139,8 +149,16 @@ export function FeaturedSection({ className }: FeaturedSectionProps) {
       <div className="flex gap-4 overflow-x-auto pb-4 snap-x snap-mandatory scrollbar-thin scrollbar-thumb-gray-300 dark:scrollbar-thumb-gray-600 -mx-4 px-4 sm:mx-0 sm:px-0">
         {featuredResources.map((resource) => {
           const isExternal = resource.source === 'external'
+          const isNew = isNewResource(resource.createdAt)
           const cardContent = (
-            <div className="p-4 h-full flex flex-col">
+            <div className="p-5 h-full flex flex-col relative">
+              {/* NEW badge */}
+              {isNew && (
+                <span className="absolute top-3 right-3 px-2 py-0.5 text-xs font-semibold bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-400 rounded-full">
+                  NEW
+                </span>
+              )}
+
               {/* Type badge */}
               <div className="flex items-center gap-2 mb-3">
                 <div
@@ -185,6 +203,12 @@ export function FeaturedSection({ className }: FeaturedSectionProps) {
             </div>
           )
 
+          const cardClassName = cn(
+            'group flex-shrink-0 w-72 bg-white dark:bg-gray-800 rounded-xl',
+            'border border-gray-100 dark:border-gray-700 overflow-hidden',
+            'shadow-sm hover:shadow-md transition-all duration-200 snap-start'
+          )
+
           // External resources open in new tab
           if (isExternal && resource.externalUrl) {
             return (
@@ -193,7 +217,7 @@ export function FeaturedSection({ className }: FeaturedSectionProps) {
                 href={resource.externalUrl}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="group flex-shrink-0 w-64 bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 overflow-hidden hover:shadow-lg hover:border-primary-300 dark:hover:border-primary-700 transition-all duration-200 snap-start"
+                className={cardClassName}
               >
                 {cardContent}
               </a>
@@ -205,7 +229,7 @@ export function FeaturedSection({ className }: FeaturedSectionProps) {
             <Link
               key={resource.id}
               to={`/library/${resource.id}`}
-              className="group flex-shrink-0 w-64 bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 overflow-hidden hover:shadow-lg hover:border-primary-300 dark:hover:border-primary-700 transition-all duration-200 snap-start"
+              className={cardClassName}
             >
               {cardContent}
             </Link>

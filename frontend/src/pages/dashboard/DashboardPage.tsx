@@ -1,30 +1,24 @@
 /**
  * Dashboard Page
  * Main landing page for the AI Agent Knowledge Hub
- * Balanced content: Workshops (40%), Guides (30%), Library (30%)
+ * Redesigned to match Agent Architect dashboard styling
  */
 
 import { useMemo } from 'react'
 import {
-  AchievementsSection,
   ContentPillarCard,
   FeaturedSection,
+  NewsSection,
   NextStepsSection,
-  ProgressCard,
+  QuickActionsSection,
+  StatsCard,
   VisualBuilderStatus,
 } from '@components/dashboard'
 import { useWorkshops } from '@hooks/useWorkshops'
 import { useGuides } from '@hooks/useGuides'
 import { useLibraryResources, useUserBookmarks, useUserProgress } from '@hooks/useLibrary'
-import { Link } from 'react-router-dom'
 
 // Icons
-const ClockIcon = () => (
-  <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-  </svg>
-)
-
 const WorkshopIcon = () => (
   <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
@@ -43,14 +37,21 @@ const LibraryIcon = () => (
   </svg>
 )
 
+// Stats icons
+const BoltIcon = () => (
+  <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
+  </svg>
+)
+
 const BookmarkIcon = () => (
-  <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+  <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z" />
   </svg>
 )
 
-const TrophyIcon = () => (
-  <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+const SparklesIcon = () => (
+  <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z" />
   </svg>
 )
@@ -64,39 +65,17 @@ export function DashboardPage() {
   const { data: progressData } = useUserProgress()
 
   // Calculate counts
-  const workshopCount = workshopsData?.items?.length || 3 // Default to 3 if loading
+  const workshopCount = workshopsData?.items?.length || 3
   const guideCount = guides?.length || 4
   const libraryCount = libraryResources?.length || 50
   const bookmarkCount = bookmarks?.length || 0
 
-  // Calculate recent activity with enriched resource data
-  // Join progress data with library resources to get titles and topics
-  const recentlyViewedResources = useMemo(() => {
-    if (!progressData || !libraryResources) return []
-
-    // Create a map of resource_id -> resource for quick lookup
-    const resourceMap = new Map(libraryResources.map(r => [r.id, r]))
-
-    // Sort by last_viewed_at (most recent first) and enrich with resource data
-    return progressData
-      .filter(p => p.last_viewed_at) // Only include actually viewed items
-      .sort((a, b) => {
-        const dateA = a.last_viewed_at ? new Date(a.last_viewed_at).getTime() : 0
-        const dateB = b.last_viewed_at ? new Date(b.last_viewed_at).getTime() : 0
-        return dateB - dateA
-      })
-      .slice(0, 5)
-      .map(p => {
-        const resource = resourceMap.get(p.resource_id)
-        return {
-          id: p.id,
-          resourceId: p.resource_id,
-          title: resource?.title || 'Unknown Resource',
-          type: resource?.type,
-          href: `/library/${p.resource_id}`,
-        }
-      })
-  }, [progressData, libraryResources])
+  // Calculate workshops in progress (placeholder - would need real progress tracking)
+  const workshopsInProgress = useMemo(() => {
+    // For now, return a placeholder. In a real implementation,
+    // this would check user's workshop progress
+    return workshopsData?.items?.length ? Math.min(2, workshopsData.items.length) : 0
+  }, [workshopsData])
 
   // Count unique topics from resources the user has viewed
   const topicsExplored = useMemo(() => {
@@ -105,7 +84,6 @@ export function DashboardPage() {
     const resourceMap = new Map(libraryResources.map(r => [r.id, r]))
     const viewedResourceIds = new Set(progressData.map(p => p.resource_id))
 
-    // Collect all unique topics from viewed resources
     const uniqueTopics = new Set<string>()
     viewedResourceIds.forEach(resourceId => {
       const resource = resourceMap.get(resourceId)
@@ -149,16 +127,43 @@ export function DashboardPage() {
         Main content
       </a>
 
-      {/* Welcome Section with Search */}
+      {/* Welcome Section */}
       <section className="mb-8">
         <VisualBuilderStatus />
       </section>
 
-      {/* Achievements Section (conditional) */}
-      <AchievementsSection />
+      {/* Stats Row - 3 Metrics */}
+      <section className="mb-8" aria-label="Your progress">
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+          <StatsCard
+            icon={<BoltIcon />}
+            label="Workshops In Progress"
+            value={workshopsInProgress}
+            color="blue"
+          />
+          <StatsCard
+            icon={<BookmarkIcon />}
+            label="Resources Bookmarked"
+            value={bookmarkCount}
+            color="amber"
+          />
+          <StatsCard
+            icon={<SparklesIcon />}
+            label="Topics Explored"
+            value={topicsExplored}
+            color="green"
+          />
+        </div>
+      </section>
+
+      {/* Quick Actions + Platform Features */}
+      <QuickActionsSection />
 
       {/* Featured Resources Section */}
       <FeaturedSection />
+
+      {/* News Section */}
+      <NewsSection />
 
       {/* Explore & Learn - Three Pillar Grid */}
       <section className="mb-8" aria-labelledby="explore-heading">
@@ -172,7 +177,7 @@ export function DashboardPage() {
           Explore & Learn
         </h2>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          {/* Workshops - 40% priority */}
+          {/* Workshops */}
           <ContentPillarCard
             icon={<WorkshopIcon />}
             title="Workshops"
@@ -184,7 +189,7 @@ export function DashboardPage() {
             ctaLabel="Browse"
           />
 
-          {/* Guides - 30% priority */}
+          {/* Guides */}
           <ContentPillarCard
             icon={<GuideIcon />}
             title="Guides"
@@ -196,7 +201,7 @@ export function DashboardPage() {
             ctaLabel="View All"
           />
 
-          {/* Library - 30% priority */}
+          {/* Library */}
           <ContentPillarCard
             icon={<LibraryIcon />}
             title="Library"
@@ -206,74 +211,6 @@ export function DashboardPage() {
             previewItems={libraryPreviews}
             href="/library"
             ctaLabel="Explore"
-          />
-        </div>
-      </section>
-
-      {/* Continue Learning Section */}
-      <section className="mb-8" aria-labelledby="continue-heading">
-        <h2
-          id="continue-heading"
-          className="text-xl font-semibold text-gray-900 dark:text-white mb-4 flex items-center gap-2"
-        >
-          <svg className="w-5 h-5 text-primary-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
-          </svg>
-          Continue Learning
-        </h2>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          {/* Recently Viewed */}
-          <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-5">
-            <div className="flex items-center gap-3 mb-4">
-              <div className="w-10 h-10 bg-primary-100 dark:bg-primary-900/30 text-primary-600 dark:text-primary-400 rounded-lg flex items-center justify-center">
-                <ClockIcon />
-              </div>
-              <h3 className="font-semibold text-gray-900 dark:text-white">Recently Viewed</h3>
-            </div>
-            {recentlyViewedResources.length > 0 ? (
-              <ul className="space-y-2">
-                {recentlyViewedResources.slice(0, 3).map((item) => (
-                  <li key={item.id}>
-                    <Link
-                      to={item.href}
-                      className="text-sm text-gray-600 dark:text-gray-300 hover:text-primary-600 dark:hover:text-primary-400 truncate block"
-                    >
-                      <span className="w-1.5 h-1.5 rounded-full bg-primary-400 dark:bg-primary-500 inline-block mr-2" />
-                      {item.title}
-                    </Link>
-                  </li>
-                ))}
-              </ul>
-            ) : (
-              <p className="text-sm text-gray-500 dark:text-gray-400">
-                Start exploring to track your history
-              </p>
-            )}
-            <Link
-              to="/library"
-              className="mt-4 inline-flex items-center text-sm font-medium text-primary-600 dark:text-primary-400 hover:text-primary-700 dark:hover:text-primary-300"
-            >
-              Browse Library
-              <svg className="w-4 h-4 ml-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-              </svg>
-            </Link>
-          </div>
-
-          {/* Bookmarked */}
-          <ProgressCard
-            icon={<BookmarkIcon />}
-            title="Bookmarked"
-            value={bookmarkCount}
-            detail={bookmarkCount > 0 ? 'saved resources' : 'Bookmark resources to save them'}
-          />
-
-          {/* Your Activity */}
-          <ProgressCard
-            icon={<TrophyIcon />}
-            title="Your Activity"
-            value={topicsExplored}
-            detail={topicsExplored > 0 ? 'topics explored' : 'Start learning to track progress'}
           />
         </div>
       </section>

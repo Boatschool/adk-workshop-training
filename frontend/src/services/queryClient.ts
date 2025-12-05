@@ -98,4 +98,12 @@ export const queryKeys = {
       [...queryKeys.guides.all, 'list', { publishedOnly }] as const,
     detail: (slug: string) => [...queryKeys.guides.all, 'detail', slug] as const,
   },
+
+  // News queries
+  news: {
+    all: ['news'] as const,
+    list: (params?: { page?: number; pageSize?: number; featuredOnly?: boolean }) =>
+      [...queryKeys.news.all, 'list', params] as const,
+    detail: (id: string) => [...queryKeys.news.all, 'detail', id] as const,
+  },
 } as const
