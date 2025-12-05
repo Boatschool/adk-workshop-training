@@ -61,7 +61,7 @@ require_super_admin = require_role(UserRole.SUPER_ADMIN)
 # ============================================================================
 
 
-@router.get("/", response_model=list[LibraryResourceWithUserData])
+@router.get("", response_model=list[LibraryResourceWithUserData])
 async def list_library_resources(
     db: Annotated[AsyncSession, Depends(get_tenant_db_dependency)],
     current_user: Annotated[User, Depends(get_current_user)],
@@ -234,7 +234,7 @@ async def get_library_resource(
     }
 
 
-@router.post("/", response_model=LibraryResourceResponse, status_code=status.HTTP_201_CREATED)
+@router.post("", response_model=LibraryResourceResponse, status_code=status.HTTP_201_CREATED)
 async def create_library_resource(
     resource_data: LibraryResourceCreate,
     db: Annotated[AsyncSession, Depends(get_tenant_db_dependency)],

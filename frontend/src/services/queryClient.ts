@@ -98,4 +98,21 @@ export const queryKeys = {
       [...queryKeys.guides.all, 'list', { publishedOnly }] as const,
     detail: (slug: string) => [...queryKeys.guides.all, 'detail', slug] as const,
   },
+
+  // News queries
+  news: {
+    all: ['news'] as const,
+    list: (params?: { page?: number; pageSize?: number; featuredOnly?: boolean }) =>
+      [...queryKeys.news.all, 'list', params] as const,
+    detail: (id: string) => [...queryKeys.news.all, 'detail', id] as const,
+  },
+
+  // Announcements queries (What's New section)
+  announcements: {
+    all: ['announcements'] as const,
+    active: (limit?: number) => [...queryKeys.announcements.all, 'active', limit] as const,
+    list: (includeInactive?: boolean) =>
+      [...queryKeys.announcements.all, 'list', { includeInactive }] as const,
+    detail: (id: string) => [...queryKeys.announcements.all, 'detail', id] as const,
+  },
 } as const

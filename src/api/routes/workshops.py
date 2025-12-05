@@ -5,22 +5,21 @@ from typing import Annotated
 from fastapi import APIRouter, Depends, HTTPException, Query, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from src.api.dependencies import get_current_user, get_tenant_id, require_instructor
+from src.api.dependencies import get_current_user, get_tenant_db_dependency, get_tenant_id, require_instructor
 from src.api.schemas.workshop import WorkshopCreate, WorkshopResponse, WorkshopUpdate
 from src.core.exceptions import NotFoundError
 from src.core.tenancy import TenantContext
 from src.db.models.user import User
 from src.db.models.workshop import Workshop
-from src.db.session import get_db
 from src.services.workshop_service import WorkshopService
 
 router = APIRouter()
 
 
-@router.post("/", response_model=WorkshopResponse, status_code=status.HTTP_201_CREATED)
+@router.post("", response_model=WorkshopResponse, status_code=status.HTTP_201_CREATED)
 async def create_workshop(
     workshop_data: WorkshopCreate,
-    db: Annotated[AsyncSession, Depends(get_db)],
+    db: Annotated[AsyncSession, Depends(get_tenant_db_dependency)],
     current_user: Annotated[User, Depends(require_instructor)],
     tenant_id: Annotated[str, Depends(get_tenant_id)],
 ) -> Workshop:
@@ -47,7 +46,7 @@ async def create_workshop(
 @router.get("/{workshop_id}", response_model=WorkshopResponse)
 async def get_workshop(
     workshop_id: str,
-    db: Annotated[AsyncSession, Depends(get_db)],
+    db: Annotated[AsyncSession, Depends(get_tenant_db_dependency)],
     current_user: Annotated[User, Depends(get_current_user)],
     tenant_id: Annotated[str, Depends(get_tenant_id)],
 ) -> Workshop:
@@ -81,7 +80,7 @@ async def get_workshop(
 async def update_workshop(
     workshop_id: str,
     workshop_data: WorkshopUpdate,
-    db: Annotated[AsyncSession, Depends(get_db)],
+    db: Annotated[AsyncSession, Depends(get_tenant_db_dependency)],
     current_user: Annotated[User, Depends(require_instructor)],
     tenant_id: Annotated[str, Depends(get_tenant_id)],
 ) -> Workshop:
@@ -115,7 +114,7 @@ async def update_workshop(
 @router.delete("/{workshop_id}", status_code=status.HTTP_204_NO_CONTENT)
 async def delete_workshop(
     workshop_id: str,
-    db: Annotated[AsyncSession, Depends(get_db)],
+    db: Annotated[AsyncSession, Depends(get_tenant_db_dependency)],
     current_user: Annotated[User, Depends(require_instructor)],
     tenant_id: Annotated[str, Depends(get_tenant_id)],
 ) -> None:
@@ -141,9 +140,9 @@ async def delete_workshop(
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e)) from None
 
 
-@router.get("/", response_model=list[WorkshopResponse])
+@router.get("", response_model=list[WorkshopResponse])
 async def list_workshops(
-    db: Annotated[AsyncSession, Depends(get_db)],
+    db: Annotated[AsyncSession, Depends(get_tenant_db_dependency)],
     current_user: Annotated[User, Depends(get_current_user)],
     tenant_id: Annotated[str, Depends(get_tenant_id)],
     skip: Annotated[int, Query(ge=0)] = 0,

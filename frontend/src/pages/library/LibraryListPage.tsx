@@ -1,20 +1,107 @@
 /**
  * Library List Page
  * Main library page with filtering, search, and resource grid
+ *
+ * Filter state is derived from URL search params (single source of truth).
+ * This ensures browser history navigation and external URL changes work correctly.
  */
 
-import { useState, useMemo, useCallback } from 'react'
+import { useMemo, useCallback, useRef } from 'react'
+import { useSearchParams } from 'react-router-dom'
 import { LibraryResourceCard, LibraryFilters } from '@components/library'
 import { useLibraryResources } from '@hooks/useLibrary'
 import type { LibraryResourceType, LibraryTopic, LibraryDifficulty, LibraryResourceWithUserData } from '@/types/models'
 
+// Valid filter values for type checking URL params
+const VALID_TYPES: LibraryResourceType[] = ['article', 'video', 'pdf', 'tool', 'course', 'documentation']
+const VALID_TOPICS: LibraryTopic[] = [
+  'agent-fundamentals',
+  'prompt-engineering',
+  'multi-agent-systems',
+  'tools-integrations',
+  'deployment',
+  'best-practices',
+]
+const VALID_DIFFICULTIES: LibraryDifficulty[] = ['beginner', 'intermediate', 'advanced']
+
 export function LibraryListPage() {
-  // Filter state
-  const [selectedType, setSelectedType] = useState<LibraryResourceType | 'all'>('all')
-  const [selectedTopic, setSelectedTopic] = useState<LibraryTopic | 'all'>('all')
-  const [selectedDifficulty, setSelectedDifficulty] = useState<LibraryDifficulty | 'all'>('all')
-  const [searchQuery, setSearchQuery] = useState('')
-  const [showBookmarkedOnly, setShowBookmarkedOnly] = useState(false)
+  const [searchParams, setSearchParams] = useSearchParams()
+
+  // Derive filter state from URL params (URL is the source of truth)
+  const selectedType = useMemo((): LibraryResourceType | 'all' => {
+    const type = searchParams.get('type')
+    return type && VALID_TYPES.includes(type as LibraryResourceType)
+      ? (type as LibraryResourceType)
+      : 'all'
+  }, [searchParams])
+
+  const selectedTopic = useMemo((): LibraryTopic | 'all' => {
+    const topic = searchParams.get('topic')
+    return topic && VALID_TOPICS.includes(topic as LibraryTopic)
+      ? (topic as LibraryTopic)
+      : 'all'
+  }, [searchParams])
+
+  const selectedDifficulty = useMemo((): LibraryDifficulty | 'all' => {
+    const difficulty = searchParams.get('difficulty')
+    return difficulty && VALID_DIFFICULTIES.includes(difficulty as LibraryDifficulty)
+      ? (difficulty as LibraryDifficulty)
+      : 'all'
+  }, [searchParams])
+
+  const searchQuery = searchParams.get('search') || ''
+  const showBookmarkedOnly = searchParams.get('bookmarked') === 'true'
+
+  // Track if the last URL update was from search input
+  // Used to determine whether to push or replace history entries
+  const lastActionWasSearchRef = useRef(false)
+
+  // Helper to update URL params
+  const updateParams = useCallback((
+    updates: Record<string, string | null>,
+    options: { isSearchChange?: boolean } = {}
+  ) => {
+    const { isSearchChange = false } = options
+    const newParams = new URLSearchParams(searchParams)
+
+    Object.entries(updates).forEach(([key, value]) => {
+      if (value === null || value === '' || value === 'all') {
+        newParams.delete(key)
+      } else {
+        newParams.set(key, value)
+      }
+    })
+
+    // For search changes: replace only if the previous action was also a search change
+    // This avoids flooding history with keystrokes while preserving filter entries
+    // For discrete filter changes: always push to enable back/forward navigation
+    const shouldReplace = isSearchChange && lastActionWasSearchRef.current
+
+    setSearchParams(newParams, { replace: shouldReplace })
+    lastActionWasSearchRef.current = isSearchChange
+  }, [searchParams, setSearchParams])
+
+  // Filter setters that update URL params (discrete changes push to history)
+  const setSelectedType = useCallback((type: LibraryResourceType | 'all') => {
+    updateParams({ type: type === 'all' ? null : type })
+  }, [updateParams])
+
+  const setSelectedTopic = useCallback((topic: LibraryTopic | 'all') => {
+    updateParams({ topic: topic === 'all' ? null : topic })
+  }, [updateParams])
+
+  const setSelectedDifficulty = useCallback((difficulty: LibraryDifficulty | 'all') => {
+    updateParams({ difficulty: difficulty === 'all' ? null : difficulty })
+  }, [updateParams])
+
+  const setSearchQuery = useCallback((search: string) => {
+    // Mark as search change - will replace only if previous action was also search
+    updateParams({ search: search || null }, { isSearchChange: true })
+  }, [updateParams])
+
+  const setShowBookmarkedOnly = useCallback((bookmarked: boolean) => {
+    updateParams({ bookmarked: bookmarked ? 'true' : null })
+  }, [updateParams])
 
   // Fetch resources from API
   const { data: resources = [], isLoading, error } = useLibraryResources({
@@ -48,14 +135,10 @@ export function LibraryListPage() {
     return resources.filter((resource: LibraryResourceWithUserData) => resource.isFeatured)
   }, [resources, hasActiveFilters])
 
-  // Clear all filters
+  // Clear all filters by resetting URL params
   const handleClearFilters = useCallback(() => {
-    setSelectedType('all')
-    setSelectedTopic('all')
-    setSelectedDifficulty('all')
-    setSearchQuery('')
-    setShowBookmarkedOnly(false)
-  }, [])
+    setSearchParams(new URLSearchParams(), { replace: true })
+  }, [setSearchParams])
 
   // Loading state
   if (isLoading) {

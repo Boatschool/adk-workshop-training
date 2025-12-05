@@ -16,7 +16,7 @@ from src.services.tenant_service import TenantService
 router = APIRouter()
 
 
-@router.post("/", response_model=TenantResponse, status_code=status.HTTP_201_CREATED)
+@router.post("", response_model=TenantResponse, status_code=status.HTTP_201_CREATED)
 async def create_tenant(
     tenant_data: TenantCreate,
     db: Annotated[AsyncSession, Depends(get_db)],
@@ -135,7 +135,7 @@ async def update_tenant(
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e)) from None
 
 
-@router.get("/", response_model=list[TenantResponse])
+@router.get("", response_model=list[TenantResponse])
 async def list_tenants(
     db: Annotated[AsyncSession, Depends(get_db)],
     current_user: Annotated[User, Depends(require_admin)],
