@@ -19,6 +19,7 @@ import { WorkshopsPage, WorkshopDetailPage } from '@pages/workshops'
 import { ExercisePage } from '@pages/exercises'
 import { GuidePage, GuidesListPage } from '@pages/guides'
 import { LibraryListPage, LibraryResourcePage } from '@pages/library'
+import { NewsListPage, NewsDetailPage } from '@pages/news'
 import { ExamplePage } from '@pages/examples'
 import { AdminPage, AdminUsersPage, AdminTenantsPage, AdminLibraryPage, AdminGuidesPage } from '@pages/admin'
 import { SettingsPage } from '@pages/profile'
@@ -158,6 +159,28 @@ function App() {
                     <ProtectedRoute>
                       <RootLayout>
                         <LibraryResourcePage />
+                      </RootLayout>
+                    </ProtectedRoute>
+                  }
+                />
+
+                {/* News */}
+                <Route
+                  path="/news"
+                  element={
+                    <ProtectedRoute>
+                      <RootLayout>
+                        <NewsListPage />
+                      </RootLayout>
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="/news/:id"
+                  element={
+                    <ProtectedRoute>
+                      <RootLayout>
+                        <NewsDetailPage />
                       </RootLayout>
                     </ProtectedRoute>
                   }

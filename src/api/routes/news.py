@@ -14,7 +14,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.api.dependencies import (
     get_shared_db_dependency,
-    require_role,
+    require_admin,
 )
 from src.api.schemas.news import (
     NewsCreate,
@@ -23,15 +23,11 @@ from src.api.schemas.news import (
     NewsResponse,
     NewsUpdate,
 )
-from src.core.constants import UserRole
 from src.core.exceptions import NotFoundError
 from src.db.models.user import User
 from src.services.news_service import NewsService
 
 router = APIRouter()
-
-# Dependency for admin access (tenant_admin or super_admin)
-require_admin = require_role(UserRole.TENANT_ADMIN)
 
 
 # ============================================================================
