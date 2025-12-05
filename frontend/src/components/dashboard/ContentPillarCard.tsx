@@ -8,6 +8,7 @@ import { Link } from 'react-router-dom'
 import { cn } from '@utils/cn'
 
 interface PreviewItem {
+  id?: string  // Optional unique identifier
   title: string
   href: string
 }
@@ -66,8 +67,8 @@ export function ContentPillarCard({
       {/* Preview Items */}
       <div className="flex-1 px-5 py-4">
         <ul className="space-y-3">
-          {previewItems.slice(0, 3).map((item) => (
-            <li key={item.href}>
+          {previewItems.slice(0, 3).map((item, index) => (
+            <li key={item.id || `${item.href}-${index}`}>
               <Link
                 to={item.href}
                 className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-300 hover:text-primary-600 dark:hover:text-primary-400 transition-colors group"

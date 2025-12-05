@@ -65,7 +65,7 @@ function App() {
       <ThemeProvider>
         <AuthProvider>
           <TenantProvider>
-            <BrowserRouter>
+            <BrowserRouter future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
               <Routes>
                 {/* Public auth routes (no layout) */}
                 <Route path="/login" element={<LoginPage />} />

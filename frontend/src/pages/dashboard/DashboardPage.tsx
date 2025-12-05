@@ -97,27 +97,29 @@ export function DashboardPage() {
 
   // Get preview items for each pillar
   const workshopPreviews = workshopsData?.items?.slice(0, 3).map(w => ({
+    id: w.id,
     title: w.title,
     href: `/workshops/${w.id}`,
   })) || [
-    { title: 'ADK Fundamentals', href: '/workshops' },
-    { title: 'Building with Tools', href: '/workshops' },
-    { title: 'Multi-Agent Systems', href: '/workshops' },
+    { id: 'placeholder-1', title: 'ADK Fundamentals', href: '/workshops' },
+    { id: 'placeholder-2', title: 'Building with Tools', href: '/workshops' },
+    { id: 'placeholder-3', title: 'Multi-Agent Systems', href: '/workshops' },
   ]
 
   const guidePreviews = guides?.slice(0, 3).map(g => ({
+    id: g.id,
     title: g.title,
     href: `/guides/${g.slug}`,
   })) || [
-    { title: 'Getting Started', href: '/guides' },
-    { title: 'Visual Builder Guide', href: '/guides' },
-    { title: 'Troubleshooting', href: '/guides' },
+    { id: 'placeholder-1', title: 'Getting Started', href: '/guides' },
+    { id: 'placeholder-2', title: 'Visual Builder Guide', href: '/guides' },
+    { id: 'placeholder-3', title: 'Troubleshooting', href: '/guides' },
   ]
 
   const libraryPreviews = [
-    { title: 'Agent Architecture Patterns', href: '/library' },
-    { title: 'Prompt Engineering Guide', href: '/library' },
-    { title: 'Tool Integration Docs', href: '/library' },
+    { id: 'placeholder-1', title: 'Agent Architecture Patterns', href: '/library' },
+    { id: 'placeholder-2', title: 'Prompt Engineering Guide', href: '/library' },
+    { id: 'placeholder-3', title: 'Tool Integration Docs', href: '/library' },
   ]
 
   return (
