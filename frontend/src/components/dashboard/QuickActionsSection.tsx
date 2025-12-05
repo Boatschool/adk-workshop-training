@@ -1,11 +1,12 @@
 /**
  * Quick Actions Section Component
- * Two-column layout with Quick Actions buttons and Platform Features checklist
+ * Two-column layout with Quick Actions buttons and What's New section
  * Matches Agent Architect dashboard styling
  */
 
 import { Link } from 'react-router-dom'
 import { cn } from '@utils/cn'
+import { WhatsNewSection } from './WhatsNewSection'
 
 // Icons
 const PlusIcon = () => (
@@ -20,30 +21,9 @@ const LibraryIcon = () => (
   </svg>
 )
 
-const CheckCircleIcon = () => (
-  <svg className="w-5 h-5 text-green-500" fill="currentColor" viewBox="0 0 20 20">
-    <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
-  </svg>
-)
-
 interface QuickActionsSectionProps {
   className?: string
 }
-
-const platformFeatures = [
-  {
-    title: 'AI-Powered Learning',
-    description: 'Interactive workshops with guided AI agent development',
-  },
-  {
-    title: 'Healthcare Focus',
-    description: 'Content tailored for clinical and life sciences workflows',
-  },
-  {
-    title: 'Google Cloud Integration',
-    description: 'Deploy to Vertex AI Agent Engine with best practices',
-  },
-]
 
 export function QuickActionsSection({ className }: QuickActionsSectionProps) {
   return (
@@ -81,29 +61,8 @@ export function QuickActionsSection({ className }: QuickActionsSectionProps) {
           </div>
         </div>
 
-        {/* Platform Features - Right Column */}
-        <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-100 dark:border-gray-700 p-6 shadow-sm">
-          <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
-            Platform Features
-          </h2>
-          <ul className="space-y-4">
-            {platformFeatures.map((feature) => (
-              <li key={feature.title} className="flex items-start gap-3">
-                <div className="flex-shrink-0 mt-0.5">
-                  <CheckCircleIcon />
-                </div>
-                <div>
-                  <p className="font-medium text-gray-900 dark:text-white">
-                    {feature.title}
-                  </p>
-                  <p className="text-sm text-gray-500 dark:text-gray-400">
-                    {feature.description}
-                  </p>
-                </div>
-              </li>
-            ))}
-          </ul>
-        </div>
+        {/* What's New - Right Column */}
+        <WhatsNewSection />
       </div>
     </section>
   )

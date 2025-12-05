@@ -16,3 +16,4 @@ export {
 export { LibraryResourceForm } from './LibraryResourceForm'
 export { GuideForm } from './GuideForm'
 export { FileUpload, type FileUploadProps } from './FileUpload'
+export { AnnouncementForm } from './AnnouncementForm'

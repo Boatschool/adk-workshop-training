@@ -12,6 +12,7 @@ from src.api.middleware.tenant import TenantMiddleware
 from src.api.routes import (
     admin,
     agents,
+    announcements,
     auth,
     exercises,
     guides,
@@ -80,6 +81,7 @@ app.include_router(agents.router, prefix="/api/v1/agents", tags=["agents"])
 app.include_router(library.router, prefix="/api/v1/library", tags=["library"])
 app.include_router(guides.router, prefix="/api/v1/guides", tags=["guides"])
 app.include_router(news.router, prefix="/api/v1/news", tags=["news"])
+app.include_router(announcements.router, prefix="/api/v1/announcements", tags=["announcements"])
 app.include_router(admin.router, prefix="/api/v1/admin", tags=["admin"])
 
 

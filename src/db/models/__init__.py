@@ -1,6 +1,7 @@
 """Database models"""
 
 from src.db.models.agent import Agent
+from src.db.models.announcement import Announcement
 from src.db.models.guide import Guide
 from src.db.models.library import LibraryResource, ResourceProgress, UserBookmark
 from src.db.models.news import News
@@ -12,6 +13,7 @@ from src.db.models.workshop import Exercise, Progress, Workshop
 
 __all__ = [
     "Agent",
+    "Announcement",
     "Guide",
     "LibraryResource",
     "News",
