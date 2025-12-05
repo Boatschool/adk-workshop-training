@@ -36,7 +36,7 @@ require_super_admin = require_role(UserRole.SUPER_ADMIN)
 # ============================================================================
 
 
-@router.get("/", response_model=list[GuideListItem])
+@router.get("", response_model=list[GuideListItem])
 async def list_guides(
     db: Annotated[AsyncSession, Depends(get_shared_db_dependency)],
     published_only: bool = True,
@@ -128,7 +128,7 @@ async def get_guide(
 # ============================================================================
 
 
-@router.post("/", response_model=GuideResponse, status_code=status.HTTP_201_CREATED)
+@router.post("", response_model=GuideResponse, status_code=status.HTTP_201_CREATED)
 async def create_guide(
     guide_data: GuideCreate,
     db: Annotated[AsyncSession, Depends(get_shared_db_dependency)],

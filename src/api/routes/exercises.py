@@ -17,7 +17,7 @@ from src.services.exercise_service import ExerciseService
 router = APIRouter()
 
 
-@router.post("/", response_model=ExerciseResponse, status_code=status.HTTP_201_CREATED)
+@router.post("", response_model=ExerciseResponse, status_code=status.HTTP_201_CREATED)
 async def create_exercise(
     exercise_data: ExerciseCreate,
     db: Annotated[AsyncSession, Depends(get_db)],
@@ -141,7 +141,7 @@ async def delete_exercise(
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e)) from None
 
 
-@router.get("/", response_model=list[ExerciseResponse])
+@router.get("", response_model=list[ExerciseResponse])
 async def list_exercises(
     db: Annotated[AsyncSession, Depends(get_db)],
     current_user: Annotated[User, Depends(get_current_user)],

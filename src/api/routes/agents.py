@@ -38,7 +38,7 @@ from src.services.agent_service import AgentService
 router = APIRouter()
 
 
-@router.post("/", response_model=AgentResponse, status_code=status.HTTP_201_CREATED)
+@router.post("", response_model=AgentResponse, status_code=status.HTTP_201_CREATED)
 async def create_agent(
     agent_data: AgentCreate,
     db: Annotated[AsyncSession, Depends(get_db)],
@@ -200,7 +200,7 @@ async def delete_agent(
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e)) from None
 
 
-@router.get("/", response_model=list[AgentResponse])
+@router.get("", response_model=list[AgentResponse])
 async def list_agents(
     db: Annotated[AsyncSession, Depends(get_db)],
     current_user: Annotated[User, Depends(get_current_user)],

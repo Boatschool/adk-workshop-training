@@ -35,7 +35,7 @@ router = APIRouter()
 # ============================================================================
 
 
-@router.get("/", response_model=NewsListResponse)
+@router.get("", response_model=NewsListResponse)
 async def list_news(
     db: Annotated[AsyncSession, Depends(get_shared_db_dependency)],
     page: int = Query(1, ge=1, description="Page number"),
@@ -149,7 +149,7 @@ async def get_news(
 # ============================================================================
 
 
-@router.post("/", response_model=NewsResponse, status_code=status.HTTP_201_CREATED)
+@router.post("", response_model=NewsResponse, status_code=status.HTTP_201_CREATED)
 async def create_news(
     news_data: NewsCreate,
     db: Annotated[AsyncSession, Depends(get_shared_db_dependency)],

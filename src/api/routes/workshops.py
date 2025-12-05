@@ -17,7 +17,7 @@ from src.services.workshop_service import WorkshopService
 router = APIRouter()
 
 
-@router.post("/", response_model=WorkshopResponse, status_code=status.HTTP_201_CREATED)
+@router.post("", response_model=WorkshopResponse, status_code=status.HTTP_201_CREATED)
 async def create_workshop(
     workshop_data: WorkshopCreate,
     db: Annotated[AsyncSession, Depends(get_db)],
@@ -141,7 +141,7 @@ async def delete_workshop(
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e)) from None
 
 
-@router.get("/", response_model=list[WorkshopResponse])
+@router.get("", response_model=list[WorkshopResponse])
 async def list_workshops(
     db: Annotated[AsyncSession, Depends(get_db)],
     current_user: Annotated[User, Depends(get_current_user)],

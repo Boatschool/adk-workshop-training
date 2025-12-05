@@ -80,7 +80,7 @@ async def get_active_announcements(
 # ============================================================================
 
 
-@router.get("/", response_model=AnnouncementListResponse)
+@router.get("", response_model=AnnouncementListResponse)
 async def list_announcements(
     db: Annotated[AsyncSession, Depends(get_shared_db_dependency)],
     _current_user: Annotated[User, Depends(require_admin)],
@@ -175,7 +175,7 @@ async def get_announcement(
     )
 
 
-@router.post("/", response_model=AnnouncementResponse, status_code=status.HTTP_201_CREATED)
+@router.post("", response_model=AnnouncementResponse, status_code=status.HTTP_201_CREATED)
 async def create_announcement(
     data: AnnouncementCreate,
     db: Annotated[AsyncSession, Depends(get_shared_db_dependency)],
