@@ -86,7 +86,7 @@ export async function getLibraryResources(
     if (params.progressStatus) apiParams.progress_status = params.progressStatus
   }
 
-  const resources = await apiGet<ApiLibraryResource[]>('/library/', apiParams)
+  const resources = await apiGet<ApiLibraryResource[]>('/library', apiParams)
   return resources.map(transformResource)
 }
 
@@ -205,7 +205,7 @@ export interface CreateLibraryResourceData {
 export async function createLibraryResource(
   data: CreateLibraryResourceData
 ): Promise<LibraryResourceWithUserData> {
-  const resource = await apiPost<ApiLibraryResource>('/library/', data)
+  const resource = await apiPost<ApiLibraryResource>('/library', data)
   return transformResource(resource)
 }
 

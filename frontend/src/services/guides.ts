@@ -45,7 +45,7 @@ function transformGuide(guide: ApiGuide): Guide {
  * Get all published guides
  */
 export async function getGuides(publishedOnly = true): Promise<GuideListItem[]> {
-  const guides = await apiGet<ApiGuideListItem[]>('/guides/', {
+  const guides = await apiGet<ApiGuideListItem[]>('/guides', {
     published_only: publishedOnly,
   })
   return guides.map(transformGuideListItem)
@@ -77,7 +77,7 @@ export interface CreateGuideData {
 }
 
 export async function createGuide(data: CreateGuideData): Promise<Guide> {
-  const guide = await apiPost<ApiGuide>('/guides/', data)
+  const guide = await apiPost<ApiGuide>('/guides', data)
   return transformGuide(guide)
 }
 

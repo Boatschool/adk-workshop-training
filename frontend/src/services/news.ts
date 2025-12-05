@@ -107,7 +107,7 @@ export async function getNewsList(
   pageSize = 10,
   featuredOnly = false
 ): Promise<NewsListResponse> {
-  const response = await apiGet<ApiNewsListResponse>('/news/', {
+  const response = await apiGet<ApiNewsListResponse>('/news', {
     page,
     page_size: pageSize,
     featured_only: featuredOnly,
@@ -151,7 +151,7 @@ export interface CreateNewsData {
 }
 
 export async function createNews(data: CreateNewsData): Promise<NewsDetail> {
-  const news = await apiPost<ApiNewsDetail>('/news/', data)
+  const news = await apiPost<ApiNewsDetail>('/news', data)
   return transformNewsDetail(news)
 }
 
