@@ -115,4 +115,15 @@ export const queryKeys = {
       [...queryKeys.announcements.all, 'list', { includeInactive }] as const,
     detail: (id: string) => [...queryKeys.announcements.all, 'detail', id] as const,
   },
+
+  // Template queries (Agent Templates)
+  templates: {
+    all: ['templates'] as const,
+    list: (params?: Record<string, unknown>) =>
+      [...queryKeys.templates.all, 'list', params] as const,
+    detail: (id: string) => [...queryKeys.templates.all, 'detail', id] as const,
+    featured: (limit?: number) => [...queryKeys.templates.all, 'featured', limit] as const,
+    pending: () => [...queryKeys.templates.all, 'pending'] as const,
+    myTemplates: () => [...queryKeys.templates.all, 'my'] as const,
+  },
 } as const

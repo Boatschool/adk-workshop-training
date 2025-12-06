@@ -11,12 +11,14 @@ import { useTheme } from '@contexts/ThemeContext'
 import { useUIStore } from '@stores/uiStore'
 import { useUserSettings } from '@hooks/useUserSettings'
 import { cn } from '@utils/cn'
+import logoImage from '@assets/graymatterlab_agent_hub.png'
 
 const navLinks = [
   { name: 'Dashboard', path: '/', external: false },
   { name: 'Workshops', path: '/workshops', external: false },
   { name: 'Guides', path: '/guides', external: false },
   { name: 'Library', path: '/library', external: false },
+  { name: 'Templates', path: '/templates', external: false },
 ]
 
 // GraymatterStudio - Production agent platform (stub URL for now)
@@ -114,14 +116,11 @@ export function Header() {
           {/* Logo */}
           <div className="flex items-center">
             <Link to="/" className="flex items-center">
-              <div className="flex flex-col">
-                <span className="text-lg font-bold text-gray-900 dark:text-white leading-tight">
-                  GraymatterLab
-                </span>
-                <span className="text-xs text-gray-500 dark:text-gray-400">
-                  Agent Hub
-                </span>
-              </div>
+              <img
+                src={logoImage}
+                alt="GraymatterLab Agent Hub"
+                className="h-12 w-auto"
+              />
             </Link>
           </div>
 

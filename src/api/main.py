@@ -20,6 +20,7 @@ from src.api.routes import (
     library,
     news,
     progress,
+    templates,
     tenants,
     users,
     workshops,
@@ -82,6 +83,7 @@ app.include_router(library.router, prefix="/api/v1/library", tags=["library"])
 app.include_router(guides.router, prefix="/api/v1/guides", tags=["guides"])
 app.include_router(news.router, prefix="/api/v1/news", tags=["news"])
 app.include_router(announcements.router, prefix="/api/v1/announcements", tags=["announcements"])
+app.include_router(templates.router, prefix="/api/v1/templates", tags=["templates"])
 app.include_router(admin.router, prefix="/api/v1/admin", tags=["admin"])
 
 

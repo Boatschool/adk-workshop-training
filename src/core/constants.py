@@ -103,5 +103,35 @@ class GuideIcon(str, Enum):
     PLAY = "play"
 
 
+class TemplateStatus(str, Enum):
+    """Agent template submission statuses"""
+
+    DRAFT = "draft"
+    PENDING_REVIEW = "pending_review"
+    APPROVED = "approved"
+    REJECTED = "rejected"
+
+
+class TemplateCategory(str, Enum):
+    """Agent template categories"""
+
+    HR = "hr"
+    SCHEDULING = "scheduling"
+    FAQ = "faq"
+    CUSTOMER_SERVICE = "customer-service"
+    DATA_ENTRY = "data-entry"
+    WORKFLOW = "workflow"
+    HEALTHCARE = "healthcare"
+    OTHER = "other"
+
+
+class TemplateDifficulty(str, Enum):
+    """Agent template difficulty levels"""
+
+    BEGINNER = "beginner"
+    INTERMEDIATE = "intermediate"
+    ADVANCED = "advanced"
+
+
 # Shared schema name for multi-tenant architecture
 SHARED_SCHEMA = "adk_platform_shared"

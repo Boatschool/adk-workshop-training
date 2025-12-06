@@ -215,6 +215,22 @@ async def create_tenant_schema_and_tables(db: AsyncSession, schema_name: str) ->
         )
     )
 
+    # Create template_bookmarks table (for agent templates)
+    await db.execute(
+        text(
+            f"""
+        CREATE TABLE {schema_name}.template_bookmarks (
+            id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+            user_id UUID NOT NULL REFERENCES {schema_name}.users(id) ON DELETE CASCADE,
+            template_id UUID NOT NULL,
+            created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+            updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+            UNIQUE(user_id, template_id)
+        )
+        """
+        )
+    )
+
     # Create updated_at trigger function (if it doesn't exist)
     await db.execute(
         text(
@@ -241,6 +257,7 @@ async def create_tenant_schema_and_tables(db: AsyncSession, schema_name: str) ->
         "agents",
         "user_bookmarks",
         "resource_progress",
+        "template_bookmarks",
     ]:
         await db.execute(
             text(

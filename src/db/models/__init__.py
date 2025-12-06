@@ -1,6 +1,7 @@
 """Database models"""
 
 from src.db.models.agent import Agent
+from src.db.models.agent_template import AgentTemplate, TemplateBookmark
 from src.db.models.announcement import Announcement
 from src.db.models.guide import Guide
 from src.db.models.library import LibraryResource, ResourceProgress, UserBookmark
@@ -13,6 +14,7 @@ from src.db.models.workshop import Exercise, Progress, Workshop
 
 __all__ = [
     "Agent",
+    "AgentTemplate",
     "Announcement",
     "Guide",
     "LibraryResource",
@@ -20,6 +22,7 @@ __all__ = [
     "PasswordResetToken",
     "RefreshToken",
     "ResourceProgress",
+    "TemplateBookmark",
     "Tenant",
     "User",
     "UserBookmark",
