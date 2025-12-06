@@ -20,6 +20,7 @@ import { ExercisePage } from '@pages/exercises'
 import { GuidePage, GuidesListPage } from '@pages/guides'
 import { LibraryListPage, LibraryResourcePage } from '@pages/library'
 import { NewsListPage, NewsDetailPage } from '@pages/news'
+import { TemplateLibraryPage, TemplateDetailPage } from '@pages/templates'
 import { ExamplePage } from '@pages/examples'
 import { AdminPage, AdminUsersPage, AdminTenantsPage, AdminLibraryPage, AdminGuidesPage } from '@pages/admin'
 import { SettingsPage } from '@pages/profile'
@@ -159,6 +160,28 @@ function App() {
                     <ProtectedRoute>
                       <RootLayout>
                         <LibraryResourcePage />
+                      </RootLayout>
+                    </ProtectedRoute>
+                  }
+                />
+
+                {/* Templates */}
+                <Route
+                  path="/templates"
+                  element={
+                    <ProtectedRoute>
+                      <RootLayout>
+                        <TemplateLibraryPage />
+                      </RootLayout>
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="/templates/:id"
+                  element={
+                    <ProtectedRoute>
+                      <RootLayout>
+                        <TemplateDetailPage />
                       </RootLayout>
                     </ProtectedRoute>
                   }

@@ -390,3 +390,155 @@ export interface ApiGuideListItem {
 export interface ApiGuide extends ApiGuideListItem {
   content_html: string
 }
+
+/**
+ * Agent Template Types (for Template Library)
+ */
+export type TemplateStatus = 'draft' | 'pending_review' | 'approved' | 'rejected'
+
+export type TemplateCategory =
+  | 'hr'
+  | 'scheduling'
+  | 'faq'
+  | 'customer-service'
+  | 'data-entry'
+  | 'workflow'
+  | 'healthcare'
+  | 'other'
+
+export type TemplateDifficulty = 'beginner' | 'intermediate' | 'advanced'
+
+/**
+ * Agent Template model (for sharing YAML templates)
+ */
+export interface AgentTemplateItem {
+  id: string
+  name: string
+  description: string
+  category: TemplateCategory
+  difficulty: TemplateDifficulty
+  tags: string[]
+  authorName: string
+  status: TemplateStatus
+  featured: boolean
+  downloadCount: number
+  model: string | null
+  hasTools: boolean
+  hasSubAgents: boolean
+  thumbnailUrl: string | null
+  createdAt: string
+}
+
+export interface AgentTemplateDetail extends AgentTemplateItem {
+  yamlContent: string
+  useCase: string | null
+  authorId: string | null
+  rejectionReason: string | null
+  approvedBy: string | null
+  approvedAt: string | null
+  updatedAt: string
+}
+
+export interface AgentTemplateWithUserData extends AgentTemplateDetail {
+  isBookmarked: boolean
+}
+
+/**
+ * Template query parameters
+ */
+export interface TemplateQueryParams {
+  skip?: number
+  limit?: number
+  search?: string
+  category?: TemplateCategory
+  difficulty?: TemplateDifficulty
+  featured?: boolean
+  hasTools?: boolean
+  hasSubAgents?: boolean
+  status?: TemplateStatus
+}
+
+/**
+ * Template create/update data
+ */
+export interface TemplateCreateData {
+  name: string
+  description: string
+  yamlContent: string
+  category: TemplateCategory
+  difficulty: TemplateDifficulty
+  useCase?: string
+  tags?: string[]
+  thumbnailUrl?: string
+}
+
+export interface TemplateUpdateData {
+  name?: string
+  description?: string
+  yamlContent?: string
+  category?: TemplateCategory
+  difficulty?: TemplateDifficulty
+  useCase?: string
+  tags?: string[]
+  thumbnailUrl?: string
+}
+
+/**
+ * Template bookmark status
+ */
+export interface TemplateBookmarkStatus {
+  isBookmarked: boolean
+  bookmarkedAt: string | null
+}
+
+/**
+ * Template download response
+ */
+export interface TemplateDownloadResponse {
+  filename: string
+  content: string
+  contentType: string
+}
+
+/**
+ * Template statistics (admin)
+ */
+export interface TemplateStats {
+  totalTemplates: number
+  approvedTemplates: number
+  pendingTemplates: number
+  totalDownloads: number
+  templatesByCategory: Record<string, number>
+  templatesByDifficulty: Record<string, number>
+}
+
+/**
+ * API Response types for templates (snake_case from backend)
+ */
+export interface ApiAgentTemplateItem {
+  id: string
+  name: string
+  description: string
+  category: string
+  difficulty: string
+  tags: string[]
+  author_name: string
+  status: string
+  featured: boolean
+  download_count: number
+  model: string | null
+  has_tools: boolean
+  has_sub_agents: boolean
+  thumbnail_url: string | null
+  created_at: string
+}
+
+export interface ApiAgentTemplateDetail extends ApiAgentTemplateItem {
+  yaml_content: string
+  use_case: string | null
+  author_id: string | null
+  rejection_reason: string | null
+  approved_by: string | null
+  approved_at: string | null
+  updated_at: string
+}
